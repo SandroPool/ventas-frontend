@@ -56,6 +56,8 @@ const Login = () => {
                     <InputFuturistic
                         label="Correo"
                         placeholder="Correo"
+                        name="email"
+                        autoComplete="email"
                         type="email"
                         value={email}
                         onChange={handleEmailChange}
@@ -70,6 +72,8 @@ const Login = () => {
                         <InputFuturistic
                             label="Contraseña"
                             placeholder="Contraseña"
+                            name="password"
+                            autoComplete="current-password"
                             type={showPassword ? "text" : "password"}
                             value={password}
                             onChange={handlePasswordChange}

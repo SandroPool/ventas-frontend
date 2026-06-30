@@ -81,19 +81,19 @@ const ProductAutocomplete = ({ onSelect }: { onSelect: (product: Product) => voi
             </div>
 
             {showDropdown && (
-                <ul className="absolute w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 
+                <ul className="absolute w-full bg-white dark:bg-dark-base border border-gray-300 dark:border-dark-border 
                     rounded-md mt-1 max-h-48 overflow-y-auto shadow-xl z-50 
                     backdrop-blur-xl bg-opacity-95 dark:bg-opacity-80">
                     {loading ? (
-                        <li className="p-3 text-gray-500 dark:text-gray-400 animate-pulse">Cargando...</li>
+                        <li className="p-3 text-gray-500 dark:text-dark-muted animate-pulse">Cargando...</li>
                     ) : products.length > 0 ? (
                         products.map((product, index) => (
                             <li
                                 key={product.id_product}
-                                className={`p-3 cursor-pointer transition-all duration-300 text-gray-900 dark:text-gray-200 
+                                className={`p-3 cursor-pointer transition-all duration-300 text-gray-900 dark:text-dark-secondary 
                                     ${selectedIndex === index
-                                        ? "bg-gradient-to-r from-blue-600 to-purple-500 text-white dark:from-blue-500 dark:to-purple-400"
-                                        : "hover:bg-blue-200 hover:text-gray-900 dark:hover:bg-blue-700 dark:hover:text-white"
+                                        ? "bg-gradient-to-r bg-teal-500 text-white dark:bg-dark-elevated dark:text-dark-primary"
+                                        : "hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-dark-elevated dark:hover:text-dark-primary"
                                     }`}
                                 onClick={() => handleSelect(product)}
                                 onMouseEnter={() => setSelectedIndex(index)}
@@ -102,7 +102,7 @@ const ProductAutocomplete = ({ onSelect }: { onSelect: (product: Product) => voi
                             </li>
                         ))
                     ) : (
-                        <li className="p-3 text-gray-500 dark:text-gray-400">No se encontraron productos</li>
+                        <li className="p-3 text-gray-500 dark:text-dark-muted">No se encontraron productos</li>
                     )}
                 </ul>
             )}

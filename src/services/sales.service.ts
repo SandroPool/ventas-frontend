@@ -15,6 +15,7 @@ export interface Sale {
     operation_number: string;
     date: string;
     total?: number;
+    status?: string;
     customer: Customer;
     details: SaleDetail[];
 }

@@ -1,6 +1,4 @@
-import { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
-import { Customer, useCustomerStore } from "../store/useCustomerStore";
+import { useCustomersAdministration } from "../hooks/useCustomersAdministration";
 import {
     ButtonFuturistic,
     InputFuturistic,
@@ -9,59 +7,30 @@ import {
     TableFuturistic
 } from "../components";
 import { LoaderPinwheel, Pencil, Plus, Save } from "lucide-react";
-import { validateDNI } from "../utils/validateDNI";
 
 const CustomersAdministration = () => {
     const {
-        customers, paginationCustomer, loading, fetchCustomers, addCustomer, editCustomer
-    } = useCustomerStore();
-
-    const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
-    const [isEditCustomerModalOpen, setIsEditCustomerModalOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [newCustomer, setNewCustomer] = useState({ name: "", first_surname: "", second_surname: "", dni: "" });
-    const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
-
-    useEffect(() => {
-        fetchCustomers();
-    }, [fetchCustomers]);
-
-
-    const handleAddCustomer = async () => {
-        if (!newCustomer.name || !newCustomer.first_surname || !newCustomer.dni) {
-            toast.error("Todos los campos son obligatorios");
-            return;
-        }
-        if (!validateDNI(newCustomer.dni)) return;
-
-        await addCustomer(newCustomer);
-        setIsAddCustomerModalOpen(false);
-        setNewCustomer({ name: "", first_surname: "", second_surname: "", dni: "" });
-    };
-
-    const handleEditCustomer = async () => {
-        if (!editingCustomer) return;
-
-        if (!validateDNI(editingCustomer.dni)) return;
-
-        await editCustomer(editingCustomer.id_customer, editingCustomer);
-        setIsEditCustomerModalOpen(false);
-        setEditingCustomer(null);
-    };
-
+        customers, paginationCustomer, loading,
+        searchTerm, setSearchTerm,
+        isAddCustomerModalOpen, setIsAddCustomerModalOpen,
+        isEditCustomerModalOpen, setIsEditCustomerModalOpen,
+        newCustomer, setNewCustomer,
+        editingCustomer, setEditingCustomer,
+        fetchCustomers,
+        handleAddCustomer,
+        handleEditCustomer,
+    } = useCustomersAdministration();
 
     return (
-        <div className="lg:pr-10 lg:pl-10 lg:pt-5 space-y-8">
+        <div className="px-4 lg:px-10 lg:pt-5 space-y-8">
             <TitleFuturistic as="h1">Gestión de Clientes</TitleFuturistic>
 
-            {/* Botón para añadir cliente */}
             <ButtonFuturistic
                 label="Añadir Cliente"
                 icon={Plus}
                 onClick={() => setIsAddCustomerModalOpen(true)}
             />
 
-            {/* Tabla de Clientes */}
             <TableFuturistic
                 columns={[
                     { key: "name", label: "Nombre" },
@@ -79,7 +48,7 @@ const CustomersAdministration = () => {
                 }}
                 actions={(customer) => (
                     <ButtonFuturistic
-                        gradient="bg-gradient-to-r from-green-500 to-teal-600"
+                        gradient="bg-teal-500"
                         icon={Pencil}
                         onClick={() => { setEditingCustomer(customer); setIsEditCustomerModalOpen(true); }}
                     />
@@ -87,7 +56,6 @@ const CustomersAdministration = () => {
                 loading={loading}
             />
 
-            {/* Modal para Añadir Cliente */}
             <ModalFuturistic
                 isOpen={isAddCustomerModalOpen}
                 onClose={() => setIsAddCustomerModalOpen(false)}
@@ -124,7 +92,6 @@ const CustomersAdministration = () => {
                 <ButtonFuturistic label={loading ? "" : "Guardar Cliente"} icon={loading ? LoaderPinwheel : Save} onClick={handleAddCustomer} />
             </ModalFuturistic>
 
-            {/* Modal para Editar Cliente */}
             <ModalFuturistic
                 isOpen={isEditCustomerModalOpen}
                 onClose={() => setIsEditCustomerModalOpen(false)}

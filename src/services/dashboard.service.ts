@@ -82,3 +82,71 @@ export const getTopCustomers = async () => {
         throw error;
     }
 };
+
+export const getSalesTrend = async () => {
+    try {
+        const response = await fetchWithAuth(`${API_URL_DASHBOARD}/sales-trend`, {
+            method: "GET",
+        });
+
+        if (!response.ok) {
+            throw new Error("Error obteniendo la tendencia de ventas");
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error en getSalesTrend:", error);
+        throw error;
+    }
+};
+
+export const getLowStock = async (threshold = 5) => {
+    try {
+        const response = await fetchWithAuth(`${API_URL_DASHBOARD}/low-stock?threshold=${threshold}`, {
+            method: "GET",
+        });
+
+        if (!response.ok) {
+            throw new Error("Error obteniendo productos con stock bajo");
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error en getLowStock:", error);
+        throw error;
+    }
+};
+
+export const getSalesByCategory = async () => {
+    try {
+        const response = await fetchWithAuth(`${API_URL_DASHBOARD}/sales-by-category`, {
+            method: "GET",
+        });
+
+        if (!response.ok) {
+            throw new Error("Error obteniendo ventas por categoría");
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error en getSalesByCategory:", error);
+        throw error;
+    }
+};
+
+export const getReturnsRate = async () => {
+    try {
+        const response = await fetchWithAuth(`${API_URL_DASHBOARD}/returns-rate`, {
+            method: "GET",
+        });
+
+        if (!response.ok) {
+            throw new Error("Error obteniendo la tasa de devoluciones");
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error en getReturnsRate:", error);
+        throw error;
+    }
+};

@@ -6,7 +6,7 @@ interface SwitchFuturisticProps {
 
 const SwitchFuturistic = ({ label, checked, onChange }: SwitchFuturisticProps) => {
     return (
-        <div className="p-4 mb-2 mt-2 border border-purple-500 rounded-lg flex items-center gap-3 cursor-pointer">
+        <div className="p-4 mb-2 mt-2 border border-teal-500 rounded-lg flex items-center gap-3 cursor-pointer">
             <label className="flex items-center gap-2  font-semibold cursor-pointer">
                 <input
                     type="checkbox"

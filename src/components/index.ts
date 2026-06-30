@@ -16,3 +16,4 @@ export { default as ShoppingCart } from "./ShoppingCart";
 
 export { default as ThemeToggle } from "./ThemeToggle";
 export { default as Sidebar } from "./Sidebar";
+export { default as Navbar } from "./Navbar";

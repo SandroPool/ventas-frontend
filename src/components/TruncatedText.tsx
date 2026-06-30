@@ -12,7 +12,10 @@ const TruncatedText = ({ text, maxLength = 50 }: { text: string; maxLength?: num
         <div className="inline-block">
             <motion.span
                 onClick={toggleExpand}
-                className="cursor-pointer font-medium text-blue-500 dark:text-blue-500 transition-all"
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleExpand(); }}
+                className="cursor-pointer font-medium text-teal-600 dark:text-teal-400 transition-all"
                 whileHover={{ scale: 1.05 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
@@ -22,6 +25,9 @@ const TruncatedText = ({ text, maxLength = 50 }: { text: string; maxLength?: num
             {expanded && (
                 <motion.span
                     onClick={toggleExpand}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleExpand(); }}
                     className="ml-2 cursor-pointer text-orange-500 dark:text-yellow-500 text-sm font-semibold"
                     whileHover={{ scale: 1.1 }}
                     transition={{ duration: 0.2 }}

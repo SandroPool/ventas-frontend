@@ -1,89 +1,40 @@
-import { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
-import { Product, useProductStore } from "../store/useProductStore";
+import { useProductsAdministration } from "../hooks/useProductsAdministration";
 import { ButtonFuturistic, InputFuturistic, ModalFuturistic, TitleFuturistic, TableFuturistic, SelectFuturistic, TextareaFuturistic, SwitchFuturistic } from "../components";
 import { LoaderPinwheel, Pencil, Plus, List, CheckCircle, XCircle, Banknote, Text, Boxes } from "lucide-react";
+import toast from "react-hot-toast";
 
 const ProductsAdministration = () => {
     const {
-        categories, loading, fetchCategories, addCategory, editCategory,
-        products, pagination, fetchProducts, addProduct, editProduct
-    } = useProductStore();
-
-    const [newCategory, setNewCategory] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-    const [editingCategory, setEditingCategory] = useState<{ id: number; name: string } | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-    const [newProduct, setNewProduct] = useState<{
-        name: string;
-        description: string;
-        price: string;
-        unit_type: string;
-        id_category: string;
-        fecha_vencimiento: string | null; // Cambiar el tipo
-    }>({
-        name: "",
-        description: "",
-        price: "",
-        unit_type: "",
-        id_category: "",
-        fecha_vencimiento: null, // Sigue permitiendo null
-    });
-    const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-    const [isEditProductModalOpen, setIsEditProductModalOpen] = useState(false);
-
-    useEffect(() => {
-        fetchCategories();
-        fetchProducts();
-    }, [fetchCategories, fetchProducts]);
-
-    const handleAddCategory = async () => {
-        if (!newCategory.trim()) {
-            toast.error("El nombre de la categoría es obligatorio");
-            return;
-        }
-        await addCategory(newCategory.trim());
-        setNewCategory("");
-    };
-
-    const handleEditCategory = async () => {
-        if (!editingCategory?.name.trim()) {
-            toast.error("El nombre de la categoría es obligatorio");
-            return;
-        }
-        await editCategory(editingCategory.id, editingCategory.name.trim());
-        setEditingCategory(null);
-        setIsModalOpen(false);
-    };
-
-    const handleAddProduct = async () => {
-        if (!newProduct.name || !newProduct.description || !newProduct.price || !newProduct.unit_type || !newProduct.id_category) {
-            toast.error("Todos los campos son obligatorios");
-            return;
-        }
-        await addProduct({ ...newProduct, price: parseFloat(newProduct.price), id_category: parseInt(newProduct.id_category) });
-        setIsProductModalOpen(false);
-        setNewProduct({ name: "", description: "", price: "", unit_type: "", id_category: "", fecha_vencimiento: null });
-    };
+        categories, loading, products, pagination,
+        newCategory, setNewCategory,
+        selectedCategory, setSelectedCategory,
+        editingCategory, setEditingCategory,
+        isModalOpen, setIsModalOpen,
+        searchTerm, setSearchTerm,
+        isProductModalOpen, setIsProductModalOpen,
+        newProduct, setNewProduct,
+        editingProduct, setEditingProduct,
+        isEditProductModalOpen, setIsEditProductModalOpen,
+        fetchProducts, editProduct,
+        handleAddCategory,
+        handleEditCategory,
+        handleAddProduct,
+    } = useProductsAdministration();
 
     return (
-        <div className="lg:pr-10 lg:pl-10 lg:pt-5 space-y-8">
+        <div className="px-4 lg:px-10 lg:pt-5 space-y-8">
             <TitleFuturistic as="h1" >Gestión de Productos</TitleFuturistic>
             <div className="flex flex-col lg:flex-row gap-6">
                 <div className="lg:w-1/4 w-full space-y-6">
 
-                    {/* Formulario para añadir categoría */}
-                    <div className="dark:bg-gray-800 p-4 rounded-lg shadow-md mt-2">
-                        <h2 className="text-white font-semibold mb-3">Nueva Categoría</h2>
+                    <div className="bg-white dark:bg-dark-card p-4 rounded-lg shadow-md mt-2">
+                        <h2 className="text-gray-900 dark:text-dark-primary font-semibold mb-3">Nueva Categoría</h2>
                         <InputFuturistic placeholder="Nombre de la categoría" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} />
                         <ButtonFuturistic label={loading ? "" : "Añadir"} icon={loading ? LoaderPinwheel : Plus} onClick={handleAddCategory} disabled={loading} className="mt-3 w-full" />
                     </div>
 
-                    {/* Selector de categorías */}
-                    <div className="dark:bg-gray-800 p-4 rounded-lg shadow-md">
-                        <h2 className="text-white font-semibold mb-3">Editar Categoría</h2>
+                    <div className="bg-white dark:bg-dark-card p-4 rounded-lg shadow-md">
+                        <h2 className="text-gray-900 dark:text-dark-primary font-semibold mb-3">Editar Categoría</h2>
                         <SelectFuturistic
                             label="Categoría"
                             options={[{ value: "", label: "Seleccionar Categoría" }, ...categories.map((c) => ({ label: c.name, value: c.id_category.toString() }))]}
@@ -110,7 +61,6 @@ const ProductsAdministration = () => {
                     </div>
                 </div>
 
-                {/* Sección derecha: Tabla de productos */}
                 <div className="lg:w-3/4 w-full">
 
                     <ButtonFuturistic
@@ -122,14 +72,13 @@ const ProductsAdministration = () => {
                     <ModalFuturistic isOpen={isProductModalOpen} onClose={() => setIsProductModalOpen(false)} title="Crear Nuevo Producto">
                         <InputFuturistic label="Nombre" placeholder="nombre: " value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
                         <TextareaFuturistic label="Descripción" placeholder="Descripción" icon={Text} value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} />
-                        <InputFuturistic label="Precio" placeholder="precio: " icon={Banknote} type="number" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} />
-                        <InputFuturistic label="Unidad" placeholder="unidad: " icon={Boxes} value={newProduct.unit_type} onChange={(e) => setNewProduct({ ...newProduct, unit_type: e.target.value })} />
+                        <InputFuturistic label="Precio" placeholder="precio: " icon={Banknote} type="number" min="0" step="0.01" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} />
+                        <InputFuturistic label="Unidad" placeholder="unidad: " icon={Boxes} type="number" min="0" step="0.01" value={newProduct.unit_type} onChange={(e) => setNewProduct({ ...newProduct, unit_type: e.target.value })} />
                         <SelectFuturistic
                             label="Categoría"
                             options={[{ value: "", label: "Selecciona un categoría" }, ...categories.map((c) => ({ label: c.name, value: c.id_category.toString() }))]}
                             value={newProduct.id_category}
                             onChange={(e) => setNewProduct({ ...newProduct, id_category: e.target.value })} />
-                        {/* Agregar el input para la fecha de vencimiento */}
                         <InputFuturistic
                             label="Fecha de Vencimiento (opcional)"
                             type="date"
@@ -188,7 +137,7 @@ const ProductsAdministration = () => {
                                     setEditingProduct(product);
                                     setIsEditProductModalOpen(true);
                                 }}
-                                gradient="bg-gradient-to-r from-green-500 to-teal-600"
+                                gradient="bg-teal-500"
                             />
                         )}
                         loading={loading}
@@ -209,15 +158,14 @@ const ProductsAdministration = () => {
                         <InputFuturistic label="Nombre" placeholder="Nombre del producto" value={editingProduct.name} onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })} />
                         <TextareaFuturistic label="Descripción" placeholder="Descripción del producto" value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} />
                         <InputFuturistic label="SKU" placeholder="sku: SKU115" value={editingProduct.sku === null ? "" : editingProduct.sku} onChange={(e) => setEditingProduct({ ...editingProduct, sku: e.target.value })} />
-                        <InputFuturistic label="Precio" placeholder="Precio" type="number" value={editingProduct.price.toString()} onChange={(e) => setEditingProduct({ ...editingProduct, price: parseFloat(e.target.value) || 0 })} />
-                        <InputFuturistic label="Unidad" placeholder="Unidad" value={editingProduct.unit_type} onChange={(e) => setEditingProduct({ ...editingProduct, unit_type: e.target.value })} />
+                        <InputFuturistic label="Precio" placeholder="Precio" type="number" min="0" step="0.01" value={editingProduct.price.toString()} onChange={(e) => setEditingProduct({ ...editingProduct, price: parseFloat(e.target.value) || 0 })} />
+                        <InputFuturistic label="Unidad" placeholder="Unidad" type="number" min="0" step="0.01" value={editingProduct.unit_type} onChange={(e) => setEditingProduct({ ...editingProduct, unit_type: e.target.value })} />
                         <SelectFuturistic
                             label="Categoría"
                             options={[{ value: "", label: "Selecciona un categoría" }, ...categories.map((c) => ({ label: c.name, value: c.id_category.toString() }))]}
                             value={editingProduct.id_category.toString() || ""}
                             onChange={(e) => setEditingProduct({ ...editingProduct, id_category: parseInt(e.target.value) })} />
                         <SwitchFuturistic label="Estado" checked={editingProduct.status} onChange={(checked) => setEditingProduct({ ...editingProduct, status: checked })} />
-                        {/* Agregar el input para la fecha de vencimiento en edición */}
                         <InputFuturistic
                             label="Fecha de Vencimiento (opcional)"
                             type="date"
@@ -229,6 +177,15 @@ const ProductsAdministration = () => {
                             icon={loading ? LoaderPinwheel : Pencil}
                             onClick={async () => {
                                 if (!editingProduct) return;
+                                if (editingProduct.price <= 0) {
+                                    toast.error("El precio debe ser mayor a 0");
+                                    return;
+                                }
+                                const unitTypeNum = parseFloat(editingProduct.unit_type);
+                                if (isNaN(unitTypeNum) || unitTypeNum <= 0) {
+                                    toast.error("La unidad debe ser un número mayor a 0");
+                                    return;
+                                }
                                 await editProduct(editingProduct.id_product, editingProduct);
                                 setIsEditProductModalOpen(false);
                                 setEditingProduct(null);
@@ -239,8 +196,6 @@ const ProductsAdministration = () => {
                 )}
             </ModalFuturistic>
 
-
-            {/* Modal para editar categoría */}
             <ModalFuturistic
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}

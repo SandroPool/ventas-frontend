@@ -8,7 +8,7 @@ interface PropsButton extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const ButtonFuturistic = ({ label, gradient, icon: Icon, className = "", disabled, ...props }: PropsButton) => {
-    const defaultGradient = "bg-gradient-to-r from-blue-500 to-purple-600";
+    const defaultGradient = "bg-teal-500";
     const appliedGradient = gradient || defaultGradient;
 
     return (

@@ -5,7 +5,7 @@ interface PropsTitle extends React.HTMLAttributes<HTMLHeadingElement> {
 
 const TitleFuturistic = ({ children, as: Tag = "h2", className, ...props }: PropsTitle) => (
     <Tag
-        className={`text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600 drop-shadow-lg dark:text-white ${className || ""}`}
+        className={`text-4xl font-extrabold text-teal-600 drop-shadow-lg dark:text-dark-primary ${className || ""}`}
         {...props}
     >
         {children}

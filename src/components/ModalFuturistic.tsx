@@ -6,20 +6,21 @@ interface PropsModal {
     onClose: () => void;
     title?: string;
     children?: React.ReactNode;
+    className?: string;
 }
 
-const ModalFuturistic = ({ isOpen, onClose, title, children }: PropsModal) => {
+const ModalFuturistic = ({ isOpen, onClose, title, children, className = "" }: PropsModal) => {
     return (
         <AnimatePresence>
             {isOpen && (
                 <motion.div
-                    className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4"
+                    className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-[60] p-4"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                 >
                     <motion.div
-                        className="dark:bg-gray-900 bg-slate-50 text-white p-6 rounded-lg shadow-2xl relative w-11/12 max-w-lg"
+                        className={`dark:bg-dark-base bg-slate-50 text-white p-6 rounded-lg shadow-2xl relative w-11/12 max-w-lg ${className}`}
                         initial={{ y: -50, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: -50, opacity: 0 }}
@@ -28,14 +29,14 @@ const ModalFuturistic = ({ isOpen, onClose, title, children }: PropsModal) => {
                         {/* Botón de Cierre */}
                         <button
                             onClick={onClose}
-                            className="absolute top-4 right-4 text-gray-400 hover:text-white p-1"
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-dark-primary p-1"
                         >
                             <X size={24} />
                         </button>
 
                         {/* Título */}
                         {title && (
-                            <h2 className="text-xl font-semibold text-blue-400 mb-5 text-center">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-dark-primary mb-5 text-center">
                                 {title}
                             </h2>
                         )}

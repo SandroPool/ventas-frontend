@@ -1,8 +1,8 @@
 import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
-import { JSX } from 'react';
+import { ReactNode } from 'react';
 
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
     const { token } = useAuthStore();
     return token ? children : <Navigate to="/" />;
 };

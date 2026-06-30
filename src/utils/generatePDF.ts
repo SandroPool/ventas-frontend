@@ -120,8 +120,7 @@ const generatePDF = async (sale: Sale) => {
     );
 
     // Save the PDF
-    const extension: string = '.pdf'
-    doc.save(`BOLETA_${sale.id_sale}${extension}`);
+    doc.save(`BOLETA_${sale.id_sale}.pdf`);
 };
 
 export default generatePDF;

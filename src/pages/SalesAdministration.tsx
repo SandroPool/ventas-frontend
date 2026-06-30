@@ -1,203 +1,42 @@
-import { FC, JSX, useEffect, useState } from "react";
-import { ButtonFuturistic, InputFuturistic, TitleFuturistic, ProductAutocomplete, SelectFuturistic, ShoppingCart, AlertModal } from "../components";
-import { Banknote, LoaderPinwheel, NotebookPen, PencilLine, Save, Search } from "lucide-react";
-import { jwtDecode } from "jwt-decode";
-import { Product } from "../store/useProductStore";
-import toast from "react-hot-toast";
+import { FC, JSX } from "react";
+import { ButtonFuturistic, InputFuturistic, TitleFuturistic, ProductAutocomplete, SelectFuturistic, ShoppingCart, AlertModal, SwitchFuturistic } from "../components";
+import { Banknote, LoaderPinwheel, NotebookPen, PencilLine, Plus, Save, Search } from "lucide-react";
 import { paymentMethods } from "../constants";
-import { Customer, useCustomerStore } from "../store/useCustomerStore";
-import { useSalesStore } from "../store/useSalesStore";
-import { useAuthStore } from "../store/useAuthStore";
-import { Sale } from "../services/sales.service";
+import { useSalesAdministration } from "../hooks/useSalesAdministration";
 
 const SalesAdministration: FC = (): JSX.Element => {
-    const [cart, setCart] = useState<{ product: Product; quantity: number }[]>([]);
-    const [highlightId, setHighlightId] = useState<number | null>(null);
-    const [dniSearch, setDniSearch] = useState<string>("");
-    const [customer, setCustomer] = useState<Customer | null>(null);
-    const [paymentMethod, setPaymentMethod] = useState<string>("");
-    const [operationNumber, setOperationNumber] = useState<string>("");
-    const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
-    const [toRemoveId, setToRemoveId] = useState<number | null>(null);
-    const [clearOpen, setClearOpen] = useState<boolean>(false);
-
-    const { loading, searchCustomer, addCustomer } = useCustomerStore();
-    const { registerSale, loadingSale } = useSalesStore();
-    const { token } = useAuthStore();
-
-    const decodedToken: { id: number; role: string } = jwtDecode(token ?? '');
-    const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-
-
-    useEffect(() => {
-        if (paymentMethod.toLocaleLowerCase() === 'PagoEfectivo'.toLocaleLowerCase()) {
-            const opNum = `EF-${Date.now()}`
-            setOperationNumber(opNum);
-        } else {
-            setOperationNumber('');
-        }
-    }, [paymentMethod]);
-
-    const handleSearchByDni = async (): Promise<void> => {
-        if (!/^\d{8}$/.test(dniSearch)) {
-            toast.error("El DNI debe tener 8 dígitos");
-            return;
-        }
-        const result = await searchCustomer(dniSearch);
-        if (result === "not_found") {
-            toast.error("Cliente no encontrado, registrar manualmente");
-            setCustomer({ id_customer: 0, dni: dniSearch, name: "", first_surname: "", second_surname: "", createdAt: "", updatedAt: "" });
-        } else if (result) {
-            setCustomer(result);
-        }
-    };
-
-    const handleSaveCustomer = async (): Promise<void> => {
-        if (!customer || !customer.name || !customer.first_surname) {
-            toast.error("Completa los campos obligatorios");
-            return;
-        }
-
-        try {
-            const newCustomer = await addCustomer({
-                dni: customer.dni,
-                name: customer.name,
-                first_surname: customer.first_surname,
-                second_surname: customer.second_surname || "",
-            });
-
-            if (newCustomer) setCustomer(newCustomer);
-        } catch (error) {
-            console.error("Error al guardar el cliente:", error);
-            toast.error("Error al guardar el cliente");
-        }
-    };
-
-    const handleProductSelect = (product: Product): void => {
-        console.info({
-            nombre: product.name,
-            cantidadDiponible: product.stock,
-        });
-
-        if (product.stock === 0) {
-            toast.error("No hay stock disponible")
-            return
-        }
-
-        setCart(prevCart => {
-            const index = prevCart.findIndex(item => item.product.id_product === product.id_product);
-            if (index !== -1) {
-                return prevCart.map((item, i) =>
-                    i === index ? { ...item, quantity: item.quantity + 1 } : item
-                );
-            }
-            return [...prevCart, { product, quantity: 1 }];
-        });
-
-        setHighlightId(product.id_product);
-        setTimeout(() => setHighlightId(null), 1500);
-        toast.success(`${product.name} añadido al carrito quedan ${product.stock}`);
-    };
-
-    const updateQuantity = (id: number, quantity: number): void => {
-        setCart(prevCart =>
-            prevCart
-                .map(item => item.product.id_product === id ?
-                    { ...item, quantity: Math.max(0, quantity) } : item)
-                .filter(item => item.quantity > 0)
-        );
-    };
-    const removeProduct = (id: number): void => {
-        setToRemoveId(id);
-        setConfirmOpen(true);
-    };
-
-    const handleConfirmRemove = (): void => {
-        if (toRemoveId === null) return;
-        setCart(prevCart => prevCart.filter(item => item.product.id_product !== toRemoveId));
-        toast.success('Producto eliminado');
-        setConfirmOpen(false);
-        setToRemoveId(null);
-    }
-
-    const clearCart = (): void => {
-        if (!cart.length) return;
-        setClearOpen(true);
-    };
-
-    const handleConfirmClear = (): void => {
-        setCart([]);
-        toast.success("Carrito vaciado");
-        setClearOpen(false);
-    };
-
-
-    const handleRegisterSale = async (): Promise<void> => {
-        if (!cart.length) {
-            toast.error("El carrito está vacío");
-            return;
-        }
-        if (!customer || customer.id_customer === 0) {
-            toast.error("Debe seleccionar un cliente");
-            return;
-        }
-        if (!paymentMethod) {
-            toast.error("Debe seleccionar un método de pago");
-            return;
-        }
-        if (!operationNumber) {
-            toast.error("Debe ingresar el número de operación");
-            return;
-        }
-
-        // Obtenemos la fecha actual en formato ISO
-        const saleDate = new Date().toISOString();
-
-        const sale: Sale = {
-            id_user: decodedToken.id,
-            id_customer: customer.id_customer,
-            payment_method: paymentMethod,
-            operation_number: operationNumber,
-            date: saleDate, // ✅ Agregar la fecha
-            customer: {
-                name: customer.name,
-                first_surname: customer.first_surname,
-                second_surname: customer.second_surname || "",
-            }, // ✅ Agregar el cliente
-            details: cart.map(item => ({
-                id_product: item.product.id_product,
-                quantity: item.quantity,
-                unit_price: item.product.price,
-                id_sale: 0, // Si el API lo requiere, puedes enviarlo como 0 o evitarlo si no es obligatorio
-                id_detail: 0, // Similar a id_sale, dependiendo de la API
-                createdAt: saleDate,
-                updatedAt: saleDate,
-                product: item.product, // Si `product` es requerido en `SaleDetail`
-            })),
-        };
-
-        const success = await registerSale(sale);
-        if (success) {
-            setCustomer(null);
-            setDniSearch("");
-            setCart([]);
-        } else {
-            console.log('Ucurrió un error al registrar la venta')
-        }
-    };
-
+    const {
+        cart,
+        highlightId,
+        dniSearch, setDniSearch,
+        customer, setCustomer,
+        paymentMethod, setPaymentMethod,
+        operationNumber, setOperationNumber,
+        confirmOpen, setConfirmOpen,
+        clearOpen, setClearOpen,
+        installmentsEnabled, setInstallmentsEnabled,
+        installmentRows, setInstallmentRows,
+        loading, loadingSale, total,
+        handleSearchByDni,
+        handleSaveCustomer,
+        handleProductSelect,
+        updateQuantity,
+        removeProduct,
+        handleConfirmRemove,
+        clearCart,
+        handleConfirmClear,
+        handleRegisterSale,
+    } = useSalesAdministration();
 
     return (
         <div className="lg:px-10 px-4 py-6">
             <TitleFuturistic as="h1" className="text-center mb-8">Administración de Ventas</TitleFuturistic>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
-                {/* Cliente */}
-                <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-lg bg-white dark:bg-gray-800/50">
+                <div className="border border-gray-200 dark:border-dark-border rounded-xl p-6 shadow-lg bg-white dark:bg-dark-card/50">
                     <TitleFuturistic as="h2" className="text-lg mb-4">Información del Cliente</TitleFuturistic>
 
                     <div className="space-y-4">
-                        {/* DNI y Consulta */}
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="flex-1">
                                 <InputFuturistic
@@ -217,15 +56,13 @@ const SalesAdministration: FC = (): JSX.Element => {
                             />
                         </div>
 
-
-                        {/* Nombre y Apellidos */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <InputFuturistic
                                 label="Nombre"
                                 icon={NotebookPen}
                                 placeholder="Nombre"
                                 value={customer?.name || ""}
-                                readOnly={customer?.id_customer !== 0} // Solo si el cliente ya existe
+                                readOnly={customer?.id_customer !== 0}
                                 onChange={(e) => setCustomer({ ...customer!, name: e.target.value })}
                             />
                             <InputFuturistic
@@ -253,20 +90,18 @@ const SalesAdministration: FC = (): JSX.Element => {
                         </div>
                     </div>
 
-                    {/* Selector de Producto */}
-                    <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
+                    <div className="mt-8 border-t border-gray-200 dark:border-dark-border pt-6">
                         <TitleFuturistic as="h2" className="text-lg mb-4">Agregar Producto</TitleFuturistic>
                         <ProductAutocomplete onSelect={handleProductSelect} />
                     </div>
 
-                    {/* Método de Pago */}
                     <div className="mt-6">
                         <SelectFuturistic
                             icon={Banknote}
                             label="Método de Pago"
                             options={[{ value: "", label: "Selecciona un método de pago" }, ...paymentMethods]}
-                            value={paymentMethod} // ✅ Asegurar que muestre el valor actual
-                            onChange={(e) => setPaymentMethod(e.target.value)} // ✅ Actualiza el estado cuando el usuario seleccione un método
+                            value={paymentMethod}
+                            onChange={(e) => setPaymentMethod(e.target.value)}
                         />
                     </div>
                     <InputFuturistic
@@ -278,9 +113,60 @@ const SalesAdministration: FC = (): JSX.Element => {
                         readOnly={paymentMethod.toLowerCase() === 'PagoEfectivo'}
                         disabled={paymentMethod.toLowerCase() === 'pagoefectivo'}
                     />
+
+                    <div className="mt-6 border-t border-gray-200 dark:border-dark-border pt-4">
+                        <div className="flex items-center justify-between">
+                            <TitleFuturistic as="h2" className="text-base">Pago en cuotas</TitleFuturistic>
+                            <SwitchFuturistic
+                                checked={installmentsEnabled}
+                                onChange={setInstallmentsEnabled}
+                            />
+                        </div>
+                        {installmentsEnabled && (
+                            <div className="mt-4 space-y-3">
+                                {installmentRows.map((row, i) => (
+                                    <div key={i} className="flex gap-2 items-end">
+                                        <InputFuturistic
+                                            label="Monto (S/)"
+                                            type="number"
+                                            value={row.amount}
+                                            onChange={(e) => {
+                                                const updated = [...installmentRows];
+                                                updated[i] = { ...updated[i], amount: Number(e.target.value) };
+                                                setInstallmentRows(updated);
+                                            }}
+                                        />
+                                        <InputFuturistic
+                                            label="Vencimiento"
+                                            type="date"
+                                            value={row.due_date}
+                                            onChange={(e) => {
+                                                const updated = [...installmentRows];
+                                                updated[i] = { ...updated[i], due_date: e.target.value };
+                                                setInstallmentRows(updated);
+                                            }}
+                                        />
+                                        <button
+                                            type="button"
+                                            className="text-red-500 hover:text-red-700 mb-1"
+                                            onClick={() => setInstallmentRows(prev => prev.filter((_, j) => j !== i))}
+                                        >
+                                            &times;
+                                        </button>
+                                    </div>
+                                ))}
+                                <ButtonFuturistic
+                                    label="Agregar cuota"
+                                    icon={Plus}
+                                    onClick={() =>
+                                        setInstallmentRows(prev => [...prev, { amount: Math.round(total / Math.max(prev.length + 1, 1)), due_date: "" }])
+                                    }
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
 
-                {/* Carrito */}
                 <ShoppingCart
                     cart={cart}
                     highlightId={highlightId}
@@ -288,10 +174,10 @@ const SalesAdministration: FC = (): JSX.Element => {
                     removeProduct={removeProduct}
                     clearCart={clearCart}
                     registerSale={handleRegisterSale}
-                    total={total} // ✅ Pasamos el total calculado desde aquí
+                    total={total}
                     loadingSale={loadingSale}
-                    customerSelected={!!customer} // ✅ Se convierte en booleano
-                    paymentMethodSelected={!!paymentMethod} // ✅ Se convierte en booleano
+                    customerSelected={!!customer}
+                    paymentMethodSelected={!!paymentMethod}
                 />
 
                 <AlertModal

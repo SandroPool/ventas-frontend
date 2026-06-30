@@ -1,45 +1,22 @@
-import { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
-import { Supplier, useSupplierStore } from "../store/useSupplierStore";
+import { useSuppliersAdministration } from "../hooks/useSuppliersAdministration";
 import { ButtonFuturistic, InputFuturistic, ModalFuturistic, TitleFuturistic, TableFuturistic } from "../components";
 import { LoaderPinwheel, Pencil, Plus } from "lucide-react";
+
 const SuppliersAdministration = () => {
     const {
-        suppliers, paginationSupplier, loading, fetchSuppliers, addSupplier, editSupplier
-    } = useSupplierStore();
-
-    const [isAddSupplierModalOpen, setIsAddSupplierModalOpen] = useState(false);
-    const [isEditSupplierModalOpen, setIsEditSupplierModalOpen] = useState(false);
-
-    const [searchTerm, setSearchTerm] = useState("");
-    const [newSupplier, setNewSupplier] = useState({
-        name: "", ruc: "", address: "", phone: "", contact: ""
-    });
-    const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
-
-    useEffect(() => {
-        fetchSuppliers();
-    }, [fetchSuppliers]);
-
-    const handleAddSupplier = async () => {
-        if (!newSupplier.name || !newSupplier.ruc || !newSupplier.address || !newSupplier.phone || !newSupplier.contact) {
-            toast.error("Todos los campos son obligatorios");
-            return;
-        }
-        await addSupplier(newSupplier);
-        setIsAddSupplierModalOpen(false);
-        setNewSupplier({ name: "", ruc: "", address: "", phone: "", contact: "" });
-    };
-
-    const handleEditSupplier = async () => {
-        if (!editingSupplier) return;
-        await editSupplier(editingSupplier.id_supplier, editingSupplier);
-        setIsEditSupplierModalOpen(false);
-        setEditingSupplier(null);
-    };
+        suppliers, paginationSupplier, loading,
+        searchTerm, setSearchTerm,
+        isAddSupplierModalOpen, setIsAddSupplierModalOpen,
+        isEditSupplierModalOpen, setIsEditSupplierModalOpen,
+        newSupplier, setNewSupplier,
+        editingSupplier, setEditingSupplier,
+        fetchSuppliers,
+        handleAddSupplier,
+        handleEditSupplier,
+    } = useSuppliersAdministration();
 
     return (
-        <div className="lg:pr-10 lg:pl-10 lg:pt-5 space-y-8">
+        <div className="px-4 lg:px-10 lg:pt-5 space-y-8">
             <TitleFuturistic as="h1">Gestión de Proveedores</TitleFuturistic>
 
             <div>
@@ -75,7 +52,7 @@ const SuppliersAdministration = () => {
                                 setEditingSupplier(supplier);
                                 setIsEditSupplierModalOpen(true);
                             }}
-                            gradient="bg-gradient-to-r from-green-500 to-teal-600"
+                            gradient="bg-teal-500"
                         />
                     )}
                     loading={loading}

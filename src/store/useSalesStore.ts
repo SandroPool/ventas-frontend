@@ -6,8 +6,11 @@ interface SalesState {
     sales: Sale[];
     loadingSale: boolean;
     paginationSales: Omit<SalesPagination, "data"> | null;
+    currentPage: number;
+    currentLimit: number;
+    searchTerm: string;
     fetchSales: (page?: number, limit?: number, searchTerm?: string) => Promise<void>;
-    registerSale: (sale: Sale) => Promise<boolean>;
+    registerSale: (sale: Sale) => Promise<Sale | null>;
     editSale: (id_sale: number, sale: Sale) => Promise<boolean>;
 }
 
@@ -15,10 +18,13 @@ export const useSalesStore = create<SalesState>((set) => ({
     sales: [],
     paginationSales: null,
     loadingSale: false,
+    currentPage: 1,
+    currentLimit: 10,
+    searchTerm: "",
 
     // Obtener todas las ventas con paginación y búsqueda
     fetchSales: async (page = 1, limit = 10, searchTerm = "") => {
-        set({ loadingSale: true });
+        set({ loadingSale: true, currentPage: page, currentLimit: limit, searchTerm });
         const response: SalesPagination | null = await getSales(page, limit, searchTerm);
 
         if (response) {
@@ -39,30 +45,30 @@ export const useSalesStore = create<SalesState>((set) => ({
 
     // Registrar una nueva venta
     registerSale: async (sale: Sale) => {
-        const { fetchSales } = useSalesStore.getState();
+        const { fetchSales, currentPage, currentLimit, searchTerm } = useSalesStore.getState();
         set({ loadingSale: true });
         const response = await createSale(sale);
 
         if (response) {
             toast.success("Venta registrada con éxito");
-            fetchSales(); // Actualizar la lista después de registrar
+            fetchSales(currentPage, currentLimit, searchTerm);
             set({ loadingSale: false });
-            return true;
+            return response;
         } else {
             toast.error("Error al registrar la venta");
             set({ loadingSale: false });
-            return false;
+            return null;
         }
     },
 
     // Editar una venta existente
     editSale: async (id_sale: number, sale: Sale) => {
-        const { fetchSales } = useSalesStore.getState();
+        const { fetchSales, currentPage, currentLimit, searchTerm } = useSalesStore.getState();
         set({ loadingSale: true });
         const response = await updateSale(id_sale, sale);
         if (response) {
             toast.success("Venta actualizada con éxito");
-            fetchSales(); // Refrescar la lista de ventas
+            fetchSales(currentPage, currentLimit, searchTerm);
             set({ loadingSale: false });
             return true;
         } else {

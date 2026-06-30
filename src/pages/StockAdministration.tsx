@@ -1,19 +1,14 @@
-import { FC, JSX, useEffect } from "react";
-import { useStockStore } from "../store/useStockStore";
+import { FC, JSX } from "react";
+import { useStockAdministration } from "../hooks/useStockAdministration";
 import { TitleFuturistic, TableFuturistic } from "../components";
 
 const StockAdministration: FC = (): JSX.Element => {
-    const { stock, paginationStock, loading, fetchStock } = useStockStore();
-
-    useEffect(() => {
-        fetchStock();
-    }, [fetchStock]);
+    const { stock, paginationStock, loading, fetchStock } = useStockAdministration();
 
     return (
-        <div className="lg:pr-10 lg:pl-10 lg:pt-5 space-y-8">
+        <div className="px-4 lg:px-10 lg:pt-5 space-y-8">
             <TitleFuturistic as="h1">Búsqueda de Stock</TitleFuturistic>
 
-            {/* Tabla de Stock */}
             <TableFuturistic
                 columns={[
                     { key: "name", label: "Producto" },

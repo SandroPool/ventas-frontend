@@ -37,13 +37,27 @@ export const refreshAccessToken = async (refreshToken: string) => {
     }
 };
 
+let refreshPromise: Promise<boolean> | null = null;
+
+async function handleRefresh(): Promise<boolean> {
+    if (refreshPromise) return refreshPromise;
+
+    refreshPromise = useAuthStore.getState().refreshSession();
+
+    try {
+        return await refreshPromise;
+    } finally {
+        refreshPromise = null;
+    }
+}
+
 export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
     let token = localStorage.getItem("token");
 
     if (!token) {
-        const refreshed = await useAuthStore.getState().refreshSession();
+        const refreshed = await handleRefresh();
         if (!refreshed) {
-            useAuthStore.getState().logout(); // Cerrar sesión solo si el refresh también falla
+            useAuthStore.getState().logout();
             throw new Error("No autenticado");
         }
         token = localStorage.getItem("token");
@@ -59,9 +73,9 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
     });
 
     if (res.status === 401) {
-        const refreshed = await useAuthStore.getState().refreshSession();
+        const refreshed = await handleRefresh();
         if (!refreshed) {
-            useAuthStore.getState().logout(); // Cerrar sesión si el refresh token falla
+            useAuthStore.getState().logout();
             throw new Error("No autenticado");
         }
 
@@ -107,7 +121,7 @@ export const getAllUsers = async (page: number = 1, limit: number = 10, searchTe
 
         if (!res.ok) throw new Error("No se pudo obtener la lista de usuarios");
 
-        return await res.json();;
+        return await res.json();
     } catch (error) {
         console.error("Error al obtener usuarios:", error);
         return null;

@@ -190,6 +190,8 @@ export const useSalesAdministration = () => {
             setCustomer(null);
             setDniSearch("");
             setCart([]);
+            setPaymentMethod("");
+            setOperationNumber("");
             setInstallmentsEnabled(false);
             setInstallmentRows([]);
         } else {

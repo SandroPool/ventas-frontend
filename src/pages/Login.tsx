@@ -6,7 +6,7 @@ import { Eye, EyeOff, Mail, Lock, AlertTriangle, LoaderPinwheel, LogIn } from "l
 const Login = () => {
     const {
         email, password, showPassword, setShowPassword,
-        capsLock, errors, hasErrors, loading,
+        capsLock, errors, loading,
         emailRef, handleEmailChange, handlePasswordChange,
         handleBlur, handleKeyUp, handleLogin,
     } = useLogin();

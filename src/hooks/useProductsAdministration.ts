@@ -62,12 +62,6 @@ export const useProductsAdministration = () => {
             return;
         }
         const price = parseFloat(newProduct.price);
-        const unitTypeNum = parseFloat(newProduct.unit_type);
-        if (isNaN(unitTypeNum) || unitTypeNum <= 0) {
-            toast.error("La cantidad debe ser un número mayor a 0");
-            return;
-        }
-
         await addProduct({ ...newProduct, price, id_category: parseInt(newProduct.id_category) });
         setIsProductModalOpen(false);
         setNewProduct({ name: "", description: "", price: "", unit_type: "", id_category: "", fecha_vencimiento: null });

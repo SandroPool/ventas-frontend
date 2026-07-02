@@ -70,10 +70,10 @@ const ProductsAdministration = () => {
                     />
 
                     <ModalFuturistic isOpen={isProductModalOpen} onClose={() => setIsProductModalOpen(false)} title="Crear Nuevo Producto">
-                        <InputFuturistic label="Nombre" placeholder="nombre: " value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
-                        <TextareaFuturistic label="Descripción" placeholder="Descripción" icon={Text} value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} />
+                        <InputFuturistic label="Nombre" placeholder="nombre: " maxLength={100} value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
+                        <TextareaFuturistic label="Descripción" placeholder="Descripción" icon={Text} maxLength={500} value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} />
                         <InputFuturistic label="Precio" placeholder="precio: " icon={Banknote} type="number" min="0" step="0.01" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} />
-                        <InputFuturistic label="Unidad" placeholder="unidad: " icon={Boxes} type="number" min="0" step="0.01" value={newProduct.unit_type} onChange={(e) => setNewProduct({ ...newProduct, unit_type: e.target.value })} />
+                        <InputFuturistic label="Unidad" placeholder="UNIDAD, KILOGRAMO, LITRO..." icon={Boxes} type="text" maxLength={30} value={newProduct.unit_type} onChange={(e) => setNewProduct({ ...newProduct, unit_type: e.target.value })} />
                         <SelectFuturistic
                             label="Categoría"
                             options={[{ value: "", label: "Selecciona un categoría" }, ...categories.map((c) => ({ label: c.name, value: c.id_category.toString() }))]}
@@ -155,11 +155,11 @@ const ProductsAdministration = () => {
             >
                 {editingProduct && (
                     <>
-                        <InputFuturistic label="Nombre" placeholder="Nombre del producto" value={editingProduct.name} onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })} />
-                        <TextareaFuturistic label="Descripción" placeholder="Descripción del producto" value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} />
-                        <InputFuturistic label="SKU" placeholder="sku: SKU115" value={editingProduct.sku === null ? "" : editingProduct.sku} onChange={(e) => setEditingProduct({ ...editingProduct, sku: e.target.value })} />
+                        <InputFuturistic label="Nombre" placeholder="Nombre del producto" maxLength={100} value={editingProduct.name} onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })} />
+                        <TextareaFuturistic label="Descripción" placeholder="Descripción del producto" maxLength={500} value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} />
+                        <InputFuturistic label="SKU" placeholder="sku: SKU115" maxLength={50} value={editingProduct.sku === null ? "" : editingProduct.sku} onChange={(e) => setEditingProduct({ ...editingProduct, sku: e.target.value })} />
                         <InputFuturistic label="Precio" placeholder="Precio" type="number" min="0" step="0.01" value={editingProduct.price.toString()} onChange={(e) => setEditingProduct({ ...editingProduct, price: parseFloat(e.target.value) || 0 })} />
-                        <InputFuturistic label="Unidad" placeholder="Unidad" type="number" min="0" step="0.01" value={editingProduct.unit_type} onChange={(e) => setEditingProduct({ ...editingProduct, unit_type: e.target.value })} />
+                        <InputFuturistic label="Unidad" placeholder="UNIDAD, KILOGRAMO, LITRO..." type="text" maxLength={30} value={editingProduct.unit_type} onChange={(e) => setEditingProduct({ ...editingProduct, unit_type: e.target.value })} />
                         <SelectFuturistic
                             label="Categoría"
                             options={[{ value: "", label: "Selecciona un categoría" }, ...categories.map((c) => ({ label: c.name, value: c.id_category.toString() }))]}
@@ -179,11 +179,6 @@ const ProductsAdministration = () => {
                                 if (!editingProduct) return;
                                 if (editingProduct.price <= 0) {
                                     toast.error("El precio debe ser mayor a 0");
-                                    return;
-                                }
-                                const unitTypeNum = parseFloat(editingProduct.unit_type);
-                                if (isNaN(unitTypeNum) || unitTypeNum <= 0) {
-                                    toast.error("La unidad debe ser un número mayor a 0");
                                     return;
                                 }
                                 await editProduct(editingProduct.id_product, editingProduct);

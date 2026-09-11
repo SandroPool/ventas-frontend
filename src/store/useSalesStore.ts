@@ -47,15 +47,14 @@ export const useSalesStore = create<SalesState>((set) => ({
     registerSale: async (sale: Sale) => {
         const { fetchSales, currentPage, currentLimit, searchTerm } = useSalesStore.getState();
         set({ loadingSale: true });
-        const response = await createSale(sale);
-
-        if (response) {
+        try {
+            const response = await createSale(sale);
             toast.success("Venta registrada con éxito");
             fetchSales(currentPage, currentLimit, searchTerm);
             set({ loadingSale: false });
             return response;
-        } else {
-            toast.error("Error al registrar la venta");
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Error al registrar la venta");
             set({ loadingSale: false });
             return null;
         }
@@ -65,14 +64,14 @@ export const useSalesStore = create<SalesState>((set) => ({
     editSale: async (id_sale: number, sale: Sale) => {
         const { fetchSales, currentPage, currentLimit, searchTerm } = useSalesStore.getState();
         set({ loadingSale: true });
-        const response = await updateSale(id_sale, sale);
-        if (response) {
+        try {
+            await updateSale(id_sale, sale);
             toast.success("Venta actualizada con éxito");
             fetchSales(currentPage, currentLimit, searchTerm);
             set({ loadingSale: false });
             return true;
-        } else {
-            toast.error("Error al actualizar la venta");
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Error al actualizar la venta");
             set({ loadingSale: false });
             return false;
         }

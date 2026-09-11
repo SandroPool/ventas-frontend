@@ -10,7 +10,7 @@ import { Sale } from "../services/sales.service";
 import { createInstallments } from "../services/installment.service";
 
 export const useSalesAdministration = () => {
-    const [cart, setCart] = useState<{ product: Product; quantity: number }[]>([]);
+    const [cart, setCart] = useState<{ product: Product; quantity: number; unitPrice: number }[]>([]);
     const [highlightId, setHighlightId] = useState<number | null>(null);
     const [dniSearch, setDniSearch] = useState<string>("");
     const [customer, setCustomer] = useState<Customer | null>(null);
@@ -27,7 +27,7 @@ export const useSalesAdministration = () => {
     const { token } = useAuthStore();
 
     const decodedToken = token ? jwtDecode<{ id: number; role: string }>(token) : { id: 0, role: '' };
-    const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+    const total = cart.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
 
     useEffect(() => {
         if (paymentMethod.toLocaleLowerCase() === 'PagoEfectivo'.toLocaleLowerCase()) {
@@ -92,12 +92,20 @@ export const useSalesAdministration = () => {
                     i === index ? { ...item, quantity: item.quantity + 1 } : item
                 );
             }
-            return [...prevCart, { product, quantity: 1 }];
+            return [...prevCart, { product, quantity: 1, unitPrice: product.price }];
         });
 
         setHighlightId(product.id_product);
         setTimeout(() => setHighlightId(null), 1500);
         toast.success(`${product.name} añadido al carrito`);
+    };
+
+    const updatePrice = (id: number, price: number): void => {
+        setCart(prevCart => prevCart.map(item => {
+            if (item.product.id_product !== id) return item;
+            const minimumPrice = item.product.min_sale_price ?? 0;
+            return { ...item, unitPrice: Math.max(minimumPrice, Number.isFinite(price) ? price : minimumPrice) };
+        }));
     };
 
     const updateQuantity = (id: number, quantity: number): void => {
@@ -170,7 +178,7 @@ export const useSalesAdministration = () => {
             details: cart.map(item => ({
                 id_product: item.product.id_product,
                 quantity: item.quantity,
-                unit_price: item.product.price,
+                unit_price: item.unitPrice,
                 id_sale: 0,
                 id_detail: 0,
                 createdAt: saleDate,
@@ -216,6 +224,7 @@ export const useSalesAdministration = () => {
         handleSaveCustomer,
         handleProductSelect,
         updateQuantity,
+        updatePrice,
         removeProduct,
         handleConfirmRemove,
         clearCart,

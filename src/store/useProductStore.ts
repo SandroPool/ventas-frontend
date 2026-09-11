@@ -24,6 +24,7 @@ export interface Product {
     createdAt: string;
     fecha_vencimiento: string | null;
     stock?: number;
+    min_sale_price?: number;
 }
 
 export interface ProductPagination {

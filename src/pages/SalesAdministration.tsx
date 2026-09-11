@@ -21,6 +21,7 @@ const SalesAdministration: FC = (): JSX.Element => {
         handleSaveCustomer,
         handleProductSelect,
         updateQuantity,
+        updatePrice,
         removeProduct,
         handleConfirmRemove,
         clearCart,
@@ -171,6 +172,7 @@ const SalesAdministration: FC = (): JSX.Element => {
                     cart={cart}
                     highlightId={highlightId}
                     updateQuantity={updateQuantity}
+                    updatePrice={updatePrice}
                     removeProduct={removeProduct}
                     clearCart={clearCart}
                     registerSale={handleRegisterSale}

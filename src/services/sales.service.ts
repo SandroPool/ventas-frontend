@@ -83,12 +83,15 @@ export const createSale = async (sale: Sale) => {
             body: JSON.stringify(sale),
         });
 
-        if (!response.ok) throw new Error("Error al registrar la venta");
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(errorData?.error || "Error al registrar la venta");
+        }
 
         return await response.json();
     } catch (error) {
         console.error("Error en createSale:", error);
-        return null;
+        throw error;
     }
 };
 
@@ -100,11 +103,14 @@ export const updateSale = async (id_sale: number, sale: Sale) => {
             body: JSON.stringify(sale),
         });
 
-        if (!response.ok) throw new Error("Error al actualizar la venta");
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(errorData?.error || "Error al actualizar la venta");
+        }
 
         return await response.json();
     } catch (error) {
         console.error("Error en updateSale:", error);
-        return null;
+        throw error;
     }
 };

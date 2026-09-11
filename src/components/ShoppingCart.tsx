@@ -4,9 +4,10 @@ import { Banknote, Box, Minus, Plus, Trash2, X, ShoppingCart as CartIcon } from 
 import { ButtonFuturistic, TitleFuturistic } from ".";
 
 interface ShoppingCartProps {
-    cart: { product: Product; quantity: number }[];
+    cart: { product: Product; quantity: number; unitPrice: number }[];
     highlightId: number | null;
     updateQuantity: (id: number, quantity: number) => void;
+    updatePrice: (id: number, price: number) => void;
     removeProduct: (id: number) => void;
     clearCart: () => void;
     registerSale: () => Promise<void>;
@@ -20,6 +21,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
     cart,
     highlightId,
     updateQuantity,
+    updatePrice,
     removeProduct,
     clearCart,
     registerSale,
@@ -50,7 +52,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
                 </div>
             ) : (
                 <div className={`space-y-3 ${cart.length >= 5 ? "max-h-96 overflow-y-auto pr-2" : ""}`}>
-                    {cart.map(({ product, quantity }) => (
+                    {cart.map(({ product, quantity, unitPrice }) => (
                         <div
                             key={product.id_product}
                             className={`flex items-center gap-4 p-4 rounded-lg bg-gray-50 dark:bg-dark-elevated/80 border ${highlightId === product.id_product
@@ -98,8 +100,21 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
 
                             {/* Precio */}
                             <div className="text-right">
-                                <p className="font-semibold text-gray-800 dark:text-dark-primary">S/{product.price.toFixed(2)}</p>
-                                <p className="text-sm text-gray-600 dark:text-dark-secondary mt-1">Total: S/{(product.price * quantity).toFixed(2)}</p>
+                                <label className="flex items-center justify-end gap-1 text-sm text-gray-600 dark:text-dark-secondary">
+                                    Precio unitario
+                                    <span>S/</span>
+                                    <input
+                                        type="number"
+                                        min={product.min_sale_price ?? 0}
+                                        step="0.01"
+                                        value={unitPrice}
+                                        onChange={(event) => updatePrice(product.id_product, Number(event.target.value))}
+                                        className="w-24 rounded-md border border-teal-500 bg-transparent px-2 py-1 text-right font-semibold text-gray-800 dark:text-dark-primary"
+                                        aria-label={`Precio unitario de ${product.name}`}
+                                    />
+                                </label>
+                                <p className="mt-1 text-xs text-gray-500 dark:text-dark-muted">Mínimo: S/{(product.min_sale_price ?? 0).toFixed(2)}</p>
+                                <p className="text-sm text-gray-600 dark:text-dark-secondary mt-1">Total: S/{(unitPrice * quantity).toFixed(2)}</p>
                             </div>
                         </div>
                     ))}

@@ -81,7 +81,16 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
                                         >
                                             <Minus size={14} />
                                         </button>
-                                        <span className="w-8 text-center text-sm font-medium">{quantity}</span>
+                                        <input
+                                            type="number"
+                                            min={1}
+                                            max={product.stock ?? undefined}
+                                            value={quantity}
+                                            onFocus={(event) => event.currentTarget.select()}
+                                            onChange={(event) => updateQuantity(product.id_product, Number(event.target.value))}
+                                            className="w-16 bg-transparent text-center text-sm font-medium focus:outline-none"
+                                            aria-label={`Cantidad de ${product.name}`}
+                                        />
                                         <button
                                             onClick={() => updateQuantity(product.id_product, quantity + 1)}
                                             className="p-1 hover:text-teal-600 dark:hover:text-teal-400"

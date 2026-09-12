@@ -114,9 +114,9 @@ export const useSalesAdministration = () => {
                 .map(item => {
                     if (item.product.id_product !== id) return item;
                     const maxStock = item.product.stock ?? Infinity;
-                    return { ...item, quantity: Math.max(0, Math.min(quantity, maxStock)) };
+                    const validQuantity = Number.isFinite(quantity) && quantity >= 1 ? quantity : 1;
+                    return { ...item, quantity: Math.max(1, Math.min(validQuantity, maxStock)) };
                 })
-                .filter(item => item.quantity > 0)
         );
     };
 

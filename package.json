@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "framer-motion": "^12.4.9",
     "idb": "^8.0.2",
     "jspdf": "3.0.1",
     "jspdf-autotable": "5.0.2",

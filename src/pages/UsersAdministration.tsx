@@ -1,5 +1,5 @@
 import { FC, JSX } from "react";
-import { Edit, CheckCircle, XCircle, UserPlus, SaveAll, LoaderPinwheel } from "lucide-react";
+import { Edit, CheckCircle, XCircle, UserPlus, SaveAll, LoaderPinwheel, CircleX } from "lucide-react";
 import { ButtonFuturistic, InputFuturistic, TitleFuturistic, ModalFuturistic, SelectFuturistic, SwitchFuturistic } from "../components";
 import TableFuturistic, { Column } from "../components/TableFuturistic";
 import { UserProfile, Role } from "../store/useAuthStore";
@@ -98,7 +98,7 @@ const UsersAdministration: FC = (): JSX.Element => {
             />
 
             <ModalFuturistic isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Editar Usuario">
-                <div className="flex flex-col gap-3">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <InputFuturistic label="Nombre" type="text" placeholder="nombre:" name="name" value={formData.name} onChange={handleInputChange} />
                     <InputFuturistic label="Correo Electrónico" type="email" placeholder="email@example.com" name="email" value={formData.email} onChange={handleInputChange} />
                     <SelectFuturistic
@@ -112,13 +112,26 @@ const UsersAdministration: FC = (): JSX.Element => {
                         value={formData.role || ""}
                         onChange={(e) => setFormData({ ...formData, role: e.target.value as Role })} />
                     <SwitchFuturistic label="Estado" checked={formData.status} onChange={(checked) => setFormData({ ...formData, status: checked })} />
-                    <InputFuturistic label="Nueva Contraseña" type="password" placeholder="nueva contraseña:(opcional)" name="password" value={formData.password} onChange={handleInputChange} />
-                    <ButtonFuturistic
-                        label={loading ? "" : "Actualizar Usuario"}
-                        onClick={handleSubmitEdit}
-                        gradient="bg-teal-500"
-                        disabled={!isFormValid || loading}
-                        icon={loading ? LoaderPinwheel : SaveAll} />
+                    <div className="md:col-span-2">
+                        <InputFuturistic label="Nueva Contraseña" type="password" placeholder="nueva contraseña:(opcional)" name="password" value={formData.password} onChange={handleInputChange} />
+                    </div>
+                    <div className="md:col-span-2 flex justify-start gap-3">
+                        <ButtonFuturistic
+                            label="Cancelar"
+                            gradient="bg-red-500"
+                            icon={CircleX}
+                            className="m-0"
+                            onClick={() => setIsEditModalOpen(false)}
+                        />
+                        <ButtonFuturistic
+                            label={loading ? "" : "Actualizar Usuario"}
+                            onClick={handleSubmitEdit}
+                            gradient="bg-teal-500"
+                            disabled={!isFormValid || loading}
+                            icon={loading ? LoaderPinwheel : SaveAll}
+                            className="m-0"
+                        />
+                    </div>
                 </div>
             </ModalFuturistic>
 
@@ -133,11 +146,22 @@ const UsersAdministration: FC = (): JSX.Element => {
                             .filter(role => role !== Role.ROOT)
                             .map(role => ({ label: role, value: role }))} value={formData.role}
                         onChange={(e) => setFormData({ ...formData, role: e.target.value as Role })} />
-                    <ButtonFuturistic
-                        label={loading ? "" : "Registrar Usuario"}
-                        onClick={handleRegisterUser}
-                        disabled={!isFormValid || loading}
-                        icon={loading ? LoaderPinwheel : SaveAll} />
+                    <div className="flex justify-start gap-3">
+                        <ButtonFuturistic
+                            label="Cancelar"
+                            gradient="bg-red-500"
+                            icon={CircleX}
+                            className="m-0"
+                            onClick={() => setIsRegisterModalOpen(false)}
+                        />
+                        <ButtonFuturistic
+                            label={loading ? "" : "Registrar Usuario"}
+                            onClick={handleRegisterUser}
+                            disabled={!isFormValid || loading}
+                            icon={loading ? LoaderPinwheel : SaveAll}
+                            className="m-0"
+                        />
+                    </div>
                 </div>
             </ModalFuturistic>
         </div>

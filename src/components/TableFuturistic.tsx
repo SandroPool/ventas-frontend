@@ -3,7 +3,6 @@ import {
     ChevronLeft, ChevronRight, MoreHorizontal,
     LoaderPinwheel, ArchiveX, Search, CircleX
 } from "lucide-react";
-import { motion } from "framer-motion";
 import TruncatedText from "./TruncatedText";
 
 export interface Column<T> {
@@ -105,7 +104,7 @@ const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, onPageCha
 
             {/* Tabla */}
             <div className="w-full overflow-x-auto">
-                <motion.table className="w-full border-collapse min-w-[600px]">
+                <table className="w-full min-w-[600px] border-collapse">
                     <thead className="bg-gradient-to-r bg-teal-500 text-white dark:bg-dark-elevated">
                         <tr>
                             {columns.map(({ key, label, icon: Icon }, colIndex) => (
@@ -144,12 +143,9 @@ const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, onPageCha
                         ) : (
                             // Si hay datos, renderizar las filas
                             data.map((row, rowIndex) => (
-                                <motion.tr
+                                <tr
                                     key={rowIndex}
-                                    className="border-b border-gray-300 hover:bg-gray-200 dark:border-dark-border dark:hover:bg-dark-elevated transition-colors"
-                                    initial={{ opacity: 0, y: -10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: rowIndex * 0.1 }}
+                                    className="border-b border-gray-300 transition-colors hover:bg-gray-200 dark:border-dark-border dark:hover:bg-dark-elevated"
                                 >
                                     {columns.map(({ key, render }, colIndex) => (
                                         <td key={`${String(key)}-${colIndex}`} className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm">
@@ -163,11 +159,11 @@ const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, onPageCha
                                         </td>
                                     ))}
                                     {actions && <td className="px-2 sm:px-4 py-2 sm:py-3 flex gap-2">{actions(row)}</td>}
-                                </motion.tr>
+                                </tr>
                             ))
                         )}
                     </tbody>
-                </motion.table>
+                </table>
             </div>
 
             {/* 🔹 Paginación optimizada */}
@@ -182,15 +178,14 @@ const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, onPageCha
                 </button>
 
                 {generatePagination().map((page, index) => (
-                    <motion.button
+                    <button
                         key={index}
                         onClick={() => typeof page === "number" && onPageChange(page)}
                         className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg text-xs sm:text-sm 
-                    ${currentPage === page ? "bg-teal-500 text-white scale-110" : "hover:bg-gray-300 dark:hover:bg-dark-card transition-colors"}`}
-                        whileHover={{ scale: 1.1 }}
+                    ${currentPage === page ? "bg-teal-500 text-white" : "hover:bg-gray-300 dark:hover:bg-dark-card transition-colors"}`}
                     >
                         {page === "..." ? <MoreHorizontal size={16} /> : page}
-                    </motion.button>
+                    </button>
                 ))}
 
                 <button

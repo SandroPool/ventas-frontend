@@ -1,5 +1,5 @@
 import { JSX, FC } from "react";
-import { Banknote, Calendar, LoaderPinwheel, Pencil, Plus, Wallet } from "lucide-react";
+import { Banknote, Calendar, CircleX, LoaderPinwheel, Pencil, Plus, Wallet } from "lucide-react";
 import { useReceptionsAdministration } from "../hooks/useReceptionsAdministration";
 import { ButtonFuturistic, InputFuturistic, ModalFuturistic, TitleFuturistic, ProductAutocomplete, SupplierAutocomplete } from "../components";
 import TableFuturistic, { Column } from "../components/TableFuturistic";
@@ -54,13 +54,20 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
                             onChange={(e) => setNewProductReception((prev) => ({ ...prev, date: e.target.value }))}
                         />
                     </div>
-                    <div className="col-span-2">
+                    <div className="col-span-2 flex justify-start gap-3">
+                        <ButtonFuturistic
+                            label="Cancelar"
+                            gradient="bg-red-500"
+                            icon={CircleX}
+                            className="m-0"
+                            onClick={() => setIsAddProductReceptionModalOpen(false)}
+                        />
                         <ButtonFuturistic
                             label={loading ? "" : "Guardar Cambios"}
                             icon={loading ? LoaderPinwheel : Pencil}
                             onClick={handleAddProductReception}
                             disabled={loading}
-                            className="mt-3 w-full"
+                            className="m-0"
                         />
                     </div>
                 </div>
@@ -68,7 +75,7 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
 
             <ModalFuturistic isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Editar Recepción">
                 {editedReception && (
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+                    <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
                         <ProductAutocomplete onSelect={(product) => setEditedReception(prev => ({ ...prev!, id_product: product.id_product }))} />
                         <SupplierAutocomplete onSelect={(supplier) => setEditedReception(prev => ({ ...prev!, id_supplier: supplier.id_supplier }))} />
                         <InputFuturistic label="Cantidad" icon={Wallet} type="number" placeholder="0" value={editedReception.quantity || ""} onChange={(e) =>
@@ -77,13 +84,20 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
                         <InputFuturistic label="Precio de Compra" icon={Banknote} type="number" placeholder="S/" value={editedReception.purchase_price || ""} onChange={(e) =>
                             setEditedReception(prev => ({ ...prev!, purchase_price: Number(e.target.value) }))
                         } />
-                        <div className="col-span-2">
+                        <div className="md:col-span-2 flex justify-start gap-3">
+                            <ButtonFuturistic
+                                label="Cancelar"
+                                gradient="bg-red-500"
+                                icon={CircleX}
+                                className="m-0"
+                                onClick={() => setIsEditModalOpen(false)}
+                            />
                             <ButtonFuturistic
                                 label={loading ? "" : "Actualizar"}
                                 icon={loading ? LoaderPinwheel : Pencil}
                                 onClick={handleEditReception}
                                 disabled={loading}
-                                className="mt-3 w-full"
+                                className="m-0"
                             />
                         </div>
                     </div>

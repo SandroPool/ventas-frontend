@@ -7,7 +7,7 @@ interface PropsTextarea extends React.TextareaHTMLAttributes<HTMLTextAreaElement
     icon?: LucideIcon;
 }
 
-const TextareaFuturistic = ({ label, placeholder, rows = 4, icon: Icon, ...props }: PropsTextarea) => (
+const TextareaFuturistic = ({ label, placeholder, rows = 2, icon: Icon, ...props }: PropsTextarea) => (
     <div className="flex flex-col w-full relative">
         {label && <label className="mb-2 text-gray-900 dark:text-dark-primary font-semibold">{label}</label>}
         <div className="relative w-full">

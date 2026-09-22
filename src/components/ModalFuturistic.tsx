@@ -1,5 +1,4 @@
 import { X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface PropsModal {
     isOpen: boolean;
@@ -11,42 +10,34 @@ interface PropsModal {
 
 const ModalFuturistic = ({ isOpen, onClose, title, children, className = "" }: PropsModal) => {
     return (
-        <AnimatePresence>
-            {isOpen && (
-                <motion.div
-                    className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-[60] p-4"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
+        <div
+            className={`fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto bg-black/50 p-4 backdrop-blur-sm transition-opacity duration-300 md:items-center ${
+                isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+            }`}
+            aria-hidden={!isOpen}
+        >
+            <div
+                className={`relative max-h-[calc(100dvh-2rem)] w-[92vw] max-w-3xl overflow-y-auto rounded-lg bg-slate-50 p-6 shadow-2xl transition-all duration-300 ease-out dark:bg-dark-base ${
+                    isOpen ? "translate-y-0 scale-100 opacity-100" : "translate-y-4 scale-95 opacity-0"
+                } ${className}`}
+            >
+                <button
+                    onClick={onClose}
+                    className="absolute right-4 top-4 p-1 text-gray-400 hover:text-gray-700 dark:hover:text-dark-primary"
+                    aria-label="Cerrar modal"
                 >
-                    <motion.div
-                        className={`dark:bg-dark-base bg-slate-50 text-white p-6 rounded-lg shadow-2xl relative w-11/12 max-w-lg ${className}`}
-                        initial={{ y: -50, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: -50, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        {/* Botón de Cierre */}
-                        <button
-                            onClick={onClose}
-                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-dark-primary p-1"
-                        >
-                            <X size={24} />
-                        </button>
+                    <X size={24} />
+                </button>
 
-                        {/* Título */}
-                        {title && (
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-dark-primary mb-5 text-center">
-                                {title}
-                            </h2>
-                        )}
+                {title && (
+                    <h2 className="mb-5 text-center text-xl font-semibold text-gray-900 dark:text-dark-primary">
+                        {title}
+                    </h2>
+                )}
 
-                        {/* Contenido */}
-                        <div className="space-y-4">{children}</div>
-                    </motion.div>
-                </motion.div>
-            )}
-        </AnimatePresence>
+                <div className="w-full space-y-4">{children}</div>
+            </div>
+        </div>
     );
 };
 

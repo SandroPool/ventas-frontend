@@ -3,7 +3,7 @@ import {
     ButtonFuturistic, ModalFuturistic, TitleFuturistic,
     TableFuturistic, InputFuturistic
 } from "../components";
-import { DockIcon, LoaderPinwheel, SaveAllIcon, Settings2Icon, RotateCcw, Eye, Receipt } from "lucide-react";
+import { DockIcon, LoaderPinwheel, SaveAllIcon, Settings2Icon, RotateCcw, Eye, Receipt, CircleX } from "lucide-react";
 import generatePDF from "../utils/generatePDF";
 import { formatDate } from "../utils/functionDate";
 
@@ -50,42 +50,58 @@ const TicketsAdministration = () => {
                 onClose={() => setIsConfigModalOpen(false)}
                 title="Editar Boleta"
             >
-                <InputFuturistic
-                    label="Nombre: "
-                    type="text"
-                    placeholder="Nombre de la empresa"
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                />
-                <InputFuturistic
-                    label="Logo: "
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                        const file = e.target.files?.[0] || null;
-                        setLogoFile(file);
-
-                        if (file) {
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                                setLogoPreview(reader.result as string);
-                            };
-                            reader.readAsDataURL(file);
-                        }
-                    }}
-                />
-                {logoPreview && (
-                    <div className="mt-2">
-                        <p className="text-lg text-gray-700 dark:text-dark-primary mb-1">Imagen Actual:</p>
-                        <img src={logoPreview} alt="Logo preview" className="h-auto object-contain border rounded p-2 bg-white" />
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="md:col-span-2">
+                        <InputFuturistic
+                            label="Nombre: "
+                            type="text"
+                            placeholder="Nombre de la empresa"
+                            value={companyName}
+                            onChange={(e) => setCompanyName(e.target.value)}
+                        />
                     </div>
-                )}
-                <ButtonFuturistic
-                    icon={isSavingConfig ? LoaderPinwheel : SaveAllIcon}
-                    label={isSavingConfig ? "" : "Registrar"}
-                    onClick={handleSaveConfig}
-                    disabled={isSavingConfig}
-                />
+                    <div className="md:col-span-2">
+                        <InputFuturistic
+                            label="Logo: "
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files?.[0] || null;
+                                setLogoFile(file);
+
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                        setLogoPreview(reader.result as string);
+                                    };
+                                    reader.readAsDataURL(file);
+                                }
+                            }}
+                        />
+                    </div>
+                    {logoPreview && (
+                        <div className="md:col-span-2 mt-2">
+                            <p className="text-lg text-gray-700 dark:text-dark-primary mb-1">Imagen Actual:</p>
+                            <img src={logoPreview} alt="Logo preview" className="h-auto object-contain border rounded p-2 bg-white" />
+                        </div>
+                    )}
+                    <div className="md:col-span-2 flex justify-start gap-3">
+                        <ButtonFuturistic
+                            label="Cancelar"
+                            gradient="bg-red-500"
+                            icon={CircleX}
+                            className="m-0"
+                            onClick={() => setIsConfigModalOpen(false)}
+                        />
+                        <ButtonFuturistic
+                            icon={isSavingConfig ? LoaderPinwheel : SaveAllIcon}
+                            label={isSavingConfig ? "" : "Registrar"}
+                            onClick={handleSaveConfig}
+                            disabled={isSavingConfig}
+                            className="m-0"
+                        />
+                    </div>
+                </div>
             </ModalFuturistic>
 
             <TableFuturistic

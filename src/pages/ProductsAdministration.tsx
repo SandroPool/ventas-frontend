@@ -1,6 +1,6 @@
 import { useProductsAdministration } from "../hooks/useProductsAdministration";
 import { ButtonFuturistic, InputFuturistic, ModalFuturistic, TitleFuturistic, TableFuturistic, SelectFuturistic, TextareaFuturistic, SwitchFuturistic } from "../components";
-import { LoaderPinwheel, Pencil, Plus, List, CheckCircle, XCircle, Banknote, Text, Boxes } from "lucide-react";
+import { LoaderPinwheel, Pencil, Plus, List, CheckCircle, XCircle, Banknote, Text, Boxes, CircleX } from "lucide-react";
 import toast from "react-hot-toast";
 
 const ProductsAdministration = () => {
@@ -85,7 +85,15 @@ const ProductsAdministration = () => {
                             value={newProduct.fecha_vencimiento || ""}
                             onChange={(e) => setNewProduct({ ...newProduct, fecha_vencimiento: e.target.value || null })}
                         />
-                        <ButtonFuturistic label={loading ? "" : "Crear Producto"} icon={loading ? LoaderPinwheel : Plus} onClick={handleAddProduct} disabled={loading} className="mt-3 w-full" />
+                        <div className="mt-4 flex justify-start gap-3">
+                            <ButtonFuturistic 
+                            label="Cancelar" 
+                            gradient="bg-red-500"
+                            icon={CircleX}
+                            className="m-0" 
+                            onClick={() => setIsProductModalOpen(false)} />
+                            <ButtonFuturistic label={loading ? "" : "Crear Producto"} icon={loading ? LoaderPinwheel : Plus} onClick={handleAddProduct} disabled={loading} className="m-0" />
+                        </div>
                     </ModalFuturistic>
 
                     <TableFuturistic
@@ -152,11 +160,11 @@ const ProductsAdministration = () => {
                     setEditingProduct(null);
                 }}
                 title="Editar Producto"
+                className="max-w-3xl"
             >
                 {editingProduct && (
-                    <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <InputFuturistic label="Nombre" placeholder="Nombre del producto" maxLength={100} value={editingProduct.name} onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })} />
-                        <TextareaFuturistic label="Descripción" placeholder="Descripción del producto" maxLength={500} value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} />
                         <InputFuturistic label="SKU" placeholder="sku: SKU115" maxLength={50} value={editingProduct.sku === null ? "" : editingProduct.sku} onChange={(e) => setEditingProduct({ ...editingProduct, sku: e.target.value })} />
                         <InputFuturistic label="Precio" placeholder="Precio" type="number" min="0" step="0.01" value={editingProduct.price.toString()} onChange={(e) => setEditingProduct({ ...editingProduct, price: parseFloat(e.target.value) || 0 })} />
                         <InputFuturistic label="Unidad" placeholder="UNIDAD, KILOGRAMO, LITRO..." type="text" maxLength={30} value={editingProduct.unit_type} onChange={(e) => setEditingProduct({ ...editingProduct, unit_type: e.target.value })} />
@@ -172,22 +180,34 @@ const ProductsAdministration = () => {
                             value={editingProduct.fecha_vencimiento ? new Date(editingProduct.fecha_vencimiento).toISOString().split('T')[0] : ""}
                             onChange={(e) => setEditingProduct({ ...editingProduct, fecha_vencimiento: e.target.value })}
                         />
-                        <ButtonFuturistic className="mt-3 w-full"
-                            label={loading ? "" : "Guardar Cambios"}
-                            icon={loading ? LoaderPinwheel : Pencil}
-                            onClick={async () => {
-                                if (!editingProduct) return;
-                                if (editingProduct.price <= 0) {
-                                    toast.error("El precio debe ser mayor a 0");
-                                    return;
-                                }
-                                await editProduct(editingProduct.id_product, editingProduct);
+                        <TextareaFuturistic  label="Descripción" placeholder="Descripción del producto"  value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} />
+                        <div className="md:col-span-2 flex justify-start gap-3">
+                            <ButtonFuturistic 
+                            label="Cancelar" 
+                            gradient="bg-red-500"
+                            icon={CircleX}
+                            className="m-0" 
+                            onClick={() => {
                                 setIsEditProductModalOpen(false);
                                 setEditingProduct(null);
-                            }}
-                            disabled={loading}
-                        />
-                    </>
+                            }} />
+                            <ButtonFuturistic className="m-0"
+                                label={loading ? "" : "Guardar Cambios"}
+                                icon={loading ? LoaderPinwheel : Pencil}
+                                onClick={async () => {
+                                    if (!editingProduct) return;
+                                    if (editingProduct.price <= 0) {
+                                        toast.error("El precio debe ser mayor a 0");
+                                        return;
+                                    }
+                                    await editProduct(editingProduct.id_product, editingProduct);
+                                    setIsEditProductModalOpen(false);
+                                    setEditingProduct(null);
+                                }}
+                                disabled={loading}
+                            />
+                        </div>
+                    </div>
                 )}
             </ModalFuturistic>
 
@@ -203,12 +223,21 @@ const ProductsAdministration = () => {
                         setEditingCategory((prev) => (prev ? { ...prev, name: e.target.value } : null))
                     }
                 />
-                <div className="flex mt-4">
+                <div className="mt-4 flex justify-start gap-3">
                     <ButtonFuturistic
-                        className="w-full"
+                        label="Cancelar"
+                        gradient="bg-red-500"
+                        icon={CircleX}
+                        className="m-0"
+                        onClick={() => setIsModalOpen(false)}
+                    />
+                    <ButtonFuturistic
+                        className="m-0"
                         label={loading ? "" : "Guardar"}
                         icon={loading ? LoaderPinwheel : Plus}
-                        onClick={handleEditCategory} disabled={loading} />
+                        onClick={handleEditCategory}
+                        disabled={loading}
+                    />
                 </div>
             </ModalFuturistic>
         </div>

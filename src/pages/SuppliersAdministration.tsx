@@ -1,6 +1,6 @@
 import { useSuppliersAdministration } from "../hooks/useSuppliersAdministration";
 import { ButtonFuturistic, InputFuturistic, ModalFuturistic, TitleFuturistic, TableFuturistic } from "../components";
-import { LoaderPinwheel, Pencil, Plus } from "lucide-react";
+import { CircleX, LoaderPinwheel, Pencil, Plus } from "lucide-react";
 
 const SuppliersAdministration = () => {
     const {
@@ -27,7 +27,19 @@ const SuppliersAdministration = () => {
                     <InputFuturistic label="Dirección" placeholder="Dirección" value={newSupplier.address} onChange={(e) => setNewSupplier({ ...newSupplier, address: e.target.value })} />
                     <InputFuturistic label="Teléfono" placeholder="Teléfono" type="number" value={newSupplier.phone} onChange={(e) => setNewSupplier({ ...newSupplier, phone: e.target.value })} />
                     <InputFuturistic label="Contacto" placeholder="Contacto" value={newSupplier.contact} onChange={(e) => setNewSupplier({ ...newSupplier, contact: e.target.value })} />
-                    <ButtonFuturistic label={loading ? "" : "Crear Proveedor"} icon={loading ? LoaderPinwheel : Plus} onClick={handleAddSupplier} disabled={loading} className="mt-3 w-full" />
+                    <div className="mt-4 flex justify-start gap-3">
+                        <ButtonFuturistic
+                            label="Cancelar"
+                            gradient="bg-red-500"
+                            icon={CircleX}
+                            className="m-0"
+                            onClick={() => setIsAddSupplierModalOpen(false)} />
+                        <ButtonFuturistic
+                            label={loading ? "" : "Crear Proveedor"}
+                            icon={loading ? LoaderPinwheel : Plus}
+                            onClick={handleAddSupplier} disabled={loading}
+                            className="m-0" />
+                    </div>
                 </ModalFuturistic>
                 <TableFuturistic
                     columns={[
@@ -59,14 +71,22 @@ const SuppliersAdministration = () => {
                 />
                 <ModalFuturistic isOpen={isEditSupplierModalOpen} onClose={() => setIsEditSupplierModalOpen(false)} title="Editar Proveedor">
                     {editingSupplier && (
-                        <>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <InputFuturistic label="Nombre" value={editingSupplier.name} onChange={(e) => setEditingSupplier({ ...editingSupplier, name: e.target.value })} />
                             <InputFuturistic label="RUC" value={editingSupplier.ruc} onChange={(e) => setEditingSupplier({ ...editingSupplier, ruc: e.target.value })} />
                             <InputFuturistic label="Dirección" value={editingSupplier.address} onChange={(e) => setEditingSupplier({ ...editingSupplier, address: e.target.value })} />
                             <InputFuturistic label="Teléfono" type="number" value={editingSupplier.phone.toString()} onChange={(e) => setEditingSupplier({ ...editingSupplier, phone: e.target.value })} />
                             <InputFuturistic label="Contacto" value={editingSupplier.contact} onChange={(e) => setEditingSupplier({ ...editingSupplier, contact: e.target.value })} />
-                            <ButtonFuturistic label={loading ? "" : "Guardar Cambios"} icon={loading ? LoaderPinwheel : Pencil} onClick={handleEditSupplier} disabled={loading} className="mt-3 w-full" />
-                        </>
+                            <div className="md:col-span-2 flex justify-start gap-3">
+                                <ButtonFuturistic
+                                    label="Cancelar"
+                                    gradient="bg-red-500"
+                                    icon={CircleX}
+                                    className="m-0"
+                                    onClick={() => setIsEditSupplierModalOpen(false)} />
+                                <ButtonFuturistic label={loading ? "" : "Guardar Cambios"} icon={loading ? LoaderPinwheel : Pencil} onClick={handleEditSupplier} disabled={loading} className="m-0" />
+                            </div>
+                        </div>
                     )}
                 </ModalFuturistic>
             </div>

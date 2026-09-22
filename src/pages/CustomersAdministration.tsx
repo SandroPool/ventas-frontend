@@ -1,12 +1,12 @@
-import { useCustomersAdministration } from "../hooks/useCustomersAdministration";
+import { CircleX, LoaderPinwheel, Pencil, Plus, Save } from "lucide-react";
 import {
     ButtonFuturistic,
     InputFuturistic,
     ModalFuturistic,
-    TitleFuturistic,
-    TableFuturistic
+    TableFuturistic,
+    TitleFuturistic
 } from "../components";
-import { LoaderPinwheel, Pencil, Plus, Save } from "lucide-react";
+import { useCustomersAdministration } from "../hooks/useCustomersAdministration";
 
 const CustomersAdministration = () => {
     const {
@@ -89,7 +89,21 @@ const CustomersAdministration = () => {
                         setNewCustomer({ ...newCustomer, dni: value })
                     }}
                 />
-                <ButtonFuturistic label={loading ? "" : "Guardar Cliente"} icon={loading ? LoaderPinwheel : Save} onClick={handleAddCustomer} />
+                <div className="mt-4 flex justify-start gap-3">
+                    <ButtonFuturistic
+                        label="Cancelar"
+                        gradient="bg-red-500"
+                        icon={CircleX}
+                        className="m-0"
+                        onClick={() => setIsAddCustomerModalOpen(false)}
+                    />
+                    <ButtonFuturistic
+                        label={loading ? "" : "Guardar Cliente"}
+                        icon={loading ? LoaderPinwheel : Save}
+                        onClick={handleAddCustomer}
+                        className="m-0"
+                    />
+                </div>
             </ModalFuturistic>
 
             <ModalFuturistic
@@ -98,7 +112,7 @@ const CustomersAdministration = () => {
                 title="Editar Cliente"
             >
                 {editingCustomer && (
-                    <>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <InputFuturistic
                             label="Nombre"
                             placeholder="nombre"
@@ -127,8 +141,22 @@ const CustomersAdministration = () => {
                                 setEditingCustomer({ ...editingCustomer, dni: value });
                             }}
                         />
-                        <ButtonFuturistic label={loading ? "" : "Actualizar Cliente"} icon={loading ? LoaderPinwheel : Plus} onClick={handleEditCustomer} />
-                    </>
+                        <div className="md:col-span-2 flex justify-start gap-3">
+                            <ButtonFuturistic
+                                label="Cancelar"
+                                gradient="bg-red-500"
+                                icon={CircleX}
+                                className="m-0"
+                                onClick={() => setIsEditCustomerModalOpen(false)}
+                            />
+                            <ButtonFuturistic
+                                label={loading ? "" : "Actualizar Cliente"}
+                                icon={loading ? LoaderPinwheel : Plus}
+                                onClick={handleEditCustomer}
+                                className="m-0"
+                            />
+                        </div>
+                    </div>
                 )}
             </ModalFuturistic>
         </div>

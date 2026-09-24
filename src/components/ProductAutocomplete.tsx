@@ -98,7 +98,12 @@ const ProductAutocomplete = ({ onSelect }: { onSelect: (product: Product) => voi
                                 onClick={() => handleSelect(product)}
                                 onMouseEnter={() => setSelectedIndex(index)}
                             >
-                                {product.name}
+                                <div className="flex items-center justify-between gap-3">
+                                    <span className="truncate">{product.name}</span>
+                                    <span className={`shrink-0 text-xs font-semibold ${selectedIndex === index ? "text-white/90" : "text-teal-600 dark:text-teal-400"}`}>
+                                        Stock: {product.stock ?? 0}
+                                    </span>
+                                </div>
                             </li>
                         ))
                     ) : (

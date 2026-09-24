@@ -45,6 +45,7 @@ const TicketsAdministration = () => {
                 onClick={() => setIsConfigModalOpen(true)}
             />
 
+            <div className="lg:w-3/4 w-full">
             <ModalFuturistic
                 isOpen={isConfigModalOpen}
                 onClose={() => setIsConfigModalOpen(false)}
@@ -103,6 +104,7 @@ const TicketsAdministration = () => {
                     </div>
                 </div>
             </ModalFuturistic>
+            </div>
 
             <TableFuturistic
                 columns={[
@@ -160,6 +162,7 @@ const TicketsAdministration = () => {
                 loading={loadingSale}
             />
 
+            <div className="lg:w-3/4 w-full">
             <ModalFuturistic isOpen={returnModalOpen} onClose={() => setReturnModalOpen(false)} title="Registrar Devoluci&oacute;n" className="max-w-2xl">
                 {selectedSale && (
                     <div className="space-y-6">
@@ -233,7 +236,9 @@ const TicketsAdministration = () => {
                     </div>
                 )}
             </ModalFuturistic>
+            </div>
 
+            <div className="lg:w-3/4 w-full">
             <ModalFuturistic isOpen={saleDetailOpen} onClose={() => setSaleDetailOpen(false)} title="" className="max-w-2xl">
                 {selectedSale && (
                     <div className="-m-6">
@@ -316,7 +321,10 @@ const TicketsAdministration = () => {
                     </div>
                 )}
             </ModalFuturistic>
+            </div>
 
+            
+            <div className="lg:w-3/4 w-full">
             <ModalFuturistic isOpen={returnsViewOpen} onClose={() => setReturnsViewOpen(false)} title="" className="max-w-2xl">
                 {selectedSale && (
                     <div className="-m-6">
@@ -394,6 +402,7 @@ const TicketsAdministration = () => {
                     </div>
                 )}
             </ModalFuturistic>
+            </div>
         </div>
     );
 };

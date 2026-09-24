@@ -153,6 +153,7 @@ const ProductsAdministration = () => {
                 </div>
             </div>
 
+            <div className="lg:w-3/4 w-full">
             <ModalFuturistic
                 isOpen={isEditProductModalOpen}
                 onClose={() => {
@@ -160,10 +161,9 @@ const ProductsAdministration = () => {
                     setEditingProduct(null);
                 }}
                 title="Editar Producto"
-                className="max-w-3xl"
             >
                 {editingProduct && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start pt-1">
                         <InputFuturistic label="Nombre" placeholder="Nombre del producto" maxLength={100} value={editingProduct.name} onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })} />
                         <InputFuturistic label="SKU" placeholder="sku: SKU115" maxLength={50} value={editingProduct.sku === null ? "" : editingProduct.sku} onChange={(e) => setEditingProduct({ ...editingProduct, sku: e.target.value })} />
                         <InputFuturistic label="Precio" placeholder="Precio" type="number" min="0" step="0.01" value={editingProduct.price.toString()} onChange={(e) => setEditingProduct({ ...editingProduct, price: parseFloat(e.target.value) || 0 })} />
@@ -210,7 +210,9 @@ const ProductsAdministration = () => {
                     </div>
                 )}
             </ModalFuturistic>
+            </div>
 
+            <div className="lg:w-3/4 w-full">
             <ModalFuturistic
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
@@ -240,6 +242,7 @@ const ProductsAdministration = () => {
                     />
                 </div>
             </ModalFuturistic>
+            </div>
         </div>
     );
 };

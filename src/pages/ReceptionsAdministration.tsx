@@ -39,6 +39,7 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
                 onClick={() => setIsAddProductReceptionModalOpen(true)}
             />
 
+            <div className="lg:w-3/4 w-full">
             <ModalFuturistic isOpen={isAddProductReceptionModalOpen} onClose={() => setIsAddProductReceptionModalOpen(false)} title="Nuevo Inventario">
                 <div className="grid grid-cols-2 gap-x-6 gap-y-5">
                     <ProductAutocomplete onSelect={(product) => setNewProductReception(prev => ({ ...prev, id_product: product.id_product }))} />
@@ -72,7 +73,9 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
                     </div>
                 </div>
             </ModalFuturistic>
+            </div>
 
+            <div className="lg:w-3/4 w-full">
             <ModalFuturistic isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Editar Recepción">
                 {editedReception && (
                     <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
@@ -103,6 +106,7 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
                     </div>
                 )}
             </ModalFuturistic>
+            </div>
 
             <TableFuturistic
                 columns={columns}

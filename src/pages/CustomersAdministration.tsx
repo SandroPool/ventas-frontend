@@ -56,6 +56,7 @@ const CustomersAdministration = () => {
                 loading={loading}
             />
 
+            <div className="lg:w-3/4 w-full">
             <ModalFuturistic
                 isOpen={isAddCustomerModalOpen}
                 onClose={() => setIsAddCustomerModalOpen(false)}
@@ -105,7 +106,10 @@ const CustomersAdministration = () => {
                     />
                 </div>
             </ModalFuturistic>
+            </div>
 
+            
+            <div className="lg:w-3/4 w-full">
             <ModalFuturistic
                 isOpen={isEditCustomerModalOpen}
                 onClose={() => setIsEditCustomerModalOpen(false)}
@@ -159,6 +163,7 @@ const CustomersAdministration = () => {
                     </div>
                 )}
             </ModalFuturistic>
+            </div>
         </div>
     );
 };

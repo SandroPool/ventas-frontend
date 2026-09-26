@@ -1,10 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 import { PackageSearch, XCircle } from "lucide-react";
 import { InputFuturistic } from "../components";
-import { useProductStore, Product } from "../store/useProductStore";
+import { Product } from "../store/useProductStore";
+import { getAllProducts } from "../services/product.service";
 
-const ProductAutocomplete = ({ onSelect }: { onSelect: (product: Product) => void }) => {
-    const { fetchProducts, products, loading } = useProductStore();
+const ProductAutocomplete = ({ onSelect, activeOnly = false }: { onSelect: (product: Product) => void; activeOnly?: boolean }) => {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [showDropdown, setShowDropdown] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -13,15 +15,26 @@ const ProductAutocomplete = ({ onSelect }: { onSelect: (product: Product) => voi
 
     useEffect(() => {
         if (searchTerm.length > 1 && !selectedProduct) {
-            const delayDebounce = setTimeout(() => {
-                fetchProducts(1, 10, searchTerm);
+            let cancelled = false;
+            const delayDebounce = setTimeout(async () => {
+                setLoading(true);
                 setShowDropdown(true);
+                const response = await getAllProducts(1, 10, searchTerm, activeOnly);
+                if (!cancelled) {
+                    setProducts(response?.data ?? []);
+                    setLoading(false);
+                }
             }, 300);
-            return () => clearTimeout(delayDebounce);
+            return () => {
+                cancelled = true;
+                clearTimeout(delayDebounce);
+            };
         } else {
             setShowDropdown(false);
+            setProducts([]);
+            setLoading(false);
         }
-    }, [searchTerm, fetchProducts, selectedProduct]);
+    }, [searchTerm, selectedProduct, activeOnly]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {

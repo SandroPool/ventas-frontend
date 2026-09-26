@@ -93,7 +93,7 @@ const SalesAdministration: FC = (): JSX.Element => {
 
                     <div className="mt-8 border-t border-gray-200 dark:border-dark-border pt-6">
                         <TitleFuturistic as="h2" className="text-lg mb-4">Agregar Producto</TitleFuturistic>
-                        <ProductAutocomplete onSelect={handleProductSelect} />
+                        <ProductAutocomplete activeOnly onSelect={handleProductSelect} />
                     </div>
 
                     <div className="mt-6">

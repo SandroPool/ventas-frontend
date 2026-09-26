@@ -85,7 +85,7 @@ const ProductAutocomplete = ({ onSelect }: { onSelect: (product: Product) => voi
                     rounded-md mt-1 max-h-48 overflow-y-auto shadow-xl z-50 
                     backdrop-blur-xl bg-opacity-95 dark:bg-opacity-80">
                     {loading ? (
-                        <li className="p-3 text-gray-500 dark:text-dark-muted animate-pulse">Cargando...</li>
+                        <li className="p-3 text-xl text-gray-600 dark:text-dark-muted animate-pulse">Cargando...</li>
                     ) : products.length > 0 ? (
                         products.map((product, index) => (
                             <li
@@ -100,7 +100,7 @@ const ProductAutocomplete = ({ onSelect }: { onSelect: (product: Product) => voi
                             >
                                 <div className="flex items-center justify-between gap-3">
                                     <span className="truncate">{product.name}</span>
-                                    <span className={`shrink-0 text-xs font-semibold ${selectedIndex === index ? "text-white/90" : "text-teal-600 dark:text-teal-400"}`}>
+                                    <span className={`shrink-0 text-xl font-semibold ${selectedIndex === index ? "text-white/90" : "text-teal-600 dark:text-teal-700"}`}>
                                         Stock: {product.stock ?? 0}
                                     </span>
                                 </div>

@@ -1,6 +1,6 @@
 import { FC, JSX } from "react";
-import { Edit, CheckCircle, XCircle, UserPlus, SaveAll, LoaderPinwheel, CircleX } from "lucide-react";
-import { ButtonFuturistic, InputFuturistic, TitleFuturistic, ModalFuturistic, SelectFuturistic, SwitchFuturistic } from "../components";
+import { Edit, CheckCircle, XCircle, UserPlus, SaveAll, LoaderPinwheel, CircleX, Trash2 } from "lucide-react";
+import { ButtonFuturistic, InputFuturistic, TitleFuturistic, ModalFuturistic, SelectFuturistic, SwitchFuturistic, AlertModal } from "../components";
 import TableFuturistic, { Column } from "../components/TableFuturistic";
 import { UserProfile, Role } from "../store/useAuthStore";
 import { formatDate } from '../utils/functionDate';
@@ -40,12 +40,14 @@ const UsersAdministration: FC = (): JSX.Element => {
         isEditModalOpen, setIsEditModalOpen,
         isRegisterModalOpen, setIsRegisterModalOpen,
         formData, setFormData,
+        userToDelete, setUserToDelete,
         isFormValid,
         handleSearch,
         handleEdit,
         handleInputChange,
         handleSubmitEdit,
         handleRegisterUser,
+        handleConfirmDelete,
     } = useUsersAdministration();
 
     return (
@@ -74,11 +76,23 @@ const UsersAdministration: FC = (): JSX.Element => {
                 actions={(user) => {
                     if (decodedToken.role === Role.ROOT) {
                         return (
-                            <ButtonFuturistic
-                                icon={Edit}
-                                onClick={() => handleEdit(user)}
-                                gradient="bg-teal-500"
-                            />
+                            <div className="flex items-center">
+                                <ButtonFuturistic
+                                    icon={Edit}
+                                    aria-label={`Editar usuario ${user.name}`}
+                                    onClick={() => handleEdit(user)}
+                                    gradient="bg-teal-500"
+                                />
+                                {user.id_user !== decodedToken.id && (
+                                    <ButtonFuturistic
+                                        icon={Trash2}
+                                        aria-label={`Eliminar usuario ${user.name}`}
+                                        title="Eliminar usuario"
+                                        onClick={() => setUserToDelete(user)}
+                                        gradient="bg-red-600"
+                                    />
+                                )}
+                            </div>
                         );
                     }
                     if (decodedToken.role === Role.ADMIN) {
@@ -164,6 +178,16 @@ const UsersAdministration: FC = (): JSX.Element => {
                     </div>
                 </div>
             </ModalFuturistic>
+
+            <AlertModal
+                open={!!userToDelete}
+                title="Eliminar usuario"
+                message={`¿Confirmas que deseas eliminar a ${userToDelete?.name ?? "este usuario"}? Esta acción no se puede deshacer.`}
+                confirmText="Sí, eliminar"
+                cancelText="Cancelar"
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setUserToDelete(null)}
+            />
         </div>
     );
 };

@@ -4,11 +4,12 @@ import { jwtDecode } from "jwt-decode";
 import { validateEmail } from "../utils/validateEmail";
 
 export const useUsersAdministration = () => {
-    const { token, users, loading, fetchUsers, updateUser, registerUser } = useAuthStore();
+    const { token, users, loading, fetchUsers, updateUser, deleteUser, registerUser } = useAuthStore();
     const [searchTerm, setSearchTerm] = useState("");
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+    const [userToDelete, setUserToDelete] = useState<UserProfile | null>(null);
     const [formData, setFormData] = useState({ name: "", email: "", role: Role.EMPLOYEE, status: false, password: "" });
     const [isFormValid, setIsFormValid] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -71,6 +72,20 @@ export const useUsersAdministration = () => {
         }
     };
 
+    const handleConfirmDelete = async () => {
+        if (!userToDelete) return;
+
+        const success = await deleteUser(userToDelete.id_user);
+        if (success) {
+            const updatedPagination = useAuthStore.getState().pagination;
+            const page = Math.min(currentPage, updatedPagination?.totalPages ?? currentPage);
+            if (page !== currentPage) setCurrentPage(page);
+            await fetchUsers(page, 10, searchTerm);
+            setTotalPages(useAuthStore.getState().pagination?.totalPages ?? 1);
+        }
+        setUserToDelete(null);
+    };
+
     const validateForm = useCallback(() => {
         const { name, email, password, role } = formData;
         const isValid =
@@ -94,6 +109,7 @@ export const useUsersAdministration = () => {
         isEditModalOpen, setIsEditModalOpen,
         isRegisterModalOpen, setIsRegisterModalOpen,
         selectedUser, setSelectedUser,
+        userToDelete, setUserToDelete,
         formData, setFormData,
         isFormValid,
         handleSearch,
@@ -101,5 +117,6 @@ export const useUsersAdministration = () => {
         handleInputChange,
         handleSubmitEdit,
         handleRegisterUser,
+        handleConfirmDelete,
     };
 };

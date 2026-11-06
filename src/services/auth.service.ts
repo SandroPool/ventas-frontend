@@ -144,6 +144,24 @@ export const updateUser = async (id: number, userData: Partial<UserProfile>) => 
     }
 };
 
+export const deleteUser = async (id: number): Promise<{ success: boolean; error?: string }> => {
+    try {
+        const res = await fetchWithAuth(`${API_URL_CUSTOMERS}/${id}`, {
+            method: "DELETE",
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            return { success: false, error: errorData.error || "No se pudo eliminar el usuario" };
+        }
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error al eliminar usuario:", error);
+        return { success: false, error: "Error al eliminar el usuario" };
+    }
+};
+
 export const registerUser = async (userData: Partial<UserProfile>) => {
     try {
         const res = await fetchWithAuth(`${API_URL_CUSTOMERS}/register`, {

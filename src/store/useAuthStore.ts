@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { login, getProfile, getAllUsers, updateUser, registerUser, refreshAccessToken } from "../services/auth.service";
+import { login, getProfile, getAllUsers, updateUser, deleteUser as deleteUserRequest, registerUser, refreshAccessToken } from "../services/auth.service";
 import { toast } from "react-hot-toast";
 
 export enum Role {
@@ -37,6 +37,7 @@ interface AuthState {
     fetchProfile: () => Promise<void>;
     fetchUsers: (page?: number, limit?: number, searchTerm?: string) => Promise<void>;
     updateUser: (id: number, userData: Partial<UserProfile>) => Promise<boolean>;
+    deleteUser: (id: number) => Promise<boolean>;
     registerUser: (userData: Partial<UserProfile>) => Promise<boolean>;
 }
 
@@ -135,6 +136,28 @@ export const useAuthStore = create<AuthState>((set) => ({
             set({ loading: false });
             return false;
         }
+    },
+
+    deleteUser: async (id) => {
+        set({ loading: true });
+        const result = await deleteUserRequest(id);
+        if (result.success) {
+            set((state) => ({
+                users: state.users.filter((user) => user.id_user !== id),
+                pagination: state.pagination ? {
+                    ...state.pagination,
+                    total: Math.max(0, state.pagination.total - 1),
+                    totalPages: Math.max(1, Math.ceil((state.pagination.total - 1) / state.pagination.limit)),
+                } : null,
+            }));
+            toast.success("Usuario eliminado correctamente");
+            set({ loading: false });
+            return true;
+        }
+
+        toast.error(result.error || "No se pudo eliminar el usuario");
+        set({ loading: false });
+        return false;
     },
 
     registerUser: async (userData) => {

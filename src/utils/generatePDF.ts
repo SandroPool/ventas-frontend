@@ -52,10 +52,10 @@ const generatePDF = async (sale: Sale) => {
     // Items Table
     autoTable(doc, {
         startY: 100,
-        head: [["Producto", "Cantidad", "Precio Unitario", "Total"]],
+        head: [["Cant.", "Descripcion", "P. Unit.", "Importe"]],
         body: sale.details.map((detail) => [
-            detail.product?.name || "Producto desconocido",
             detail?.quantity,
+            detail.product?.name || "Producto desconocido",
             `S/. ${detail.unit_price.toFixed(2)}`,
             `S/. ${(detail.quantity * detail.unit_price).toFixed(2)}`
         ]),
@@ -65,46 +65,50 @@ const generatePDF = async (sale: Sale) => {
                 colSpan: 3,
                 styles: {
                     halign: "right",
-                    fillColor: [40, 44, 52],
-                    textColor: [255, 255, 255],
+                    textColor: [0, 0, 0],
                     fontSize: 11,
-                    fontStyle: "bold"
+                    fontStyle: "bold",
+                    lineWidth: { top: 0.6 },
+                    lineColor: [0, 0, 0]
                 }
             },
             {
                 content: `S/. ${sale.total?.toFixed(2) || "0.00"}`,
                 styles: {
-                    fillColor: [40, 44, 52],
-                    textColor: [255, 255, 255],
+                    textColor: [0, 0, 0],
                     fontSize: 11,
-                    fontStyle: "bold"
+                    fontStyle: "bold",
+                    halign: "right",
+                    lineWidth: { top: 0.6 },
+                    lineColor: [0, 0, 0]
                 }
             }
         ]],
-        theme: "grid",
+        theme: "plain",
         headStyles: {
-            fillColor: [40, 44, 52],
-            textColor: [255, 255, 255],
-            fontSize: 11,
-            fontStyle: "bold"
+            textColor: [0, 0, 0],
+            fontSize: 10,
+            fontStyle: "bold",
+            lineWidth: { top: 0.6, bottom: 0.6 },
+            lineColor: [0, 0, 0]
         },
         bodyStyles: {
             fontSize: 10,
-            cellPadding: 5
-        },
-        alternateRowStyles: {
-            fillColor: [245, 247, 250]
+            cellPadding: { top: 3, right: 2, bottom: 3, left: 2 },
+            lineWidth: { bottom: 0.1 },
+            lineColor: [160, 160, 160]
         },
         columnStyles: {
-            0: { cellWidth: "auto" },
-            1: { cellWidth: 25, halign: "center" },
+            0: { cellWidth: 20, halign: "center" },
+            1: { cellWidth: "auto" },
             2: { cellWidth: 35, halign: "right" },
             3: { cellWidth: 35, halign: "right" }
         },
         styles: {
             font: "helvetica",
-            lineColor: [218, 220, 224],
-            lineWidth: 0.5,
+            textColor: [0, 0, 0],
+            lineColor: [0, 0, 0],
+            lineWidth: 0,
         },
         margin: { top: 15, right: 15, bottom: 15, left: 15 }
     });

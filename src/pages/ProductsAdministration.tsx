@@ -13,7 +13,9 @@ const ProductsAdministration = () => {
         searchTerm, setSearchTerm,
         isProductModalOpen, setIsProductModalOpen,
         newProduct, setNewProduct,
+        setNewProductImage,
         editingProduct, setEditingProduct,
+        editingProductImage, setEditingProductImage,
         isEditProductModalOpen, setIsEditProductModalOpen,
         fetchProducts, editProduct,
         handleAddCategory,
@@ -65,11 +67,17 @@ const ProductsAdministration = () => {
 
                     <ButtonFuturistic
                         label="Añadir Producto"
-                        icon={Plus} onClick={() => setIsProductModalOpen(true)}
+                        icon={Plus} onClick={() => {
+                            setNewProductImage(null);
+                            setIsProductModalOpen(true);
+                        }}
                         disabled={categories.length === 0}
                     />
 
-                    <ModalFuturistic isOpen={isProductModalOpen} onClose={() => setIsProductModalOpen(false)} title="Crear Nuevo Producto">
+                    <ModalFuturistic isOpen={isProductModalOpen} onClose={() => {
+                        setIsProductModalOpen(false);
+                        setNewProductImage(null);
+                    }} title="Crear Nuevo Producto">
                         <InputFuturistic label="Nombre" placeholder="nombre: " maxLength={100} value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
                         <TextareaFuturistic label="Descripción" placeholder="Descripción" icon={Text} maxLength={500} value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} />
                         <InputFuturistic label="Precio" placeholder="precio: " icon={Banknote} type="number" min="0" step="0.01" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} />
@@ -85,13 +93,25 @@ const ProductsAdministration = () => {
                             value={newProduct.fecha_vencimiento || ""}
                             onChange={(e) => setNewProduct({ ...newProduct, fecha_vencimiento: e.target.value || null })}
                         />
+                        <label className="block text-sm text-gray-700 dark:text-dark-primary">
+                            Imagen del producto
+                            <input
+                                className="mt-2 block w-full text-sm"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setNewProductImage(e.target.files?.[0] ?? null)}
+                            />
+                        </label>
                         <div className="mt-4 flex justify-start gap-3">
                             <ButtonFuturistic 
                             label="Cancelar" 
                             gradient="bg-red-500"
                             icon={CircleX}
                             className="m-0" 
-                            onClick={() => setIsProductModalOpen(false)} />
+                            onClick={() => {
+                                setIsProductModalOpen(false);
+                                setNewProductImage(null);
+                            }} />
                             <ButtonFuturistic label={loading ? "" : "Crear Producto"} icon={loading ? LoaderPinwheel : Plus} onClick={handleAddProduct} disabled={loading} className="m-0" />
                         </div>
                     </ModalFuturistic>
@@ -100,6 +120,7 @@ const ProductsAdministration = () => {
                         columns={[
                             { key: "name", label: "Nombre" },
                             { key: "description", label: "Descripción" },
+                            { key: "image", label: "Imagen", type: "image" },
                             { key: "price", label: "Precio S/" },
                             { key: "unit_type", label: "Unidad" },
                             { key: "sku", label: "SKU" },
@@ -143,6 +164,7 @@ const ProductsAdministration = () => {
                                 icon={Pencil}
                                 onClick={() => {
                                     setEditingProduct(product);
+                                    setEditingProductImage(null);
                                     setIsEditProductModalOpen(true);
                                 }}
                                 gradient="bg-teal-500"
@@ -159,6 +181,7 @@ const ProductsAdministration = () => {
                 onClose={() => {
                     setIsEditProductModalOpen(false);
                     setEditingProduct(null);
+                    setEditingProductImage(null);
                 }}
                 title="Editar Producto"
             >
@@ -181,6 +204,15 @@ const ProductsAdministration = () => {
                             onChange={(e) => setEditingProduct({ ...editingProduct, fecha_vencimiento: e.target.value })}
                         />
                         <TextareaFuturistic  label="Descripción" placeholder="Descripción del producto"  value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} />
+                        <label className="block text-sm text-gray-700 dark:text-dark-primary md:col-span-2">
+                            Cambiar imagen del producto
+                            <input
+                                className="mt-2 block w-full text-sm"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setEditingProductImage(e.target.files?.[0] ?? null)}
+                            />
+                        </label>
                         <div className="md:col-span-2 flex justify-start gap-3">
                             <ButtonFuturistic 
                             label="Cancelar" 
@@ -190,6 +222,7 @@ const ProductsAdministration = () => {
                             onClick={() => {
                                 setIsEditProductModalOpen(false);
                                 setEditingProduct(null);
+                                setEditingProductImage(null);
                             }} />
                             <ButtonFuturistic className="m-0"
                                 label={loading ? "" : "Guardar Cambios"}
@@ -200,9 +233,10 @@ const ProductsAdministration = () => {
                                         toast.error("El precio debe ser mayor a 0");
                                         return;
                                     }
-                                    await editProduct(editingProduct.id_product, editingProduct);
+                                    await editProduct(editingProduct.id_product, editingProduct, editingProductImage);
                                     setIsEditProductModalOpen(false);
                                     setEditingProduct(null);
+                                    setEditingProductImage(null);
                                 }}
                                 disabled={loading}
                             />

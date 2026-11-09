@@ -80,11 +80,22 @@ export const getAllProducts = async (page: number = 1, limit: number = 10, searc
     }
 };
 
-export const createProduct = async (product: Omit<Product, "id_product" | "createdAt" | "sku" | "status">) => {
+export const createProduct = async (
+    product: Omit<Product, "id_product" | "createdAt" | "sku" | "status" | "image">,
+    imageFile?: File | null
+) => {
     try {
+        const body = new FormData();
+        Object.entries(product).forEach(([key, value]) => {
+            if (key !== "image" && value !== undefined && value !== null) {
+                body.append(key, String(value));
+            }
+        });
+        if (imageFile) body.append("image", imageFile);
+
         const res = await fetchWithAuth(API_URL_PRODUCTS, {
             method: "POST",
-            body: JSON.stringify(product),
+            body,
         });
 
         if (!res.ok) throw new Error("No se pudo crear el producto");
@@ -96,11 +107,23 @@ export const createProduct = async (product: Omit<Product, "id_product" | "creat
     }
 };
 
-export const updateProduct = async (id: number, product: Partial<Product>) => {
+export const updateProduct = async (
+    id: number,
+    product: Partial<Omit<Product, "image">>,
+    imageFile?: File | null
+) => {
     try {
+        const body = new FormData();
+        Object.entries(product).forEach(([key, value]) => {
+            if (key !== "image" && value !== undefined && value !== null) {
+                body.append(key, String(value));
+            }
+        });
+        if (imageFile) body.append("image", imageFile);
+
         const res = await fetchWithAuth(`${API_URL_PRODUCTS}/${id}`, {
             method: "PUT",
-            body: JSON.stringify(product),
+            body,
         });
 
         if (!res.ok) throw new Error("No se pudo actualizar el producto");

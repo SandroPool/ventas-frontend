@@ -20,6 +20,7 @@ export interface Product {
     unit_type: string;
     status: boolean;
     sku: string;
+    image: string | null;
     id_category: number;
     createdAt: string;
     fecha_vencimiento: string | null;
@@ -44,8 +45,8 @@ interface ProductState {
     addCategory: (name: string) => Promise<void>;
     editCategory: (id: number, name: string) => Promise<void>;
     fetchProducts: (page?: number, limit?: number, searchTerm?: string) => Promise<void>;
-    addProduct: (product: Omit<Product, "id_product" | "createdAt" | "sku" | "status">) => Promise<void>;
-    editProduct: (id: number, product: Partial<Product>) => Promise<void>;
+    addProduct: (product: Omit<Product, "id_product" | "createdAt" | "sku" | "status" | "image">, imageFile?: File | null) => Promise<void>;
+    editProduct: (id: number, product: Partial<Omit<Product, "image">>, imageFile?: File | null) => Promise<void>;
 }
 
 export const useProductStore = create<ProductState>((set) => ({
@@ -102,9 +103,9 @@ export const useProductStore = create<ProductState>((set) => ({
         set({ loading: false });
     },
 
-    addProduct: async (product) => {
+    addProduct: async (product, imageFile) => {
         set({ loading: true });
-        const newProduct = await createProduct(product);
+        const newProduct = await createProduct(product, imageFile);
         if (newProduct) {
             set((state) => ({ products: [...state.products, newProduct] }));
             toast.success("Producto creado con éxito");
@@ -114,9 +115,9 @@ export const useProductStore = create<ProductState>((set) => ({
         set({ loading: false });
     },
 
-    editProduct: async (id, product) => {
+    editProduct: async (id, product, imageFile) => {
         set({ loading: true });
-        const updatedProduct = await updateProduct(id, product);
+        const updatedProduct = await updateProduct(id, product, imageFile);
         if (updatedProduct) {
             set((state) => ({
                 products: state.products.map((p) =>

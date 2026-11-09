@@ -1,16 +1,123 @@
 import { JSX, useState, useEffect, useRef } from "react";
 import {
     ChevronLeft, ChevronRight, MoreHorizontal,
-    LoaderPinwheel, ArchiveX, Search, CircleX
+    LoaderPinwheel, ArchiveX, Search, CircleX, ImageOff, X
 } from "lucide-react";
 import TruncatedText from "./TruncatedText";
 
 export interface Column<T> {
     key: keyof T;
     label: string;
-    icon?: JSX.Element; // Cambiado a JSX.Element para mayor flexibilidad
+    icon?: JSX.Element;
+    type?: "image";
     render?: (value: T[keyof T], row: T) => JSX.Element;
 }
+
+const ImageCell = ({ src }: { src: string | null }) => {
+    const [failed, setFailed] = useState(false);
+    const [isZoomed, setIsZoomed] = useState(false);
+    const [zoomVisible, setZoomVisible] = useState(false);
+    const zoomTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        setFailed(false);
+    }, [src]);
+
+    useEffect(() => () => {
+        if (zoomTimeoutRef.current) clearTimeout(zoomTimeoutRef.current);
+        if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    }, []);
+
+    useEffect(() => {
+        if (!isZoomed) return;
+
+        const frame = requestAnimationFrame(() => setZoomVisible(true));
+        return () => cancelAnimationFrame(frame);
+    }, [isZoomed]);
+
+    const closeZoom = () => {
+        setZoomVisible(false);
+        if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+        closeTimeoutRef.current = setTimeout(() => setIsZoomed(false), 300);
+    };
+
+    useEffect(() => {
+        if (!isZoomed) return;
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") closeZoom();
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [isZoomed, zoomVisible]);
+
+    if (!src || failed) {
+        return (
+            <div
+                className="flex h-12 w-12 items-center justify-center rounded-md bg-gray-100 text-gray-400 dark:bg-dark-elevated dark:text-dark-muted"
+                title="Sin imagen"
+                aria-label="Sin imagen"
+            >
+                <ImageOff size={20} />
+            </div>
+        );
+    }
+
+    const imageUrl = new URL(src, import.meta.env.VITE_BASE_URL).toString();
+
+    return (
+        <>
+            <button
+                type="button"
+                onClick={() => {
+                    if (zoomTimeoutRef.current) clearTimeout(zoomTimeoutRef.current);
+                    zoomTimeoutRef.current = setTimeout(() => setIsZoomed(true), 200);
+                }}
+                className="cursor-zoom-in rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                aria-label="Ampliar imagen del producto"
+            >
+                <img
+                    src={imageUrl}
+                    alt="Imagen del producto"
+                    loading="lazy"
+                    className="h-12 w-12 rounded-md object-cover"
+                    onError={() => setFailed(true)}
+                />
+            </button>
+            {isZoomed && (
+                <div
+                    className={`fixed inset-0 z-[120] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm transition-opacity duration-300 ${zoomVisible ? "opacity-100" : "opacity-0"}`}
+                    role="presentation"
+                    onClick={closeZoom}
+                >
+                    <div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Imagen ampliada del producto"
+                        className={`relative transition-transform duration-300 ease-out ${zoomVisible ? "scale-100" : "scale-[0.08]"}`}
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <button
+                            type="button"
+                            onClick={closeZoom}
+                            className="absolute -right-3 -top-3 z-10 rounded-full bg-white p-2 text-gray-800 shadow-lg hover:bg-gray-100"
+                            aria-label="Cerrar imagen ampliada"
+                        >
+                            <X size={20} />
+                        </button>
+                        <img
+                            src={imageUrl}
+                            alt="Imagen ampliada del producto"
+                            className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
+                        />
+                    </div>
+                </div>
+            )}
+        </>
+    );
+};
 
 interface PropsTable<T> {
     columns: Column<T>[];
@@ -147,10 +254,12 @@ const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, onPageCha
                                     key={rowIndex}
                                     className="border-b border-gray-300 transition-colors hover:bg-gray-200 dark:border-dark-border dark:hover:bg-dark-elevated"
                                 >
-                                    {columns.map(({ key, render }, colIndex) => (
+                                    {columns.map(({ key, render, type }, colIndex) => (
                                         <td key={`${String(key)}-${colIndex}`} className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm">
                                             {render
                                                 ? render(row[key], row)
+                                                : type === "image"
+                                                    ? <ImageCell key={String(row[key] ?? "")} src={typeof row[key] === "string" ? String(row[key]) : null} />
                                                 : typeof row[key] === "number"
                                                     ? row[key]
                                                     : typeof row[key] === "string" && row[key].length > 50

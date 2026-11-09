@@ -63,14 +63,16 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
         token = localStorage.getItem("token");
     }
 
-    let res = await fetch(url, {
-        ...options,
-        headers: {
-            ...options.headers,
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
-    });
+    const createHeaders = () => {
+        const headers = new Headers(options.headers);
+        if (!(options.body instanceof FormData)) {
+            headers.set("Content-Type", "application/json");
+        }
+        headers.set("Authorization", `Bearer ${token}`);
+        return headers;
+    };
+
+    let res = await fetch(url, { ...options, headers: createHeaders() });
 
     if (res.status === 401) {
         const refreshed = await handleRefresh();
@@ -80,14 +82,7 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
         }
 
         token = localStorage.getItem("token");
-        res = await fetch(url, {
-            ...options,
-            headers: {
-                ...options.headers,
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        res = await fetch(url, { ...options, headers: createHeaders() });
     }
 
     return res;

@@ -29,7 +29,9 @@ export const useProductsAdministration = () => {
         id_category: "",
         fecha_vencimiento: null,
     });
+    const [newProductImage, setNewProductImage] = useState<File | null>(null);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+    const [editingProductImage, setEditingProductImage] = useState<File | null>(null);
     const [isEditProductModalOpen, setIsEditProductModalOpen] = useState(false);
 
     useEffect(() => {
@@ -62,9 +64,13 @@ export const useProductsAdministration = () => {
             return;
         }
         const price = parseFloat(newProduct.price);
-        await addProduct({ ...newProduct, price, id_category: parseInt(newProduct.id_category) });
+        await addProduct(
+            { ...newProduct, price, id_category: parseInt(newProduct.id_category) },
+            newProductImage
+        );
         setIsProductModalOpen(false);
         setNewProduct({ name: "", description: "", price: "", unit_type: "", id_category: "", fecha_vencimiento: null });
+        setNewProductImage(null);
     };
 
     return {
@@ -76,7 +82,9 @@ export const useProductsAdministration = () => {
         searchTerm, setSearchTerm,
         isProductModalOpen, setIsProductModalOpen,
         newProduct, setNewProduct,
+        newProductImage, setNewProductImage,
         editingProduct, setEditingProduct,
+        editingProductImage, setEditingProductImage,
         isEditProductModalOpen, setIsEditProductModalOpen,
         fetchProducts, editProduct, fetchCategories,
         handleAddCategory,

@@ -1,7 +1,7 @@
 import { useTicketsAdministration } from "../hooks/useTicketsAdministration";
 import {
     ButtonFuturistic, ModalFuturistic, TitleFuturistic,
-    TableFuturistic, InputFuturistic
+    TableFuturistic, InputFuturistic, ImageUpload
 } from "../components";
 import { DockIcon, LoaderPinwheel, SaveAllIcon, Settings2Icon, RotateCcw, Eye, Receipt, CircleX } from "lucide-react";
 import generatePDF from "../utils/generatePDF";
@@ -14,8 +14,7 @@ const TicketsAdministration = () => {
         isConfigModalOpen, setIsConfigModalOpen,
         isSavingConfig,
         companyName, setCompanyName,
-        setLogoFile,
-        setLogoPreview,
+        logoFile, setLogoFile,
         logoPreview,
         returnModalOpen, setReturnModalOpen,
         selectedSale,
@@ -36,7 +35,7 @@ const TicketsAdministration = () => {
 
     return (
         <div className="lg:pr-10 lg:pl-10 lg:pt-5 space-y-8">
-            <TitleFuturistic as="h1">Gesti&oacute;n de Tickets</TitleFuturistic>
+            <TitleFuturistic as="h1">Gestión de Boletas</TitleFuturistic>
 
             <ButtonFuturistic
                 gradient="bg-teal-500"
@@ -61,31 +60,12 @@ const TicketsAdministration = () => {
                             onChange={(e) => setCompanyName(e.target.value)}
                         />
                     </div>
-                    <div className="md:col-span-2">
-                        <InputFuturistic
-                            label="Logo: "
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                                const file = e.target.files?.[0] || null;
-                                setLogoFile(file);
-
-                                if (file) {
-                                    const reader = new FileReader();
-                                    reader.onloadend = () => {
-                                        setLogoPreview(reader.result as string);
-                                    };
-                                    reader.readAsDataURL(file);
-                                }
-                            }}
-                        />
-                    </div>
-                    {logoPreview && (
-                        <div className="md:col-span-2 mt-2">
-                            <p className="text-lg text-gray-700 dark:text-dark-primary mb-1">Imagen Actual:</p>
-                            <img src={logoPreview} alt="Logo preview" className="h-auto object-contain border rounded p-2 bg-white" />
-                        </div>
-                    )}
+                    <ImageUpload
+                        label="Logo de la empresa"
+                        selectedFile={logoFile}
+                        onChange={setLogoFile}
+                        existingImage={logoPreview}
+                    />
                     <div className="md:col-span-2 flex justify-start gap-3">
                         <ButtonFuturistic
                             label="Cancelar"
@@ -110,8 +90,8 @@ const TicketsAdministration = () => {
                 columns={[
                     { key: "date", label: "Fecha", render: (value) => <span>{formatDate(value as string)}</span> },
                     { key: "customer", label: "Cliente", render: (_, row) => <span>{`${row.customer?.name || "N/A"} ${row.customer?.first_surname || ""} ${row.customer?.second_surname || ""}`}</span> },
-                    { key: "payment_method", label: "M&eacute;todo de Pago" },
-                    { key: "operation_number", label: "N&deg; Operaci&oacute;n" },
+                    { key: "payment_method", label: "Método de Pago" },
+                    { key: "operation_number", label: "N° de Operación" },
                     { key: "total", label: "Total (S/.)" },
                     { key: "status", label: "Estado", render: (value) => (
                         <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${

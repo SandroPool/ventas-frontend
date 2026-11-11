@@ -1,5 +1,5 @@
 import { useProductsAdministration } from "../hooks/useProductsAdministration";
-import { ButtonFuturistic, InputFuturistic, ModalFuturistic, TitleFuturistic, TableFuturistic, SelectFuturistic, TextareaFuturistic, SwitchFuturistic } from "../components";
+import { ButtonFuturistic, InputFuturistic, ModalFuturistic, TitleFuturistic, TableFuturistic, SelectFuturistic, TextareaFuturistic, SwitchFuturistic, ImageUpload } from "../components";
 import { LoaderPinwheel, Pencil, Plus, List, CheckCircle, XCircle, Banknote, Text, Boxes, CircleX } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -12,7 +12,7 @@ const ProductsAdministration = () => {
         isModalOpen, setIsModalOpen,
         searchTerm, setSearchTerm,
         isProductModalOpen, setIsProductModalOpen,
-        newProduct, setNewProduct,
+        newProduct, setNewProduct, newProductImage,
         setNewProductImage,
         editingProduct, setEditingProduct,
         editingProductImage, setEditingProductImage,
@@ -93,15 +93,11 @@ const ProductsAdministration = () => {
                             value={newProduct.fecha_vencimiento || ""}
                             onChange={(e) => setNewProduct({ ...newProduct, fecha_vencimiento: e.target.value || null })}
                         />
-                        <label className="block text-sm text-gray-700 dark:text-dark-primary">
-                            Imagen del producto
-                            <input
-                                className="mt-2 block w-full text-sm"
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => setNewProductImage(e.target.files?.[0] ?? null)}
-                            />
-                        </label>
+                        <ImageUpload
+                            label="Imagen del producto"
+                            selectedFile={newProductImage}
+                            onChange={setNewProductImage}
+                        />
                         <div className="mt-4 flex justify-start gap-3">
                             <ButtonFuturistic 
                             label="Cancelar" 
@@ -204,15 +200,12 @@ const ProductsAdministration = () => {
                             onChange={(e) => setEditingProduct({ ...editingProduct, fecha_vencimiento: e.target.value })}
                         />
                         <TextareaFuturistic  label="Descripción" placeholder="Descripción del producto"  value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} />
-                        <label className="block text-sm text-gray-700 dark:text-dark-primary md:col-span-2">
-                            Cambiar imagen del producto
-                            <input
-                                className="mt-2 block w-full text-sm"
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => setEditingProductImage(e.target.files?.[0] ?? null)}
-                            />
-                        </label>
+                        <ImageUpload
+                            label="Imagen del producto"
+                            selectedFile={editingProductImage}
+                            onChange={setEditingProductImage}
+                            existingImage={editingProduct.image}
+                        />
                         <div className="md:col-span-2 flex justify-start gap-3">
                             <ButtonFuturistic 
                             label="Cancelar" 

@@ -8,6 +8,7 @@ export { default as SelectFuturistic } from "./SelectFuturistic";
 export { default as TextareaFuturistic } from "./TextareaFuturistic";
 export { default as SwitchFuturistic } from "./SwitchFuturistic";
 export { default as ProductAutocomplete } from "./ProductAutocomplete";
+export { default as ImageUpload } from "./ImageUpload";
 export { default as SupplierAutocomplete } from "./SupplierAutocomplete";
 export { default as CustomerAutocomplete } from "./CustomerAutocomplete";
 export { default as AlertModal } from "./AlertModal";

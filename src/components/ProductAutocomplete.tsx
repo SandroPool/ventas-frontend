@@ -10,11 +10,10 @@ const ProductAutocomplete = ({ onSelect, activeOnly = false }: { onSelect: (prod
     const [searchTerm, setSearchTerm] = useState("");
     const [showDropdown, setShowDropdown] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (searchTerm.length > 1 && !selectedProduct) {
+        if (searchTerm.length > 1) {
             let cancelled = false;
             const delayDebounce = setTimeout(async () => {
                 setLoading(true);
@@ -34,7 +33,7 @@ const ProductAutocomplete = ({ onSelect, activeOnly = false }: { onSelect: (prod
             setProducts([]);
             setLoading(false);
         }
-    }, [searchTerm, selectedProduct, activeOnly]);
+    }, [searchTerm, activeOnly]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -47,15 +46,14 @@ const ProductAutocomplete = ({ onSelect, activeOnly = false }: { onSelect: (prod
     }, []);
 
     const handleSelect = (product: Product) => {
-        setSearchTerm(product.name);
-        setSelectedProduct(product);
-        setShowDropdown(false);
         onSelect(product);
+        setSearchTerm("");
+        setShowDropdown(false);
+        setSelectedIndex(0);
     };
 
     const handleClear = () => {
         setSearchTerm("");
-        setSelectedProduct(null);
         setShowDropdown(false);
     };
 
@@ -79,7 +77,6 @@ const ProductAutocomplete = ({ onSelect, activeOnly = false }: { onSelect: (prod
                     value={searchTerm}
                     onChange={(e) => {
                         setSearchTerm(e.target.value);
-                        setSelectedProduct(null);
                         setSelectedIndex(0);
                     }}
                     onKeyDown={handleKeyDown}

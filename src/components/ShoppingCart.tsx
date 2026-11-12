@@ -1,7 +1,34 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Product } from "../store/useProductStore";
 import { Banknote, Box, Minus, Plus, Trash2, X, ShoppingCart as CartIcon } from "lucide-react";
 import { ButtonFuturistic, TitleFuturistic } from ".";
+
+const ProductCartImage: React.FC<{ product: Product }> = ({ product }) => {
+    const [imageFailed, setImageFailed] = useState(false);
+    const imageUrl = product.image
+        ? new URL(product.image, import.meta.env.VITE_BASE_URL).toString()
+        : null;
+
+    useEffect(() => {
+        setImageFailed(false);
+    }, [product.image]);
+
+    return (
+        <div className="w-16 h-16 flex items-center justify-center overflow-hidden bg-white dark:bg-dark-elevated rounded-md border border-gray-200 dark:border-dark-border">
+            {imageUrl && !imageFailed ? (
+                <img
+                    src={imageUrl}
+                    alt={product.name}
+                    loading="lazy"
+                    className="h-full w-full object-contain"
+                    onError={() => setImageFailed(true)}
+                />
+            ) : (
+                <Box className="text-gray-700 dark:text-gray-300" size={24} />
+            )}
+        </div>
+    );
+};
 
 interface ShoppingCartProps {
     cart: { product: Product; quantity: number; unitPrice: number }[];
@@ -60,10 +87,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
                                 : "border-gray-200 dark:border-dark-border"
                                 }`}
                         >
-                            {/* Icono Producto */}
-                            <div className="w-16 h-16 flex items-center justify-center bg-white dark:bg-dark-elevated rounded-md border border-gray-200 dark:border-dark-border">
-                                <Box className="text-gray-700 dark:text-gray-300" size={24} />
-                            </div>
+                            <ProductCartImage product={product} />
 
                             {/* Info Producto */}
                             <div className="flex-1 min-w-0">

@@ -146,24 +146,23 @@ const StockAdministration: FC = (): JSX.Element => {
                                         className="h-36 w-full p-4 transition-transform duration-300 group-hover:scale-[1.02]"
                                     />
                                     <div className="flex flex-1 flex-col p-4">
-                                        <div className="mb-3 flex items-center">
-                                            <span
-                                                className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                                        <h2 className="min-h-12 text-lg font-semibold leading-6 text-gray-900 dark:text-dark-primary">
+                                            {product.name}
+                                        </h2>
+                                        <div className="mt-2 flex items-baseline justify-between gap-2">
+                                            <p className="text-xl font-bold text-gray-900 dark:text-dark-primary xl:text-2xl">
+                                                {currencyFormatter.format(Number(product.price))}
+                                            </p>
+                                            <p
+                                                className={`min-w-0 text-right text-xl font-semibold xl:text-2xl ${
                                                     hasStock
-                                                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
-                                                        : "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                                                        ? "text-emerald-700 dark:text-emerald-300"
+                                                        : "text-red-700 dark:text-red-300"
                                                 }`}
                                             >
                                                 {hasStock ? `${product.stock} en stock` : "Agotado"}
-                                            </span>
+                                            </p>
                                         </div>
-
-                                        <h2 className="min-h-12 text-base font-semibold leading-6 text-gray-900 dark:text-dark-primary">
-                                            {product.name}
-                                        </h2>
-                                        <p className="mt-2 text-xl font-bold text-gray-900 dark:text-dark-primary">
-                                            {currencyFormatter.format(Number(product.price))}
-                                        </p>
                                     </div>
                                 </button>
                             );

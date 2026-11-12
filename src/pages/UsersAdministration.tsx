@@ -36,6 +36,7 @@ const UsersAdministration: FC = (): JSX.Element => {
     const {
         users, loading, decodedToken,
         currentPage, setCurrentPage,
+        pageSize, setPageSize,
         totalPages,
         isEditModalOpen, setIsEditModalOpen,
         isRegisterModalOpen, setIsRegisterModalOpen,
@@ -70,7 +71,12 @@ const UsersAdministration: FC = (): JSX.Element => {
                 data={users}
                 currentPage={currentPage}
                 totalPages={totalPages}
+                pageSize={pageSize}
                 onPageChange={setCurrentPage}
+                onPageSizeChange={(size) => {
+                    setPageSize(size);
+                    setCurrentPage(1);
+                }}
                 onSearch={handleSearch}
                 loading={loading}
                 actions={(user) => {

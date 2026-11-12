@@ -13,7 +13,7 @@ const ThemeToggle = () => {
             {theme === "dark" ? (
                 <Sun className="h-6 w-6 text-yellow-400" />
             ) : (
-                <Moon className="h-6 w-6 text-gray-500" />
+                <Moon className="h-6 w-6 text-white" />
             )}
         </button>
     );

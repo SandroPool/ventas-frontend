@@ -9,10 +9,10 @@ export default {
     extend: {
       colors: {
         dark: {
-          base: '#0c0c14',
-          card: '#15151f',
-          elevated: '#1e1e2a',
-          border: '#2a2a38',
+          base: '#232633',
+          card: '#2c3040',
+          elevated: '#383d4f',
+          border: '#4a5063',
           primary: '#f0f0f5',
           secondary: '#a8a8b8',
           muted: '#6b6b80',

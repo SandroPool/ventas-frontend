@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useSuppliersAdministration } from "../hooks/useSuppliersAdministration";
 import { ButtonFuturistic, InputFuturistic, ModalFuturistic, TitleFuturistic, TableFuturistic } from "../components";
 import { CircleX, LoaderPinwheel, Pencil, Plus } from "lucide-react";
@@ -14,6 +15,7 @@ const SuppliersAdministration = () => {
         handleAddSupplier,
         handleEditSupplier,
     } = useSuppliersAdministration();
+    const [pageSize, setPageSize] = useState(10);
 
     return (
         <div className="px-4 lg:px-10 lg:pt-5 space-y-8">
@@ -52,10 +54,15 @@ const SuppliersAdministration = () => {
                     data={suppliers}
                     currentPage={paginationSupplier?.page || 1}
                     totalPages={paginationSupplier?.totalPages || 1}
-                    onPageChange={(page) => fetchSuppliers(page, 10, searchTerm)}
+                    pageSize={pageSize}
+                    onPageChange={(page) => fetchSuppliers(page, pageSize, searchTerm)}
+                    onPageSizeChange={(size) => {
+                        setPageSize(size);
+                        fetchSuppliers(1, size, searchTerm);
+                    }}
                     onSearch={(term) => {
                         setSearchTerm(term);
-                        fetchSuppliers(1, 10, term);
+                        fetchSuppliers(1, pageSize, term);
                     }}
                     actions={(supplier) => (
                         <ButtonFuturistic

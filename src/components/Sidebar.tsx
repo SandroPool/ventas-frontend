@@ -19,9 +19,9 @@ const FuturisticNavLink = ({
         onClick={onNavigate}
         className={({ isActive }) =>
             `relative flex w-full items-center rounded-md px-6 py-3 text-left font-semibold uppercase transition-all duration-300
-            bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-white
-            ${isActive ? "bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg" : ""}
-            hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-white`
+            bg-[#4A779B] text-white dark:bg-gray-800 dark:text-white
+            ${isActive ? "bg-gradient-to-r from-[#245A77] to-[#1F4D67] text-white shadow-lg dark:from-teal-500 dark:to-teal-600" : ""}
+            hover:bg-[#3F6887] hover:text-white dark:hover:bg-gray-700 dark:hover:text-white`
         }
     >
         <Icon size={20} className="mr-3" />
@@ -81,12 +81,12 @@ const Sidebar = ({ isOpen, setIsOpen }: { isOpen: boolean; setIsOpen: (isOpen: b
             </div>
 
             <aside
-                className={`fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 border-r border-gray-200 bg-white shadow-lg transition-transform duration-300 ease-in-out dark:border-dark-border dark:bg-dark-base ${
+                className={`fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 border-r border-[#5D8FB3] bg-[#73A5CA] shadow-lg transition-transform duration-300 ease-in-out dark:border-dark-border dark:bg-dark-base ${
                     isOpen ? "translate-x-0" : "-translate-x-64"
                 } sm:translate-x-0`}
             >
                 <div className="flex h-full flex-col space-y-4 p-4">
-                    <div className="text-lg font-extrabold tracking-wider text-gray-900 dark:text-dark-primary">
+                    <div className="text-lg font-extrabold tracking-wider text-white dark:text-dark-primary">
                         <NavLink to="/dashboard" onClick={closeSidebar}>
                             <HandCoins size={50} />
                         </NavLink>

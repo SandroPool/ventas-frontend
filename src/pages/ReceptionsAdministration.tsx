@@ -11,6 +11,7 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
         productReceptions, paginationReception, loading,
         setSearchTerm,
         currentPage, setCurrentPage,
+        pageSize, setPageSize,
         isAddProductReceptionModalOpen, setIsAddProductReceptionModalOpen,
         newProductReception, setNewProductReception,
         isEditModalOpen, setIsEditModalOpen,
@@ -113,7 +114,12 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
                 data={productReceptions}
                 currentPage={currentPage}
                 totalPages={paginationReception?.totalPages || 1}
+                pageSize={pageSize}
                 onPageChange={setCurrentPage}
+                onPageSizeChange={(size) => {
+                    setPageSize(size);
+                    setCurrentPage(1);
+                }}
                 onSearch={setSearchTerm}
                 loading={loading}
                 actions={(row) => (

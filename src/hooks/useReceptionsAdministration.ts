@@ -20,6 +20,7 @@ export const useReceptionsAdministration = () => {
 
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
     const [isAddProductReceptionModalOpen, setIsAddProductReceptionModalOpen] = useState(false);
     const [newProductReception, setNewProductReception] = useState<Omit<ProductReceptions, "id_reception" | "createdAt" | "updatedAt" | "product_name" | "price" | "supplier_name" | "user_name">>({
         id_product: 0,
@@ -33,8 +34,8 @@ export const useReceptionsAdministration = () => {
     const [editedReception, setEditedReception] = useState<Partial<ProductReceptions> | null>(null);
 
     useEffect(() => {
-        fetchProductReceptions(currentPage, 10, searchTerm);
-    }, [fetchProductReceptions, currentPage, searchTerm]);
+        fetchProductReceptions(currentPage, pageSize, searchTerm);
+    }, [fetchProductReceptions, currentPage, pageSize, searchTerm]);
 
     const handleAddProductReception = async () => {
         newProductReception.id_user = decodedToken.id;
@@ -54,7 +55,7 @@ export const useReceptionsAdministration = () => {
     const handleEditReception = async () => {
         if (!editedReception || !editedReception.id_reception) return;
         await editProductReception(editedReception.id_reception, editedReception);
-        fetchProductReceptions(currentPage, 10, searchTerm);
+        fetchProductReceptions(currentPage, pageSize, searchTerm);
         setIsEditModalOpen(false);
         setEditedReception(null);
     };
@@ -63,6 +64,7 @@ export const useReceptionsAdministration = () => {
         productReceptions, paginationReception, loading,
         searchTerm, setSearchTerm,
         currentPage, setCurrentPage,
+        pageSize, setPageSize,
         isAddProductReceptionModalOpen, setIsAddProductReceptionModalOpen,
         newProductReception, setNewProductReception,
         isEditModalOpen, setIsEditModalOpen,

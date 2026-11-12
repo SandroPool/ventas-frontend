@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTicketsAdministration } from "../hooks/useTicketsAdministration";
 import {
     ButtonFuturistic, ModalFuturistic, TitleFuturistic,
@@ -32,6 +33,7 @@ const TicketsAdministration = () => {
         viewReturns,
         viewSaleDetail,
     } = useTicketsAdministration();
+    const [pageSize, setPageSize] = useState(10);
 
     return (
         <div className="lg:pr-10 lg:pl-10 lg:pt-5 space-y-8">
@@ -108,10 +110,15 @@ const TicketsAdministration = () => {
                 data={sales}
                 currentPage={paginationSales?.page || 1}
                 totalPages={paginationSales?.totalPages || 1}
-                onPageChange={(page) => fetchSales(page, 10, searchTerm)}
+                pageSize={pageSize}
+                onPageChange={(page) => fetchSales(page, pageSize, searchTerm)}
+                onPageSizeChange={(size) => {
+                    setPageSize(size);
+                    fetchSales(1, size, searchTerm);
+                }}
                 onSearch={(term) => {
                     setSearchTerm(term);
-                    fetchSales(1, 10, term);
+                    fetchSales(1, pageSize, term);
                 }}
                 actions={(sale) => (
                     <div className="flex gap-1">

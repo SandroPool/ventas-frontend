@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { CircleX, LoaderPinwheel, Pencil, Plus, Save } from "lucide-react";
 import {
     ButtonFuturistic,
@@ -20,6 +21,7 @@ const CustomersAdministration = () => {
         handleAddCustomer,
         handleEditCustomer,
     } = useCustomersAdministration();
+    const [pageSize, setPageSize] = useState(10);
 
     return (
         <div className="px-4 lg:px-10 lg:pt-5 space-y-8">
@@ -41,10 +43,15 @@ const CustomersAdministration = () => {
                 data={customers}
                 currentPage={paginationCustomer?.page || 1}
                 totalPages={paginationCustomer?.totalPages || 1}
-                onPageChange={(page) => fetchCustomers(page, 10, searchTerm)}
+                pageSize={pageSize}
+                onPageChange={(page) => fetchCustomers(page, pageSize, searchTerm)}
+                onPageSizeChange={(size) => {
+                    setPageSize(size);
+                    fetchCustomers(1, size, searchTerm);
+                }}
                 onSearch={(term) => {
                     setSearchTerm(term);
-                    fetchCustomers(1, 10, term);
+                    fetchCustomers(1, pageSize, term);
                 }}
                 actions={(customer) => (
                     <ButtonFuturistic

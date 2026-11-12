@@ -1,7 +1,7 @@
-import { JSX, useState, useEffect, useRef } from "react";
+import { JSX, useState, useEffect, useRef, useMemo } from "react";
 import {
     ChevronLeft, ChevronRight, MoreHorizontal,
-    LoaderPinwheel, ArchiveX, Search, CircleX, ImageOff, X
+    LoaderPinwheel, ArchiveX, Search, CircleX, ImageOff, X, ArrowUp, ArrowDown, ArrowUpDown
 } from "lucide-react";
 import TruncatedText from "./TruncatedText";
 
@@ -10,8 +10,14 @@ export interface Column<T> {
     label: string;
     icon?: JSX.Element;
     type?: "image";
+    sortable?: boolean;
+    sortValue?: (row: T) => string | number | Date | null | undefined;
     render?: (value: T[keyof T], row: T) => JSX.Element;
 }
+
+type SortDirection = "asc" | "desc";
+
+const sortCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
 
 const ImageCell = ({ src }: { src: string | null }) => {
     const [failed, setFailed] = useState(false);
@@ -124,17 +130,55 @@ interface PropsTable<T> {
     data: T[];
     currentPage: number;
     totalPages: number;
+    pageSize: number;
     onPageChange: (page: number) => void;
+    onPageSizeChange: (pageSize: number) => void;
     onSearch?: (searchTerm: string) => void;
     actions?: (row: T) => JSX.Element;
     loading?: boolean;
 }
 
-const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, onPageChange, onSearch, actions, loading }: PropsTable<T>) => {
+const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, pageSize, onPageChange, onPageSizeChange, onSearch, actions, loading }: PropsTable<T>) => {
     const [searchTerm, setSearchTerm] = useState("");
+    const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: SortDirection } | null>(null);
     const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
     const onSearchRef = useRef(onSearch);
     onSearchRef.current = onSearch;
+
+    const sortedData = useMemo(() => {
+        if (!sortConfig) return data;
+
+        const column = columns.find(({ key }) => key === sortConfig.key);
+        if (!column || column.sortable === false || column.type === "image") return data;
+
+        return data
+            .map((row, index) => ({ row, index }))
+            .sort((a, b) => {
+                const left = column.sortValue ? column.sortValue(a.row) : a.row[column.key];
+                const right = column.sortValue ? column.sortValue(b.row) : b.row[column.key];
+
+                if (left == null || right == null) {
+                    if (left == null && right == null) return a.index - b.index;
+                    return left == null ? 1 : -1;
+                }
+
+                const comparison = typeof left === "number" && typeof right === "number"
+                    ? left - right
+                    : left instanceof Date && right instanceof Date
+                        ? left.getTime() - right.getTime()
+                        : sortCollator.compare(String(left), String(right));
+
+                return (sortConfig.direction === "asc" ? comparison : -comparison) || a.index - b.index;
+            })
+            .map(({ row }) => row);
+    }, [columns, data, sortConfig]);
+
+    const toggleSort = (key: keyof T) => {
+        setSortConfig((current) => ({
+            key,
+            direction: current?.key === key && current.direction === "asc" ? "desc" : "asc",
+        }));
+    };
 
     useEffect(() => {
         if (!onSearchRef.current) return;
@@ -214,17 +258,37 @@ const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, onPageCha
                 <table className="w-full min-w-[600px] border-collapse">
                     <thead className="bg-gradient-to-r bg-teal-500 text-white dark:bg-dark-elevated">
                         <tr>
-                            {columns.map(({ key, label, icon: Icon }, colIndex) => (
+                            {columns.map(({ key, label, icon, sortable, type }, colIndex) => {
+                                const isSortable = sortable !== false && type !== "image";
+                                const isSorted = sortConfig?.key === key;
+                                const SortIcon = !isSorted ? ArrowUpDown : sortConfig.direction === "asc" ? ArrowUp : ArrowDown;
+
+                                return (
                                 <th
                                     key={`${String(key)}-${colIndex}`}
                                     className="px-2 sm:px-4 py-2 sm:py-3 text-left font-semibold text-xs sm:text-sm"
+                                    aria-sort={isSorted ? (sortConfig.direction === "asc" ? "ascending" : "descending") : "none"}
                                 >
-                                    <div className="flex items-center gap-1 sm:gap-2">
-                                        {Icon && Icon}
-                                        {label}
-                                    </div>
+                                    {isSortable ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleSort(key)}
+                                            className="flex items-center gap-1 sm:gap-2 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                                            aria-label={`Ordenar por ${label}${isSorted ? (sortConfig.direction === "asc" ? ", ascendente" : ", descendente") : ""}`}
+                                        >
+                                            {icon}
+                                            {label}
+                                            <SortIcon size={14} aria-hidden="true" />
+                                        </button>
+                                    ) : (
+                                        <div className="flex items-center gap-1 sm:gap-2">
+                                            {icon}
+                                            {label}
+                                        </div>
+                                    )}
                                 </th>
-                            ))}
+                                );
+                            })}
                             {actions && <th className="px-2 sm:px-4 py-2 sm:py-3 text-left font-semibold">Acciones</th>}
                         </tr>
                     </thead>
@@ -249,7 +313,7 @@ const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, onPageCha
                             </tr>
                         ) : (
                             // Si hay datos, renderizar las filas
-                            data.map((row, rowIndex) => (
+                            sortedData.map((row, rowIndex) => (
                                 <tr
                                     key={rowIndex}
                                     className="border-b border-gray-300 transition-colors hover:bg-gray-200 dark:border-dark-border dark:hover:bg-dark-elevated"
@@ -276,35 +340,51 @@ const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, onPageCha
             </div>
 
             {/* 🔹 Paginación optimizada */}
-            <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2 p-3 sm:p-4 bg-gray-200 dark:bg-dark-card transition-colors">
-                <button
-                    onClick={() => onPageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg 
-                ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300 dark:hover:bg-dark-card transition-colors"}`}
-                >
-                    <ChevronLeft size={16} />
-                </button>
-
-                {generatePagination().map((page, index) => (
-                    <button
-                        key={index}
-                        onClick={() => typeof page === "number" && onPageChange(page)}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg text-xs sm:text-sm 
-                    ${currentPage === page ? "bg-teal-500 text-white" : "hover:bg-gray-300 dark:hover:bg-dark-card transition-colors"}`}
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3 sm:p-4 bg-gray-200 dark:bg-dark-card transition-colors">
+                <label className="flex items-center gap-2 text-xs sm:text-sm text-gray-700 dark:text-dark-secondary">
+                    Filas por página
+                    <select
+                        value={pageSize}
+                        onChange={(event) => onPageSizeChange(Number(event.target.value))}
+                        className="rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-dark-border dark:bg-dark-elevated dark:text-dark-primary"
+                        aria-label="Filas por página"
                     >
-                        {page === "..." ? <MoreHorizontal size={16} /> : page}
-                    </button>
-                ))}
+                        {[10, 20, 25, 50].map((size) => (
+                            <option key={size} value={size}>{size}</option>
+                        ))}
+                    </select>
+                </label>
 
-                <button
-                    onClick={() => onPageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg 
-                ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300 dark:hover:bg-dark-card transition-colors"}`}
-                >
-                    <ChevronRight size={16} />
-                </button>
+                <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
+                    <button
+                        onClick={() => onPageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg
+                    ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300 dark:hover:bg-dark-card transition-colors"}`}
+                    >
+                        <ChevronLeft size={16} />
+                    </button>
+
+                    {generatePagination().map((page, index) => (
+                        <button
+                            key={index}
+                            onClick={() => typeof page === "number" && onPageChange(page)}
+                            className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg text-xs sm:text-sm
+                        ${currentPage === page ? "bg-teal-500 text-white" : "hover:bg-gray-300 dark:hover:bg-dark-card transition-colors"}`}
+                        >
+                            {page === "..." ? <MoreHorizontal size={16} /> : page}
+                        </button>
+                    ))}
+
+                    <button
+                        onClick={() => onPageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg
+                    ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300 dark:hover:bg-dark-card transition-colors"}`}
+                    >
+                        <ChevronRight size={16} />
+                    </button>
+                </div>
             </div>
         </div>
     );

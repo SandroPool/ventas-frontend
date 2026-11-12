@@ -33,6 +33,7 @@ export interface ProductReceptionsPagination {
 interface ReceptionState {
     productReceptions: ProductReceptions[];
     paginationReception: Omit<ProductReceptionsPagination, "data"> | null;
+    currentSearchTerm: string;
     loading: boolean;
     fetchProductReceptions: (page?: number, limit?: number, searchTerm?: string) => Promise<void>;
     addProductReception: (reception: Omit<ProductReceptions, "id_reception" | "createdAt" | "updatedAt" | "product_name" | "price" | "supplier_name" | "user_name">) => Promise<void>;
@@ -42,10 +43,11 @@ interface ReceptionState {
 export const useReceptionStore = create<ReceptionState>((set) => ({
     productReceptions: [],
     paginationReception: null,
+    currentSearchTerm: "",
     loading: false,
 
     fetchProductReceptions: async (page = 1, limit = 10, searchTerm = "") => {
-        set({ loading: true });
+        set({ loading: true, currentSearchTerm: searchTerm });
         const response: ProductReceptionsPagination | null = await getProductReceptions(page, limit, searchTerm);
         if (response) {
             set({
@@ -64,13 +66,13 @@ export const useReceptionStore = create<ReceptionState>((set) => ({
     },
 
     addProductReception: async (reception) => {
-        const { fetchProductReceptions, paginationReception } = useReceptionStore.getState();
+        const { fetchProductReceptions, paginationReception, currentSearchTerm } = useReceptionStore.getState();
         set({ loading: true });
         const newReception = await createProductReception(reception);
         if (newReception) {
             toast.success("Recepción creada con éxito");
             // Vuelve a cargar la lista para asegurarte de obtener los datos completos
-            await fetchProductReceptions(paginationReception?.page ?? 1, 10);
+            await fetchProductReceptions(paginationReception?.page ?? 1, paginationReception?.limit ?? 10, currentSearchTerm);
         } else {
             toast.error("Error al crear recepción");
         }

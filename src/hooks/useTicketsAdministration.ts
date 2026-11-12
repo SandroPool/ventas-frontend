@@ -113,7 +113,7 @@ export const useTicketsAdministration = () => {
         if (result) {
             toast.success("Devolución registrada con éxito");
             setReturnModalOpen(false);
-            fetchSales();
+            fetchSales(paginationSales?.page ?? 1, paginationSales?.limit ?? 10, searchTerm);
         } else {
             toast.error("Error al registrar devolución");
         }

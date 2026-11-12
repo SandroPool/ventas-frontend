@@ -13,20 +13,21 @@ export const useUsersAdministration = () => {
     const [formData, setFormData] = useState({ name: "", email: "", role: Role.EMPLOYEE, status: false, password: "" });
     const [isFormValid, setIsFormValid] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
 
     const decodedToken = token ? jwtDecode<{ id: number; role: string }>(token) : { id: 0, role: '' };
 
     useEffect(() => {
         const fetchData = async () => {
-            await fetchUsers(currentPage, 10, searchTerm);
+            await fetchUsers(currentPage, pageSize, searchTerm);
             const pagination = useAuthStore.getState().pagination;
             if (pagination) {
                 setTotalPages(pagination.totalPages);
             }
         };
         fetchData();
-    }, [fetchUsers, searchTerm, currentPage]);
+    }, [fetchUsers, searchTerm, currentPage, pageSize]);
 
     const handleSearch = (searchTerm: string) => {
         setSearchTerm(searchTerm);
@@ -59,7 +60,7 @@ export const useUsersAdministration = () => {
                 updatedData.password = formData.password;
             }
             await updateUser(selectedUser.id_user, updatedData);
-            fetchUsers(currentPage, 10, searchTerm);
+            fetchUsers(currentPage, pageSize, searchTerm);
             setIsEditModalOpen(false);
         }
     };
@@ -67,7 +68,7 @@ export const useUsersAdministration = () => {
     const handleRegisterUser = async () => {
         const success = await registerUser(formData);
         if (success) {
-            fetchUsers(currentPage, 10, searchTerm);
+            fetchUsers(currentPage, pageSize, searchTerm);
             setIsRegisterModalOpen(false);
         }
     };
@@ -80,7 +81,7 @@ export const useUsersAdministration = () => {
             const updatedPagination = useAuthStore.getState().pagination;
             const page = Math.min(currentPage, updatedPagination?.totalPages ?? currentPage);
             if (page !== currentPage) setCurrentPage(page);
-            await fetchUsers(page, 10, searchTerm);
+            await fetchUsers(page, pageSize, searchTerm);
             setTotalPages(useAuthStore.getState().pagination?.totalPages ?? 1);
         }
         setUserToDelete(null);
@@ -105,6 +106,7 @@ export const useUsersAdministration = () => {
         users, loading, decodedToken,
         searchTerm, setSearchTerm,
         currentPage, setCurrentPage,
+        pageSize, setPageSize,
         totalPages, setTotalPages,
         isEditModalOpen, setIsEditModalOpen,
         isRegisterModalOpen, setIsRegisterModalOpen,

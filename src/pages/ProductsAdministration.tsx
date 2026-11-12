@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useProductsAdministration } from "../hooks/useProductsAdministration";
 import { ButtonFuturistic, InputFuturistic, ModalFuturistic, TitleFuturistic, TableFuturistic, SelectFuturistic, TextareaFuturistic, SwitchFuturistic, ImageUpload } from "../components";
 import { LoaderPinwheel, Pencil, Plus, List, CheckCircle, XCircle, Banknote, Text, Boxes, CircleX } from "lucide-react";
@@ -22,6 +23,7 @@ const ProductsAdministration = () => {
         handleEditCategory,
         handleAddProduct,
     } = useProductsAdministration();
+    const [pageSize, setPageSize] = useState(10);
 
     return (
         <div className="px-4 lg:px-10 lg:pt-5 space-y-8">
@@ -150,10 +152,15 @@ const ProductsAdministration = () => {
                         data={products}
                         currentPage={pagination?.page || 1}
                         totalPages={pagination?.totalPages || 1}
-                        onPageChange={(page) => fetchProducts(page, 10, searchTerm)}
+                        pageSize={pageSize}
+                        onPageChange={(page) => fetchProducts(page, pageSize, searchTerm)}
+                        onPageSizeChange={(size) => {
+                            setPageSize(size);
+                            fetchProducts(1, size, searchTerm);
+                        }}
                         onSearch={(term) => {
                             setSearchTerm(term);
-                            fetchProducts(1, 10, term);
+                            fetchProducts(1, pageSize, term);
                         }}
                         actions={(product) => (
                             <ButtonFuturistic

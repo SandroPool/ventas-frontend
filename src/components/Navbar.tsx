@@ -28,11 +28,11 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="fixed left-0 right-0 top-0 z-50 h-16 border-b border-gray-200 bg-white shadow-sm dark:border-dark-border dark:bg-dark-card">
+        <nav className="fixed left-0 right-0 top-0 z-50 h-16 border-b border-[#5D8FB3] bg-[#73A5CA] shadow-sm dark:border-dark-border dark:bg-dark-card">
             <div className="flex h-full items-center justify-between px-4 lg:px-8">
                 <NavLink to="/dashboard" className="flex items-center gap-2">
-                    <HandCoins size={28} className="text-teal-500" />
-                    <span className="text-lg font-bold text-gray-900 dark:text-dark-primary">Ventas App</span>
+                    <HandCoins size={28} className="text-white" />
+                    <span className="text-lg font-bold text-white dark:text-dark-primary">Ventas App</span>
                 </NavLink>
 
                 <div className="flex items-center gap-4">
@@ -44,16 +44,16 @@ const Navbar = () => {
                             aria-expanded={isOpen}
                             aria-haspopup="menu"
                             onClick={() => setIsOpen((prev) => !prev)}
-                            className="flex items-center gap-2 rounded-lg px-3 py-2 transition-colors hover:bg-gray-100 dark:hover:bg-dark-elevated"
+                            className="flex items-center gap-2 rounded-lg px-3 py-2 transition-colors hover:bg-white/20 dark:hover:bg-dark-elevated"
                         >
                             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-500">
                                 <User size={16} className="text-white" />
                             </div>
                             <div className="hidden text-left sm:block">
-                                <p className="text-sm font-medium leading-tight text-gray-900 dark:text-dark-primary">{user?.name || "Usuario"}</p>
-                                <p className="text-xs leading-tight text-gray-500 dark:text-dark-muted">{user?.role || ""}</p>
+                                <p className="text-sm font-medium leading-tight text-white dark:text-dark-primary">{user?.name || "Usuario"}</p>
+                                <p className="text-xs leading-tight text-white/80 dark:text-dark-muted">{user?.role || ""}</p>
                             </div>
-                            <ChevronDown size={16} className="text-gray-500 dark:text-dark-muted" />
+                            <ChevronDown size={16} className="text-white dark:text-dark-muted" />
                         </button>
 
                         {isOpen && (

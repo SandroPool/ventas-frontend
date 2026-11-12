@@ -3,6 +3,7 @@ export { default as InputFuturistic } from "./InputFuturistic";
 export { default as ModalFuturistic } from "./ModalFuturistic";
 export { default as TitleFuturistic } from "./TitleFuturistic";
 export { default as TableFuturistic } from "./TableFuturistic";
+export { default as PaginationControls } from "./PaginationControls";
 export { default as ButtonFuturistic } from "./ButtonFuturistic";
 export { default as SelectFuturistic } from "./SelectFuturistic";
 export { default as TextareaFuturistic } from "./TextareaFuturistic";

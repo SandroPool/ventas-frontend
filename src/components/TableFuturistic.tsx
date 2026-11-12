@@ -1,9 +1,9 @@
 import { JSX, useState, useEffect, useRef, useMemo } from "react";
 import {
-    ChevronLeft, ChevronRight, MoreHorizontal,
     LoaderPinwheel, ArchiveX, Search, CircleX, ImageOff, X, ArrowUp, ArrowDown, ArrowUpDown
 } from "lucide-react";
 import TruncatedText from "./TruncatedText";
+import PaginationControls from "./PaginationControls";
 
 export interface Column<T> {
     key: keyof T;
@@ -201,26 +201,6 @@ const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, pageSize,
         onSearchRef.current?.("");
     };
 
-    const generatePagination = () => {
-        const pages = [];
-        const showEllipsis = totalPages > 2;
-        const leftEllipsis = currentPage > 2;
-        const rightEllipsis = currentPage < totalPages - 1;
-
-        if (showEllipsis) {
-            pages.push(1); // Primera página
-            if (leftEllipsis) pages.push("...");
-            const start = Math.max(2, currentPage - 1);
-            const end = Math.min(totalPages - 1, currentPage + 1);
-            for (let i = start; i <= end; i++) pages.push(i);
-            if (rightEllipsis) pages.push("...");
-            pages.push(totalPages); // Última página
-        } else {
-            for (let i = 1; i <= totalPages; i++) pages.push(i);
-        }
-        return pages;
-    };
-
     return (
         <div className="w-full overflow-hidden rounded-lg shadow-lg bg-white text-gray-900 dark:bg-dark-base dark:text-dark-primary transition-colors">
             {/* 🔍 Barra de búsqueda */}
@@ -340,52 +320,13 @@ const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, pageSize,
             </div>
 
             {/* 🔹 Paginación optimizada */}
-            <div className="flex flex-wrap items-center justify-between gap-3 p-3 sm:p-4 bg-gray-200 dark:bg-dark-card transition-colors">
-                <label className="flex items-center gap-2 text-xs sm:text-sm text-gray-700 dark:text-dark-secondary">
-                    Filas por página
-                    <select
-                        value={pageSize}
-                        onChange={(event) => onPageSizeChange(Number(event.target.value))}
-                        className="rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-dark-border dark:bg-dark-elevated dark:text-dark-primary"
-                        aria-label="Filas por página"
-                    >
-                        {[10, 20, 25, 50].map((size) => (
-                            <option key={size} value={size}>{size}</option>
-                        ))}
-                    </select>
-                </label>
-
-                <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
-                    <button
-                        onClick={() => onPageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg
-                    ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300 dark:hover:bg-dark-card transition-colors"}`}
-                    >
-                        <ChevronLeft size={16} />
-                    </button>
-
-                    {generatePagination().map((page, index) => (
-                        <button
-                            key={index}
-                            onClick={() => typeof page === "number" && onPageChange(page)}
-                            className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg text-xs sm:text-sm
-                        ${currentPage === page ? "bg-teal-500 text-white" : "hover:bg-gray-300 dark:hover:bg-dark-card transition-colors"}`}
-                        >
-                            {page === "..." ? <MoreHorizontal size={16} /> : page}
-                        </button>
-                    ))}
-
-                    <button
-                        onClick={() => onPageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg
-                    ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300 dark:hover:bg-dark-card transition-colors"}`}
-                    >
-                        <ChevronRight size={16} />
-                    </button>
-                </div>
-            </div>
+            <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                onPageChange={onPageChange}
+                onPageSizeChange={onPageSizeChange}
+            />
         </div>
     );
 };

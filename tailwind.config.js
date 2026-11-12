@@ -5,6 +5,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  safelist: ["grid-cols-4"],
   theme: {
     extend: {
       colors: {

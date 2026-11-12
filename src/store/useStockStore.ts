@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { toast } from "react-hot-toast";
-import { getStock, StockItem, StockPagination } from "../services/stock.service";
+import { getStock, StockItem, StockPagination, STOCK_PAGE_SIZE } from "../services/stock.service";
 
 interface StockState {
     stock: StockItem[];
@@ -14,7 +14,7 @@ export const useStockStore = create<StockState>((set) => ({
     paginationStock: null,
     loading: false,
 
-    fetchStock: async (page = 1, limit = 10, searchTerm = "") => {
+    fetchStock: async (page = 1, limit = STOCK_PAGE_SIZE, searchTerm = "") => {
         set({ loading: true });
         const response: StockPagination | null = await getStock(page, limit, searchTerm);
 

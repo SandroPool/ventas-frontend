@@ -1,14 +1,18 @@
 import { fetchWithAuth } from "./auth.service";
 const API_URL_STOCK = `${import.meta.env.VITE_BASE_URL}/stock`;
+export const STOCK_PAGE_SIZE = 12;
 
 export interface StockItem {
     id_product: number;
     name: string;
+    description: string;
     sku: string | null;
     price: number;
+    image: string | null;
     unit_type: string;
     category: string;
     stock: number;
+    fecha_vencimiento: string | null;
 }
 
 export interface StockPagination {
@@ -20,7 +24,7 @@ export interface StockPagination {
 }
 
 // Obtener stock con paginación y búsqueda
-export const getStock = async (page: number = 1, limit: number = 10, searchTerm: string = "") => {
+export const getStock = async (page: number = 1, limit: number = STOCK_PAGE_SIZE, searchTerm: string = "") => {
     try {
         const url = new URL(API_URL_STOCK);
         url.searchParams.append("page", page.toString());

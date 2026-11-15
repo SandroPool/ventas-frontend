@@ -1,17 +1,41 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useTicketsAdministration } from "../hooks/useTicketsAdministration";
 import {
     ButtonFuturistic, ModalFuturistic, TitleFuturistic,
-    TableFuturistic, InputFuturistic, ImageUpload
+    TableFuturistic, InputFuturistic, ImageUpload, DateRangePicker
 } from "../components";
-import { DockIcon, LoaderPinwheel, SaveAllIcon, Settings2Icon, RotateCcw, Eye, Receipt, CircleX } from "lucide-react";
+import { Download, DockIcon, LoaderPinwheel, SaveAllIcon, Settings2Icon, RotateCcw, Eye, Receipt, CircleX } from "lucide-react";
 import generatePDF from "../utils/generatePDF";
 import { formatDate } from "../utils/functionDate";
+import type { Sale } from "../services/sales.service";
+
+const getPDFFileName = (sale: Sale) => {
+    const customerName = [
+        sale.customer?.name,
+        sale.customer?.first_surname,
+        sale.customer?.second_surname,
+    ]
+        .filter((name) => name?.trim())
+        .join(" ")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "")
+        .toUpperCase();
+
+    return `BOLETA_${customerName || "SIN_CLIENTE"}.pdf`;
+};
 
 const TicketsAdministration = () => {
+    const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
+    const [pdfPreviewSale, setPdfPreviewSale] = useState<Sale | null>(null);
+    const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
     const {
         sales, paginationSales, loadingSale, fetchSales,
         searchTerm, setSearchTerm,
+        dateFrom, setDateFrom,
+        dateTo, setDateTo,
         isConfigModalOpen, setIsConfigModalOpen,
         isSavingConfig,
         companyName, setCompanyName,
@@ -34,6 +58,26 @@ const TicketsAdministration = () => {
         viewSaleDetail,
     } = useTicketsAdministration();
     const [pageSize, setPageSize] = useState(10);
+
+    useEffect(() => {
+        return () => {
+            if (pdfPreviewUrl) URL.revokeObjectURL(pdfPreviewUrl);
+        };
+    }, [pdfPreviewUrl]);
+
+    const handlePreviewPDF = async (sale: Sale) => {
+        setIsGeneratingPdf(true);
+        try {
+            const pdfBlob = await generatePDF(sale);
+            setPdfPreviewUrl(URL.createObjectURL(pdfBlob));
+            setPdfPreviewSale(sale);
+        } catch (error) {
+            console.error("Error al generar la vista previa de la boleta:", error);
+            toast.error("No se pudo generar la vista previa de la boleta");
+        } finally {
+            setIsGeneratingPdf(false);
+        }
+    };
 
     return (
         <div className="lg:pr-10 lg:pl-10 lg:pt-5 space-y-8">
@@ -88,6 +132,28 @@ const TicketsAdministration = () => {
             </ModalFuturistic>
             </div>
 
+            <section
+                aria-label="Resumen de boletas"
+                className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+            >
+                <article className="rounded-xl border border-teal-100 bg-white p-4 shadow-sm dark:border-dark-border dark:bg-dark-card">
+                    <p className="text-sm font-medium text-gray-500 dark:text-dark-secondary">Boletas encontradas</p>
+                    <p className="mt-1 text-2xl font-bold text-gray-800 dark:text-dark-primary">
+                        {loadingSale ? "..." : (paginationSales?.total ?? 0)}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-400 dark:text-dark-muted">Según la búsqueda actual</p>
+                </article>
+                <article className="rounded-xl border border-teal-100 bg-white p-4 shadow-sm dark:border-dark-border dark:bg-dark-card">
+                    <p className="text-sm font-medium text-gray-500 dark:text-dark-secondary">Venta bruta visible</p>
+                    <p className="mt-1 text-2xl font-bold text-gray-800 dark:text-dark-primary">
+                        {loadingSale ? "..." : `S/ ${sales.reduce((sum, sale) => sum + (sale.total ?? 0), 0).toFixed(2)}`}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-400 dark:text-dark-muted">
+                        Suma de las {sales.length} boletas de esta página
+                    </p>
+                </article>
+            </section>
+
             <TableFuturistic
                 columns={[
                     { key: "date", label: "Fecha", render: (value) => <span>{formatDate(value as string)}</span> },
@@ -111,37 +177,70 @@ const TicketsAdministration = () => {
                 currentPage={paginationSales?.page || 1}
                 totalPages={paginationSales?.totalPages || 1}
                 pageSize={pageSize}
-                onPageChange={(page) => fetchSales(page, pageSize, searchTerm)}
+                onPageChange={(page) => fetchSales(page, pageSize, searchTerm, dateFrom, dateTo)}
                 onPageSizeChange={(size) => {
                     setPageSize(size);
-                    fetchSales(1, size, searchTerm);
+                    fetchSales(1, size, searchTerm, dateFrom, dateTo);
                 }}
                 onSearch={(term) => {
                     setSearchTerm(term);
-                    fetchSales(1, pageSize, term);
+                    fetchSales(1, pageSize, term, dateFrom, dateTo);
                 }}
+                toolbarContent={
+                    <DateRangePicker
+                        dateFrom={dateFrom}
+                        dateTo={dateTo}
+                        onRangeSelect={(from, to) => {
+                            setDateFrom(from);
+                            setDateTo(to);
+                            fetchSales(1, pageSize, searchTerm, from, to);
+                        }}
+                        onClear={() => {
+                            setDateFrom("");
+                            setDateTo("");
+                            fetchSales(1, pageSize, searchTerm, "", "");
+                        }}
+                    />
+                }
                 actions={(sale) => (
                     <div className="flex gap-1">
                         <ButtonFuturistic
                             gradient="bg-gradient-to-r from-teal-600 to-emerald-500"
                             icon={Receipt}
+                            label="Ver"
+                            title="Ver detalle de la boleta"
+                            aria-label="Ver detalle de la boleta"
+                            className="!m-0 !px-2 !py-2 text-xs"
                             onClick={() => viewSaleDetail(sale)}
                         />
                         <ButtonFuturistic
                             gradient="bg-gradient-to-r from-red-600 to-rose-500"
-                            icon={DockIcon}
-                            onClick={() => generatePDF(sale)}
+                            icon={isGeneratingPdf ? LoaderPinwheel : DockIcon}
+                            label={isGeneratingPdf ? "Generando..." : "Previsualizar"}
+                            title="Previsualizar boleta en PDF"
+                            aria-label="Previsualizar boleta en PDF"
+                            className="!m-0 !px-2 !py-2 text-xs"
+                            disabled={isGeneratingPdf}
+                            onClick={() => handlePreviewPDF(sale)}
                         />
                         {sale.status !== "FULLY_RETURNED" && (
                             <ButtonFuturistic
                                 gradient="bg-gradient-to-r from-amber-500 to-orange-500"
                                 icon={RotateCcw}
+                                label="Devolver"
+                                title="Registrar devolución"
+                                aria-label="Registrar devolución"
+                                className="!m-0 !px-2 !py-2 text-xs"
                                 onClick={() => openReturnModal(sale)}
                             />
                         )}
                         <ButtonFuturistic
                             gradient="bg-gradient-to-r from-blue-500 to-cyan-500"
                             icon={Eye}
+                            label="Historial"
+                            title="Ver devoluciones registradas"
+                            aria-label="Ver devoluciones registradas"
+                            className="!m-0 !px-2 !py-2 text-xs"
                             onClick={() => viewReturns(sale)}
                         />
                     </div>
@@ -150,6 +249,40 @@ const TicketsAdministration = () => {
                 emptyStateText="No hay boletas para mostrar."
                 searchEmptyStateText="No existe la boleta buscada."
             />
+
+            <div className="lg:w-3/4 w-full">
+
+            <ModalFuturistic
+                isOpen={Boolean(pdfPreviewUrl && pdfPreviewSale)}
+                onClose={() => {
+                    setPdfPreviewUrl(null);
+                    setPdfPreviewSale(null);
+                }}
+                headerless
+                className="!max-w-5xl"
+            >
+                {pdfPreviewUrl && pdfPreviewSale && (
+                    <div>
+                        <iframe
+                            src={pdfPreviewUrl}
+                            title={`Vista previa PDF de la boleta ${pdfPreviewSale.operation_number}`}
+                            className="h-[65vh] w-full border-0 bg-white"
+                        />
+                        <div className="flex justify-end p-4">
+                            <a
+                                href={pdfPreviewUrl}
+                                download={getPDFFileName(pdfPreviewSale)}
+                                aria-label={`Descargar ${getPDFFileName(pdfPreviewSale)}`}
+                                className="inline-flex items-center gap-2 rounded-lg bg-teal-600 px-4 py-2 font-semibold text-white shadow transition-colors hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                            >
+                                <Download size={18} aria-hidden="true" />
+                                Descargar
+                            </a>
+                        </div>
+                    </div>
+                )}
+            </ModalFuturistic>
+            </div>
 
             <div className="lg:w-3/4 w-full">
             <ModalFuturistic isOpen={returnModalOpen} onClose={() => setReturnModalOpen(false)} title="Registrar Devoluci&oacute;n" className="max-w-2xl">
@@ -215,7 +348,7 @@ const TicketsAdministration = () => {
                         </div>
 
                         <ButtonFuturistic
-                            label={returnLoading ? "" : "Confirmar Devoluci&oacute;n"}
+                            label={returnLoading ? "" : "Confirmar Devolución"}
                             icon={returnLoading ? LoaderPinwheel : RotateCcw}
                             onClick={handleConfirmReturn}
                             disabled={returnLoading}
@@ -228,10 +361,10 @@ const TicketsAdministration = () => {
             </div>
 
             <div className="lg:w-3/4 w-full">
-            <ModalFuturistic isOpen={saleDetailOpen} onClose={() => setSaleDetailOpen(false)} title="" className="max-w-2xl">
+            <ModalFuturistic isOpen={saleDetailOpen} onClose={() => setSaleDetailOpen(false)} title="" closeButtonVariant="circle" className="max-w-2xl">
                 {selectedSale && (
                     <div className="-m-6">
-                        <div className="bg-gray-800 dark:bg-gray-900 px-6 py-5 rounded-t-lg">
+                        <div className="bg-gray-800 dark:bg-gray-900 px-6 pr-14 py-5 rounded-t-lg">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-teal-400 text-2xl font-bold tracking-wider uppercase">Boleta de Venta</p>
@@ -314,10 +447,10 @@ const TicketsAdministration = () => {
 
             
             <div className="lg:w-3/4 w-full">
-            <ModalFuturistic isOpen={returnsViewOpen} onClose={() => setReturnsViewOpen(false)} title="" className="max-w-2xl">
+            <ModalFuturistic isOpen={returnsViewOpen} onClose={() => setReturnsViewOpen(false)} title="" closeButtonVariant="circle" className="max-w-2xl">
                 {selectedSale && (
                     <div className="-m-6">
-                        <div className="bg-gray-800 dark:bg-gray-900 px-6 py-5 rounded-t-lg">
+                        <div className="bg-gray-800 dark:bg-gray-900 px-6 pr-14 py-5 rounded-t-lg">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-teal-400 text-2xl font-bold tracking-wider uppercase">Devoluciones</p>

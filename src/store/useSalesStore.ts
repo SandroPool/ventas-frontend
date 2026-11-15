@@ -9,7 +9,9 @@ interface SalesState {
     currentPage: number;
     currentLimit: number;
     searchTerm: string;
-    fetchSales: (page?: number, limit?: number, searchTerm?: string) => Promise<void>;
+    currentDateFrom: string;
+    currentDateTo: string;
+    fetchSales: (page?: number, limit?: number, searchTerm?: string, dateFrom?: string, dateTo?: string) => Promise<void>;
     registerSale: (sale: Sale) => Promise<Sale | null>;
     editSale: (id_sale: number, sale: Sale) => Promise<boolean>;
 }
@@ -21,11 +23,13 @@ export const useSalesStore = create<SalesState>((set) => ({
     currentPage: 1,
     currentLimit: 10,
     searchTerm: "",
+    currentDateFrom: "",
+    currentDateTo: "",
 
     // Obtener todas las ventas con paginación y búsqueda
-    fetchSales: async (page = 1, limit = 10, searchTerm = "") => {
-        set({ loadingSale: true, currentPage: page, currentLimit: limit, searchTerm });
-        const response: SalesPagination | null = await getSales(page, limit, searchTerm);
+    fetchSales: async (page = 1, limit = 10, searchTerm = "", dateFrom = "", dateTo = "") => {
+        set({ loadingSale: true, currentPage: page, currentLimit: limit, searchTerm, currentDateFrom: dateFrom, currentDateTo: dateTo });
+        const response: SalesPagination | null = await getSales(page, limit, searchTerm, dateFrom, dateTo);
 
         if (response) {
             set({
@@ -45,12 +49,12 @@ export const useSalesStore = create<SalesState>((set) => ({
 
     // Registrar una nueva venta
     registerSale: async (sale: Sale) => {
-        const { fetchSales, currentPage, currentLimit, searchTerm } = useSalesStore.getState();
+        const { fetchSales, currentPage, currentLimit, searchTerm, currentDateFrom, currentDateTo } = useSalesStore.getState();
         set({ loadingSale: true });
         try {
             const response = await createSale(sale);
             toast.success("Venta registrada con éxito");
-            fetchSales(currentPage, currentLimit, searchTerm);
+            fetchSales(currentPage, currentLimit, searchTerm, currentDateFrom, currentDateTo);
             set({ loadingSale: false });
             return response;
         } catch (error) {
@@ -62,12 +66,12 @@ export const useSalesStore = create<SalesState>((set) => ({
 
     // Editar una venta existente
     editSale: async (id_sale: number, sale: Sale) => {
-        const { fetchSales, currentPage, currentLimit, searchTerm } = useSalesStore.getState();
+        const { fetchSales, currentPage, currentLimit, searchTerm, currentDateFrom, currentDateTo } = useSalesStore.getState();
         set({ loadingSale: true });
         try {
             await updateSale(id_sale, sale);
             toast.success("Venta actualizada con éxito");
-            fetchSales(currentPage, currentLimit, searchTerm);
+            fetchSales(currentPage, currentLimit, searchTerm, currentDateFrom, currentDateTo);
             set({ loadingSale: false });
             return true;
         } catch (error) {

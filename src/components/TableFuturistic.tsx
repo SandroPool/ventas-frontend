@@ -119,7 +119,7 @@ const ImageCell = ({ src }: { src: string | null }) => {
                             className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
                         />
                     </div>
-                </div>
+            </div>
             )}
         </>
     );
@@ -134,13 +134,14 @@ interface PropsTable<T> {
     onPageChange: (page: number) => void;
     onPageSizeChange: (pageSize: number) => void;
     onSearch?: (searchTerm: string) => void;
+    toolbarContent?: JSX.Element;
     actions?: (row: T) => JSX.Element;
     loading?: boolean;
     emptyStateText?: string;
     searchEmptyStateText?: string;
 }
 
-const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, pageSize, onPageChange, onPageSizeChange, onSearch, actions, loading, emptyStateText = "No hay registros para mostrar.", searchEmptyStateText = "No se encontraron resultados." }: PropsTable<T>) => {
+const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, pageSize, onPageChange, onPageSizeChange, onSearch, toolbarContent, actions, loading, emptyStateText = "No hay registros para mostrar.", searchEmptyStateText = "No se encontraron resultados." }: PropsTable<T>) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: SortDirection } | null>(null);
     const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -204,39 +205,46 @@ const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, pageSize,
     };
 
     return (
-        <div className="w-full overflow-hidden rounded-lg shadow-lg bg-white text-gray-900 dark:bg-dark-base dark:text-dark-primary transition-colors">
+        <div className="relative w-full overflow-visible rounded-lg shadow-lg bg-white text-gray-900 dark:bg-dark-base dark:text-dark-primary transition-colors">
             {/* 🔍 Barra de búsqueda */}
             <div className="pt-2 pb-2 border-b border-gray-300 dark:border-dark-border">
-                <form onSubmit={handleSearch} className="flex items-center gap-2">
-                    <div className="flex-1 relative">
-                        <input
-                            type="text"
-                            placeholder="Buscar..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full px-4 py-2 rounded-lg bg-gray-100 dark:bg-dark-card focus:outline-none focus:ring-2 focus:ring-teal-500"
-                        />
-                        {searchTerm && (
-                            <button
-                                type="button"
-                                onClick={clearSearch}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-dark-muted dark:hover:text-dark-primary"
-                            >
-                                <CircleX size={18} />
-                            </button>
-                        )}
-                    </div>
-                    <button
-                        type="submit"
-                        className="p-2 rounded-lg bg-teal-500 text-white hover:bg-teal-600 transition-colors"
-                    >
-                        <Search size={18} />
-                    </button>
-                </form>
-            </div>
+                <div className={`flex ${toolbarContent ? "flex-col gap-3 px-3 sm:px-4 lg:flex-row lg:items-end" : ""}`}>
+                    <form onSubmit={handleSearch} className="flex min-w-0 flex-1 items-center gap-2">
+                        <div className="relative min-w-0 flex-1">
+                            <input
+                                type="text"
+                                placeholder="Buscar..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg bg-gray-100 dark:bg-dark-card focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            />
+                            {searchTerm && (
+                                <button
+                                    type="button"
+                                    onClick={clearSearch}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-dark-muted dark:hover:text-dark-primary"
+                                >
+                                    <CircleX size={18} />
+                                </button>
+                            )}
+                        </div>
+                        <button
+                            type="submit"
+                            className="p-2 rounded-lg bg-teal-500 text-white hover:bg-teal-600 transition-colors"
+                        >
+                            <Search size={18} />
+                        </button>
+                    </form>
+                    {toolbarContent && (
+                        <div className="w-full lg:w-80 lg:shrink-0">
+                            {toolbarContent}
+                        </div>
+                    )}
+                </div>
+                </div>
 
             {/* Tabla */}
-            <div className="w-full overflow-x-auto">
+            <div className="w-full overflow-x-auto rounded-lg">
                 <table className="w-full min-w-[600px] border-collapse">
                     <thead className="bg-gradient-to-r bg-teal-500 text-white dark:bg-dark-elevated">
                         <tr>

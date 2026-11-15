@@ -1,15 +1,30 @@
 import { useEffect, useRef, useState } from "react";
 import { useSalesStore } from "../store/useSalesStore";
 import { useAuthStore } from "../store/useAuthStore";
-import { getCompanyLogo, saveCompanyLogo, saveCompanyName } from "../utils/companyConfig";
+import { getCompanyLogo, getCompanyName, saveCompanyLogo, saveCompanyName } from "../utils/companyConfig";
 import toast from "react-hot-toast";
 import { createReturn, getReturnsBySale } from "../services/return.service";
+
+const readImageAsDataUrl = (file: File) => new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+        if (typeof reader.result === "string") {
+            resolve(reader.result);
+        } else {
+            reject(new Error("No se pudo leer el archivo de imagen"));
+        }
+    };
+    reader.onerror = () => reject(reader.error ?? new Error("No se pudo leer el archivo de imagen"));
+    reader.readAsDataURL(file);
+});
 
 export const useTicketsAdministration = () => {
     const { sales, paginationSales, loadingSale, fetchSales } = useSalesStore();
     const { user } = useAuthStore();
     const hasLoadedSales = useRef(false);
     const [searchTerm, setSearchTerm] = useState("");
+    const [dateFrom, setDateFrom] = useState("");
+    const [dateTo, setDateTo] = useState("");
     const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
     const [isSavingConfig, setIsSavingConfig] = useState(false);
     const [companyName, setCompanyName] = useState("");
@@ -26,33 +41,50 @@ export const useTicketsAdministration = () => {
 
     const handleSaveConfig = async () => {
         setIsSavingConfig(true);
-        if (companyName) await saveCompanyName(companyName);
-
-        if (logoFile) {
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const base64String = reader.result as string;
-                await saveCompanyLogo(base64String);
-                setIsConfigModalOpen(false);
-                toast.success("Boleta actualizada con éxito");
-                setIsSavingConfig(false);
-            };
-            reader.onerror = () => {
-                toast.error("Error al leer el archivo");
-                setIsSavingConfig(false);
-            };
-            reader.readAsDataURL(logoFile);
-        } else {
+        try {
+            const logoBase64 = logoFile ? await readImageAsDataUrl(logoFile) : null;
+            await saveCompanyName(companyName);
+            if (logoBase64) {
+                await saveCompanyLogo(logoBase64);
+                setLogoPreview(logoBase64);
+            }
+            setLogoFile(null);
             setIsConfigModalOpen(false);
             toast.success("Boleta actualizada con éxito");
+        } catch (error) {
+            console.error("Error al guardar la configuración de la boleta:", error);
+            toast.error(error instanceof Error ? error.message : "No se pudo guardar la configuración de la boleta");
+        } finally {
             setIsSavingConfig(false);
         }
     };
 
     useEffect(() => {
-        if (isConfigModalOpen) {
-            getCompanyLogo().then(setLogoPreview);
-        }
+        if (!isConfigModalOpen) return;
+
+        let isCurrent = true;
+        const loadCompanyConfig = async () => {
+            try {
+                const [savedCompanyName, savedLogo] = await Promise.all([
+                    getCompanyName(),
+                    getCompanyLogo(),
+                ]);
+                if (!isCurrent) return;
+                setCompanyName(savedCompanyName);
+                setLogoPreview(savedLogo || null);
+                setLogoFile(null);
+            } catch (error) {
+                console.error("Error al cargar la configuración de la boleta:", error);
+                if (isCurrent) {
+                    toast.error("No se pudo cargar la configuración de la boleta");
+                }
+            }
+        };
+
+        void loadCompanyConfig();
+        return () => {
+            isCurrent = false;
+        };
     }, [isConfigModalOpen]);
 
     useEffect(() => {
@@ -117,7 +149,7 @@ export const useTicketsAdministration = () => {
         if (result) {
             toast.success("Devolución registrada con éxito");
             setReturnModalOpen(false);
-            fetchSales(paginationSales?.page ?? 1, paginationSales?.limit ?? 10, searchTerm);
+            fetchSales(paginationSales?.page ?? 1, paginationSales?.limit ?? 10, searchTerm, dateFrom, dateTo);
         } else {
             toast.error("Error al registrar devolución");
         }
@@ -138,6 +170,8 @@ export const useTicketsAdministration = () => {
     return {
         sales, paginationSales, loadingSale, fetchSales,
         searchTerm, setSearchTerm,
+        dateFrom, setDateFrom,
+        dateTo, setDateTo,
         isConfigModalOpen, setIsConfigModalOpen,
         isSavingConfig,
         companyName, setCompanyName,

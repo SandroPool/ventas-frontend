@@ -6,10 +6,22 @@ interface PropsModal {
     title?: string;
     children?: React.ReactNode;
     className?: string;
+    headerless?: boolean;
+    closeButtonVariant?: "default" | "circle";
 }
 
-const ModalFuturistic = ({ isOpen, onClose, title, children, className = "" }: PropsModal) => {
+const ModalFuturistic = ({
+    isOpen,
+    onClose,
+    title,
+    children,
+    className = "",
+    headerless = false,
+    closeButtonVariant = "default",
+}: PropsModal) => {
     if (!isOpen) return null;
+
+    const useCircleCloseButton = headerless || closeButtonVariant === "circle";
 
     return (
         <div
@@ -22,18 +34,18 @@ const ModalFuturistic = ({ isOpen, onClose, title, children, className = "" }: P
                 <div
                     role="dialog"
                     aria-modal="true"
-                    className={`relative z-[101] max-h-[calc(100dvh-2rem)] w-[92vw] max-w-3xl overflow-y-auto rounded-lg bg-slate-50 p-6 shadow-2xl transition-all duration-300 ease-out dark:bg-dark-base ${className}`}
+                    className={`relative z-[101] max-h-[calc(100dvh-2rem)] w-[92vw] max-w-3xl overflow-y-auto rounded-lg bg-slate-50 ${headerless ? "p-0" : "p-6"} shadow-2xl transition-all duration-300 ease-out dark:bg-dark-base ${className}`}
                 >
                     <button
                         onClick={onClose}
-                        className="absolute right-4 top-4 p-1 text-gray-400 hover:text-gray-700 dark:hover:text-dark-primary"
+                        className={`absolute right-4 top-4 p-1 ${useCircleCloseButton ? "z-[102] rounded-full bg-white/90 text-gray-700 shadow hover:bg-white" : "text-gray-400 hover:text-gray-700 dark:hover:text-dark-primary"}`}
                         aria-label="Cerrar modal"
                         type="button"
                     >
                         <X size={24} />
                     </button>
 
-                    {title && (
+                    {!headerless && title && (
                         <h2 className="mb-5 text-center text-xl font-semibold text-gray-900 dark:text-dark-primary">
                             {title}
                         </h2>

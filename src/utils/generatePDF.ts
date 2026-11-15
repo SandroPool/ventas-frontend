@@ -123,8 +123,7 @@ const generatePDF = async (sale: Sale) => {
         { align: "center" }
     );
 
-    // Save the PDF
-    doc.save(`BOLETA_${sale.id_sale}.pdf`);
+    return doc.output("blob");
 };
 
 export default generatePDF;

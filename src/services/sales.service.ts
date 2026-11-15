@@ -53,13 +53,27 @@ export interface SalesPagination {
 }
 
 // Obtener todas las ventas con paginación y búsqueda
-export const getSales = async (page: number = 1, limit: number = 10, searchTerm: string = "") => {
+export const getSales = async (
+    page: number = 1,
+    limit: number = 10,
+    searchTerm: string = "",
+    dateFrom: string = "",
+    dateTo: string = "",
+) => {
     try {
         const url = new URL(API_URL_SALES);
         url.searchParams.append("page", page.toString());
         url.searchParams.append("limit", limit.toString());
         if (searchTerm) {
             url.searchParams.append("search", searchTerm);
+        }
+        if (dateFrom && dateTo) {
+            const [fromYear, fromMonth, fromDay] = dateFrom.split("-").map(Number);
+            const [toYear, toMonth, toDay] = dateTo.split("-").map(Number);
+            const startOfRange = new Date(fromYear, fromMonth - 1, fromDay);
+            const endOfRange = new Date(toYear, toMonth - 1, toDay + 1);
+            url.searchParams.append("dateFrom", startOfRange.toISOString());
+            url.searchParams.append("dateTo", endOfRange.toISOString());
         }
 
         const response = await fetchWithAuth(url.toString(), {

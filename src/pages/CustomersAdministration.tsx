@@ -61,6 +61,8 @@ const CustomersAdministration = () => {
                     />
                 )}
                 loading={loading}
+                emptyStateText="No hay clientes para mostrar."
+                searchEmptyStateText="No existe el cliente buscado."
             />
 
             <div className="lg:w-3/4 w-full">

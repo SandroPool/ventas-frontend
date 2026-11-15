@@ -136,9 +136,11 @@ interface PropsTable<T> {
     onSearch?: (searchTerm: string) => void;
     actions?: (row: T) => JSX.Element;
     loading?: boolean;
+    emptyStateText?: string;
+    searchEmptyStateText?: string;
 }
 
-const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, pageSize, onPageChange, onPageSizeChange, onSearch, actions, loading }: PropsTable<T>) => {
+const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, pageSize, onPageChange, onPageSizeChange, onSearch, actions, loading, emptyStateText = "No hay registros para mostrar.", searchEmptyStateText = "No se encontraron resultados." }: PropsTable<T>) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: SortDirection } | null>(null);
     const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -282,17 +284,18 @@ const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, pageSize,
                                     </div>
                                 </td>
                             </tr>
-                        ) : data.length === 0 ? ( // Si no hay datos
+                        ) : data.length === 0 ? (
                             <tr>
                                 <td colSpan={columns.length + (actions ? 1 : 0)} className="text-center py-4">
-                                    <div className="flex justify-center items-center gap-2">
+                                    <div className="flex justify-center items-center gap-2" aria-live="polite">
                                         <ArchiveX size={30} className="text-gray-500 dark:text-dark-muted" />
-                                        <span className="text-gray-500 dark:text-dark-muted">No encontrado</span>
+                                        <span className="text-gray-500 dark:text-dark-muted">
+                                            {searchTerm.trim() ? searchEmptyStateText : emptyStateText}
+                                        </span>
                                     </div>
                                 </td>
                             </tr>
                         ) : (
-                            // Si hay datos, renderizar las filas
                             sortedData.map((row, rowIndex) => (
                                 <tr
                                     key={rowIndex}

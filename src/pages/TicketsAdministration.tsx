@@ -147,6 +147,8 @@ const TicketsAdministration = () => {
                     </div>
                 )}
                 loading={loadingSale}
+                emptyStateText="No hay boletas para mostrar."
+                searchEmptyStateText="No existe la boleta buscada."
             />
 
             <div className="lg:w-3/4 w-full">

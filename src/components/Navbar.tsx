@@ -2,9 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import ThemeToggle from "./ThemeToggle";
-import { LogOut, ChevronDown, HandCoins, User } from "lucide-react";
+import { LogOut, ChevronDown, HandCoins, User, Menu, X } from "lucide-react";
 
-const Navbar = () => {
+const Navbar = ({ sidebarOpen, onToggleSidebar }: { sidebarOpen: boolean; onToggleSidebar: () => void }) => {
     const { user, logout } = useAuthStore();
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
@@ -30,10 +30,22 @@ const Navbar = () => {
     return (
         <nav className="fixed left-0 right-0 top-0 z-50 h-16 border-b border-[#5D8FB3] bg-[#73A5CA] shadow-sm dark:border-dark-border dark:bg-dark-card">
             <div className="flex h-full items-center justify-between px-4 lg:px-8">
-                <NavLink to="/dashboard" className="flex items-center gap-2">
-                    <HandCoins size={28} className="text-white" />
-                    <span className="text-lg font-bold text-white dark:text-dark-primary">Ventas App</span>
-                </NavLink>
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={onToggleSidebar}
+                        className="rounded-lg p-2 text-white transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:hidden"
+                        aria-label={sidebarOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
+                        aria-expanded={sidebarOpen}
+                        aria-controls="app-sidebar"
+                    >
+                        {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
+                    </button>
+                    <NavLink to="/dashboard" className="flex items-center gap-2">
+                        <HandCoins size={28} className="text-white" />
+                        <span className="text-lg font-bold text-white dark:text-dark-primary">Ventas App</span>
+                    </NavLink>
+                </div>
 
                 <div className="flex items-center gap-4">
                     <ThemeToggle />

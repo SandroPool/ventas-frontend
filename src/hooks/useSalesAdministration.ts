@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSalesStore } from "../store/useSalesStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { useCustomerStore, Customer } from "../store/useCustomerStore";
@@ -45,7 +45,6 @@ export const useSalesAdministration = () => {
         }
         const result = await searchCustomer(dniSearch);
         if (result === "not_found") {
-            toast.error("Cliente no encontrado, registrar manualmente");
             setCustomer({ id_customer: 0, dni: dniSearch, name: "", first_surname: "", second_surname: "", createdAt: "", updatedAt: "" });
         } else if (result) {
             setCustomer(result);
@@ -74,7 +73,7 @@ export const useSalesAdministration = () => {
         }
     };
 
-    const handleProductSelect = (product: Product): void => {
+    const handleProductSelect = useCallback((product: Product): void => {
         console.info({
             nombre: product.name,
             cantidadDiponible: product.stock,
@@ -98,7 +97,7 @@ export const useSalesAdministration = () => {
         setHighlightId(product.id_product);
         setTimeout(() => setHighlightId(null), 1500);
         toast.success(`${product.name} añadido al carrito`);
-    };
+    }, []);
 
     const updatePrice = (id: number, price: number): void => {
         setCart(prevCart => prevCart.map(item => {

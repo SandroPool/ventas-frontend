@@ -155,8 +155,8 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
             )}
 
             {/* Totales y Acción */}
-            <div className="mt-6 border-t border-gray-200 dark:border-dark-border pt-4">
-                <p className="font-bold text-4xl text-center mt-4 mb-6 text-amber-500 dark:text-yellow-400">
+            <div className="mt-6 hidden border-t border-gray-200 pt-4 dark:border-dark-border lg:block">
+                <p className="mb-6 mt-4 text-center text-4xl font-bold text-amber-500 dark:text-yellow-400">
                     Total: S/{total.toFixed(2)}
                 </p>
                 <ButtonFuturistic
@@ -167,6 +167,27 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
                     className={`w-full ${(!cart.length || !customerSelected || !paymentMethodSelected || loadingSale) ? 'opacity-70 cursor-not-allowed' : ''}`}
                 />
             </div>
+
+            {cart.length > 0 && (
+                <div
+                    role="region"
+                    aria-label="Resumen de venta"
+                    className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white/95 p-3 pl-16 shadow-2xl backdrop-blur dark:border-dark-border dark:bg-dark-card/95 sm:left-64 sm:pl-4 lg:hidden"
+                >
+                    <div className="mx-auto flex max-w-5xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-xl font-bold text-amber-500 dark:text-yellow-400">
+                            Total: S/{total.toFixed(2)}
+                        </p>
+                        <ButtonFuturistic
+                            label={loadingSale ? "Procesando..." : "Registrar Venta"}
+                            icon={Banknote}
+                            onClick={registerSale}
+                            disabled={!customerSelected || !paymentMethodSelected || loadingSale}
+                            className={`m-0 w-full sm:w-auto ${(!customerSelected || !paymentMethodSelected || loadingSale) ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

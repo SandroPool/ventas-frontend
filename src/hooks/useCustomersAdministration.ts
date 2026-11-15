@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { Customer, useCustomerStore } from "../store/useCustomerStore";
 import { validateDNI } from "../utils/validateDNI";
@@ -7,6 +7,7 @@ export const useCustomersAdministration = () => {
     const {
         customers, paginationCustomer, loading, fetchCustomers, addCustomer, editCustomer
     } = useCustomerStore();
+    const hasLoadedCustomers = useRef(false);
 
     const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
     const [isEditCustomerModalOpen, setIsEditCustomerModalOpen] = useState(false);
@@ -15,8 +16,11 @@ export const useCustomersAdministration = () => {
     const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
 
     useEffect(() => {
-        if (customers.length === 0) fetchCustomers();
-    }, [fetchCustomers, customers.length]);
+        if (!hasLoadedCustomers.current && !paginationCustomer) {
+            hasLoadedCustomers.current = true;
+            fetchCustomers();
+        }
+    }, [fetchCustomers, paginationCustomer]);
 
     const handleAddCustomer = async () => {
         if (!newCustomer.name || !newCustomer.first_surname || !newCustomer.dni) {

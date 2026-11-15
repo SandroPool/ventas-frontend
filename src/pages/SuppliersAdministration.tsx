@@ -75,6 +75,8 @@ const SuppliersAdministration = () => {
                         />
                     )}
                     loading={loading}
+                    emptyStateText="No hay proveedores para mostrar."
+                    searchEmptyStateText="No existe el proveedor buscado."
                 />
                 <ModalFuturistic isOpen={isEditSupplierModalOpen} onClose={() => setIsEditSupplierModalOpen(false)} title="Editar Proveedor">
                     {editingSupplier && (

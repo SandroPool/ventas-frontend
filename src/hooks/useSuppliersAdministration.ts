@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { Supplier, useSupplierStore } from "../store/useSupplierStore";
 
@@ -6,6 +6,7 @@ export const useSuppliersAdministration = () => {
     const {
         suppliers, paginationSupplier, loading, fetchSuppliers, addSupplier, editSupplier
     } = useSupplierStore();
+    const hasLoadedSuppliers = useRef(false);
 
     const [isAddSupplierModalOpen, setIsAddSupplierModalOpen] = useState(false);
     const [isEditSupplierModalOpen, setIsEditSupplierModalOpen] = useState(false);
@@ -16,8 +17,11 @@ export const useSuppliersAdministration = () => {
     const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
 
     useEffect(() => {
-        if (suppliers.length === 0) fetchSuppliers();
-    }, [fetchSuppliers, suppliers.length]);
+        if (!hasLoadedSuppliers.current && !paginationSupplier) {
+            hasLoadedSuppliers.current = true;
+            fetchSuppliers();
+        }
+    }, [fetchSuppliers, paginationSupplier]);
 
     const handleAddSupplier = async () => {
         if (!newSupplier.name || !newSupplier.ruc || !newSupplier.address || !newSupplier.phone || !newSupplier.contact) {

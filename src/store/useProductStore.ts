@@ -42,8 +42,8 @@ interface ProductState {
     pagination: Omit<ProductPagination, "data"> | null;
     loading: boolean;
     fetchCategories: () => Promise<void>;
-    addCategory: (name: string) => Promise<void>;
-    editCategory: (id: number, name: string) => Promise<void>;
+    addCategory: (name: string) => Promise<boolean>;
+    editCategory: (id: number, name: string) => Promise<boolean>;
     fetchProducts: (page?: number, limit?: number, searchTerm?: string) => Promise<void>;
     addProduct: (product: Omit<Product, "id_product" | "createdAt" | "sku" | "status" | "image">, imageFile?: File | null) => Promise<void>;
     editProduct: (id: number, product: Partial<Omit<Product, "image">>, imageFile?: File | null) => Promise<void>;
@@ -73,6 +73,7 @@ export const useProductStore = create<ProductState>((set) => ({
             toast.error("Error al crear categoría");
         }
         set({ loading: false });
+        return Boolean(newCategory);
     },
 
     editCategory: async (id, name) => {
@@ -89,6 +90,7 @@ export const useProductStore = create<ProductState>((set) => ({
             toast.error("Error al actualizar categoría");
         }
         set({ loading: false });
+        return Boolean(updatedCategory);
     },
 
     fetchProducts: async (page = 1, limit = 10, searchTerm = "") => {

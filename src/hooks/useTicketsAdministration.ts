@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSalesStore } from "../store/useSalesStore";
 import { useAuthStore } from "../store/useAuthStore";
 import { getCompanyLogo, saveCompanyLogo, saveCompanyName } from "../utils/companyConfig";
@@ -8,6 +8,7 @@ import { createReturn, getReturnsBySale } from "../services/return.service";
 export const useTicketsAdministration = () => {
     const { sales, paginationSales, loadingSale, fetchSales } = useSalesStore();
     const { user } = useAuthStore();
+    const hasLoadedSales = useRef(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
     const [isSavingConfig, setIsSavingConfig] = useState(false);
@@ -55,8 +56,11 @@ export const useTicketsAdministration = () => {
     }, [isConfigModalOpen]);
 
     useEffect(() => {
-        if (sales.length === 0) fetchSales();
-    }, [fetchSales, sales.length]);
+        if (!hasLoadedSales.current) {
+            hasLoadedSales.current = true;
+            fetchSales();
+        }
+    }, [fetchSales]);
 
     const openReturnModal = (sale: any) => {
         setSelectedSale(sale);

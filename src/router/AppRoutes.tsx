@@ -27,6 +27,7 @@ const LoadingFallback = () => (
 const AppRoutes = () => {
     const { token, user, fetchProfile } = useAuthStore();
     const [isOpen, setIsOpen] = useState(false);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     useEffect(() => {
         if (token && !user) {
@@ -36,10 +37,17 @@ const AppRoutes = () => {
 
     return (
         <Router>
-            {token && <Navbar />}
-            {token && <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />}
+            {token && <Navbar sidebarOpen={isOpen} onToggleSidebar={() => setIsOpen((open) => !open)} />}
+            {token && (
+                <Sidebar
+                    isOpen={isOpen}
+                    setIsOpen={setIsOpen}
+                    collapsed={sidebarCollapsed}
+                    onToggleCollapse={() => setSidebarCollapsed((collapsed) => !collapsed)}
+                />
+            )}
 
-            <main className={token ? "pt-16 sm:pl-64" : ""}>
+            <main className={token ? `pt-16 transition-all duration-300 ${sidebarCollapsed ? "sm:pl-20" : "sm:pl-64"}` : ""}>
                 <Suspense fallback={<LoadingFallback />}>
                     <Routes>
                         <Route path="/" element={token ? <Navigate to="/dashboard" replace /> : <Login />} />

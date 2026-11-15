@@ -1,6 +1,7 @@
 import { FC, JSX, useEffect, useRef, useState, type FormEvent } from "react";
-import { ArchiveX, ChevronLeft, ChevronRight, ImageOff, LoaderPinwheel, Search } from "lucide-react";
-import { InputFuturistic, ModalFuturistic, TitleFuturistic } from "../components";
+import { useNavigate } from "react-router-dom";
+import { ArchiveX, ChevronLeft, ChevronRight, ImageOff, LoaderPinwheel, Search, ShoppingCart } from "lucide-react";
+import { ButtonFuturistic, InputFuturistic, ModalFuturistic, TitleFuturistic } from "../components";
 import { STOCK_PAGE_SIZE, StockItem } from "../services/stock.service";
 import { useStockAdministration } from "../hooks/useStockAdministration";
 
@@ -51,6 +52,7 @@ const formatExpirationDate = (value: string | null) => {
 };
 
 const StockAdministration: FC = (): JSX.Element => {
+    const navigate = useNavigate();
     const { stock, paginationStock, loading, fetchStock } = useStockAdministration();
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedProduct, setSelectedProduct] = useState<StockItem | null>(null);
@@ -115,8 +117,8 @@ const StockAdministration: FC = (): JSX.Element => {
             ) : stock.length === 0 ? (
                 <div className="flex min-h-64 flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white text-gray-500 dark:border-dark-border dark:bg-dark-card dark:text-dark-muted">
                     <ArchiveX size={36} />
-                    <p className="text-center">
-                        {searchTerm ? "No encontramos productos que coincidan con tu búsqueda." : "Aún no hay productos para mostrar."}
+                    <p className="text-center" aria-live="polite">
+                        {searchTerm ? "No existe el producto buscado." : "Aún no hay productos para mostrar."}
                     </p>
                 </div>
             ) : (
@@ -203,6 +205,7 @@ const StockAdministration: FC = (): JSX.Element => {
                 </>
             )}
 
+            <div className="!mt-0">
             <ModalFuturistic
                 isOpen={selectedProduct !== null}
                 onClose={() => setSelectedProduct(null)}
@@ -253,10 +256,22 @@ const StockAdministration: FC = (): JSX.Element => {
                                     </dd>
                                 </div>
                             </dl>
+                            <ButtonFuturistic
+                                label="Vender"
+                                icon={ShoppingCart}
+                                className="mt-6 w-full"
+                                disabled={Number(selectedProduct.stock) <= 0}
+                                title={Number(selectedProduct.stock) > 0 ? "Ir a ventas con este producto" : "Producto agotado"}
+                                onClick={() => {
+                                    navigate("/sales", { state: { productToSell: selectedProduct } });
+                                    setSelectedProduct(null);
+                                }}
+                            />
                         </div>
                     </div>
                 )}
             </ModalFuturistic>
+            </div>
         </div>
     );
 };

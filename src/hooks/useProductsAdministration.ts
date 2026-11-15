@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { Product, useProductStore } from "../store/useProductStore";
 
@@ -7,11 +7,12 @@ export const useProductsAdministration = () => {
         categories, loading, fetchCategories, addCategory, editCategory,
         products, pagination, fetchProducts, addProduct, editProduct
     } = useProductStore();
+    const hasLoadedCategories = useRef(false);
+    const hasLoadedProducts = useRef(false);
 
     const [newCategory, setNewCategory] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [editingCategory, setEditingCategory] = useState<{ id: number; name: string } | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [newProduct, setNewProduct] = useState<{
@@ -35,27 +36,37 @@ export const useProductsAdministration = () => {
     const [isEditProductModalOpen, setIsEditProductModalOpen] = useState(false);
 
     useEffect(() => {
-        if (categories.length === 0) fetchCategories();
-        if (products.length === 0) fetchProducts();
-    }, [fetchCategories, fetchProducts, categories.length, products.length]);
+        if (!hasLoadedCategories.current) {
+            hasLoadedCategories.current = true;
+            fetchCategories();
+        }
+
+        if (!hasLoadedProducts.current && !pagination) {
+            hasLoadedProducts.current = true;
+            fetchProducts();
+        }
+    }, [fetchCategories, fetchProducts, pagination]);
 
     const handleAddCategory = async () => {
         if (!newCategory.trim()) {
             toast.error("El nombre de la categoría es obligatorio");
-            return;
+            return false;
         }
-        await addCategory(newCategory.trim());
-        setNewCategory("");
+        const added = await addCategory(newCategory.trim());
+        if (added) setNewCategory("");
+        return added;
     };
 
     const handleEditCategory = async () => {
         if (!editingCategory?.name.trim()) {
             toast.error("El nombre de la categoría es obligatorio");
-            return;
+            return false;
         }
-        await editCategory(editingCategory.id, editingCategory.name.trim());
-        setEditingCategory(null);
-        setIsModalOpen(false);
+        const edited = await editCategory(editingCategory.id, editingCategory.name.trim());
+        if (edited) {
+            setEditingCategory((current) => current ? { ...current, name: current.name.trim() } : null);
+        }
+        return edited;
     };
 
     const handleAddProduct = async () => {
@@ -78,7 +89,6 @@ export const useProductsAdministration = () => {
         newCategory, setNewCategory,
         selectedCategory, setSelectedCategory,
         editingCategory, setEditingCategory,
-        isModalOpen, setIsModalOpen,
         searchTerm, setSearchTerm,
         isProductModalOpen, setIsProductModalOpen,
         newProduct, setNewProduct,

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useProductsAdministration } from "../hooks/useProductsAdministration";
 import { ButtonFuturistic, InputFuturistic, ModalFuturistic, TitleFuturistic, TableFuturistic, SelectFuturistic, TextareaFuturistic, SwitchFuturistic, ImageUpload } from "../components";
-import { LoaderPinwheel, Pencil, Plus, List, CheckCircle, XCircle, Banknote, Text, Boxes, CircleX } from "lucide-react";
+import { LoaderPinwheel, Pencil, Plus, CheckCircle, XCircle, Banknote, Text, Boxes, CircleX, Save, Tags } from "lucide-react";
 import toast from "react-hot-toast";
 
 const ProductsAdministration = () => {
@@ -10,7 +10,6 @@ const ProductsAdministration = () => {
         newCategory, setNewCategory,
         selectedCategory, setSelectedCategory,
         editingCategory, setEditingCategory,
-        isModalOpen, setIsModalOpen,
         searchTerm, setSearchTerm,
         isProductModalOpen, setIsProductModalOpen,
         newProduct, setNewProduct, newProductImage,
@@ -24,6 +23,7 @@ const ProductsAdministration = () => {
         handleAddProduct,
     } = useProductsAdministration();
     const [pageSize, setPageSize] = useState(10);
+    const [categoryEditorMode, setCategoryEditorMode] = useState<"add" | "edit" | null>(null);
 
     return (
         <div className="px-4 lg:px-10 lg:pt-5 space-y-8">
@@ -31,37 +31,78 @@ const ProductsAdministration = () => {
             <div className="flex flex-col lg:flex-row gap-6">
                 <div className="lg:w-1/4 w-full space-y-6">
 
-                    <div className="bg-white dark:bg-dark-card p-4 rounded-lg shadow-md mt-2">
-                        <h2 className="text-gray-900 dark:text-dark-primary font-semibold mb-3">Nueva Categoría</h2>
-                        <InputFuturistic placeholder="Nombre de la categoría" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} />
-                        <ButtonFuturistic label={loading ? "" : "Añadir"} icon={loading ? LoaderPinwheel : Plus} onClick={handleAddCategory} disabled={loading} className="mt-3 w-full" />
-                    </div>
+                    <div className="mt-2 rounded-lg bg-white p-4 shadow-md dark:bg-dark-card">
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                            <h2 className="font-semibold text-gray-900 dark:text-dark-primary">Categorías</h2>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    aria-label="Añadir categoría"
+                                    title="Añadir categoría"
+                                    disabled={loading}
+                                    onClick={() => {
+                                        setNewCategory("");
+                                        setSelectedCategory(null);
+                                        setEditingCategory(null);
+                                        setCategoryEditorMode("add");
+                                    }}
+                                    className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-500 text-white shadow-sm transition hover:bg-teal-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:ring-offset-dark-card"
+                                >
+                                    {loading ? <LoaderPinwheel size={18} className="animate-spin" /> : <Plus size={19} />}
+                                </button>
+                                <button
+                                    type="button"
+                                    aria-label="Editar categoría seleccionada"
+                                    title="Editar categoría seleccionada"
+                                    disabled={loading || !selectedCategory}
+                                    onClick={() => {
+                                        const category = categories.find((item) => item.id_category.toString() === selectedCategory);
+                                        if (!category) return;
+                                        setEditingCategory({ id: category.id_category, name: category.name });
+                                        setCategoryEditorMode("edit");
+                                    }}
+                                    className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-200 text-gray-700 shadow-sm transition hover:bg-teal-100 hover:text-teal-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-elevated dark:text-dark-primary dark:hover:bg-dark-base dark:focus-visible:ring-offset-dark-card"
+                                >
+                                    <Pencil size={17} />
+                                </button>
+                            </div>
+                        </div>
 
-                    <div className="bg-white dark:bg-dark-card p-4 rounded-lg shadow-md">
-                        <h2 className="text-gray-900 dark:text-dark-primary font-semibold mb-3">Editar Categoría</h2>
-                        <SelectFuturistic
-                            label="Categoría"
-                            options={[{ value: "", label: "Seleccionar Categoría" }, ...categories.map((c) => ({ label: c.name, value: c.id_category.toString() }))]}
-                            icon={List}
-                            value={selectedCategory || ""}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
-                        />
+                        <div className="flex flex-wrap gap-2">
+                            {categories.length === 0 ? (
+                                <div className="flex w-full flex-col items-center rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-center dark:border-dark-border dark:bg-dark-base/40">
+                                    <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-300">
+                                        <Tags size={22} />
+                                    </span>
+                                    <p className="font-medium text-gray-800 dark:text-dark-primary">Aún no hay categorías</p>
+                                    <p className="mt-1 text-sm text-gray-500 dark:text-dark-muted">Crea una categoría para organizar tus productos.</p>
+                                </div>
+                            ) : (
+                                categories.map((category) => {
+                                    const isSelected = selectedCategory === category.id_category.toString();
 
-                        <ButtonFuturistic
-                            label="Editar"
-                            icon={Pencil}
-                            onClick={() => {
-                                const category = categories.find((c) => c.id_category.toString() === selectedCategory);
-                                if (category) {
-                                    setEditingCategory({ id: category.id_category, name: category.name });
-                                    setIsModalOpen(true);
-                                } else {
-                                    toast.error("Selecciona una categoría válida");
-                                }
-                            }}
-                            disabled={!selectedCategory}
-                            className="mt-3 w-full"
-                        />
+                                    return (
+                                        <button
+                                            key={category.id_category}
+                                            type="button"
+                                            aria-pressed={isSelected}
+                                            onClick={() => {
+                                                setSelectedCategory(isSelected ? null : category.id_category.toString());
+                                                setEditingCategory(null);
+                                            }}
+                                            className={`inline-flex items-center rounded-full border px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-card ${
+                                                isSelected
+                                                    ? "border-teal-500 bg-teal-500 text-white shadow-sm"
+                                                    : "border-gray-300 bg-gray-100 text-gray-700 hover:border-teal-400 hover:bg-teal-50 dark:border-dark-border dark:bg-dark-elevated dark:text-dark-primary dark:hover:border-teal-500 dark:hover:bg-dark-card"
+                                            }`}
+                                        >
+                                            {category.name}
+                                        </button>
+                                    );
+                                })
+                            )}
+                        </div>
+
                     </div>
                 </div>
 
@@ -99,6 +140,7 @@ const ProductsAdministration = () => {
                             label="Imagen del producto"
                             selectedFile={newProductImage}
                             onChange={setNewProductImage}
+                            enableCamera
                         />
                         <div className="mt-4 flex justify-start gap-3">
                             <ButtonFuturistic 
@@ -165,6 +207,7 @@ const ProductsAdministration = () => {
                         actions={(product) => (
                             <ButtonFuturistic
                                 icon={Pencil}
+                                aria-label={`Editar ${product.name}`}
                                 onClick={() => {
                                     setEditingProduct(product);
                                     setEditingProductImage(null);
@@ -174,6 +217,8 @@ const ProductsAdministration = () => {
                             />
                         )}
                         loading={loading}
+                        emptyStateText="No hay productos para mostrar."
+                        searchEmptyStateText="No existe el producto buscado."
                     />
                 </div>
             </div>
@@ -212,6 +257,7 @@ const ProductsAdministration = () => {
                             selectedFile={editingProductImage}
                             onChange={setEditingProductImage}
                             existingImage={editingProduct.image}
+                            enableCamera
                         />
                         <div className="md:col-span-2 flex justify-start gap-3">
                             <ButtonFuturistic 
@@ -246,37 +292,65 @@ const ProductsAdministration = () => {
             </ModalFuturistic>
             </div>
 
-            <div className="lg:w-3/4 w-full">
-            <ModalFuturistic
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                title="Editar Categoría"
-            >
-                <InputFuturistic
-                    placeholder="Nuevo nombre"
-                    value={editingCategory?.name || ""}
-                    onChange={(e) =>
-                        setEditingCategory((prev) => (prev ? { ...prev, name: e.target.value } : null))
-                    }
-                />
-                <div className="mt-4 flex justify-start gap-3">
-                    <ButtonFuturistic
-                        label="Cancelar"
-                        gradient="bg-red-500"
-                        icon={CircleX}
-                        className="m-0"
-                        onClick={() => setIsModalOpen(false)}
-                    />
-                    <ButtonFuturistic
-                        className="m-0"
-                        label={loading ? "" : "Guardar"}
-                        icon={loading ? LoaderPinwheel : Plus}
-                        onClick={handleEditCategory}
-                        disabled={loading}
-                    />
-                </div>
-            </ModalFuturistic>
+            <div className="!mt-0">
+                <ModalFuturistic
+                    isOpen={categoryEditorMode !== null}
+                    onClose={() => {
+                        setCategoryEditorMode(null);
+                        setEditingCategory(null);
+                        if (categoryEditorMode === "add") setNewCategory("");
+                    }}
+                    title={categoryEditorMode === "add" ? "Añadir Categoría" : "Editar Categoría"}
+                >
+                    {categoryEditorMode && (
+                        <form
+                            className="space-y-4"
+                            onSubmit={async (event) => {
+                                event.preventDefault();
+                                const saved = categoryEditorMode === "add"
+                                    ? await handleAddCategory()
+                                    : await handleEditCategory();
+                                if (saved) setCategoryEditorMode(null);
+                            }}
+                        >
+                            <InputFuturistic
+                                label="Nombre de la categoría"
+                                placeholder="Nombre de la categoría"
+                                value={categoryEditorMode === "add" ? newCategory : editingCategory?.name ?? ""}
+                                onChange={(event) => {
+                                    if (categoryEditorMode === "add") {
+                                        setNewCategory(event.target.value);
+                                    } else {
+                                        setEditingCategory((current) => current ? { ...current, name: event.target.value } : null);
+                                    }
+                                }}
+                            />
+                            <div className="flex justify-start gap-3">
+                                <ButtonFuturistic
+                                    type="button"
+                                    label="Cancelar"
+                                    gradient="bg-red-500"
+                                    icon={CircleX}
+                                    className="m-0"
+                                    onClick={() => {
+                                        setCategoryEditorMode(null);
+                                        setEditingCategory(null);
+                                        if (categoryEditorMode === "add") setNewCategory("");
+                                    }}
+                                />
+                                <ButtonFuturistic
+                                    type="submit"
+                                    label={loading ? "" : "Guardar"}
+                                    icon={loading ? LoaderPinwheel : Save}
+                                    disabled={loading || !(categoryEditorMode === "add" ? newCategory.trim() : editingCategory?.name.trim())}
+                                    className="m-0"
+                                />
+                            </div>
+                        </form>
+                    )}
+                </ModalFuturistic>
             </div>
+
         </div>
     );
 };

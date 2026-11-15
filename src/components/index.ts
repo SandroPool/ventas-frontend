@@ -12,6 +12,7 @@ export { default as ProductAutocomplete } from "./ProductAutocomplete";
 export { default as ImageUpload } from "./ImageUpload";
 export { default as SupplierAutocomplete } from "./SupplierAutocomplete";
 export { default as CustomerAutocomplete } from "./CustomerAutocomplete";
+export { default as CustomerDniAutocomplete } from "./CustomerDniAutocomplete";
 export { default as AlertModal } from "./AlertModal";
 export { default as ShoppingCart } from "./ShoppingCart";
 

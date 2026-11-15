@@ -79,6 +79,8 @@ const UsersAdministration: FC = (): JSX.Element => {
                 }}
                 onSearch={handleSearch}
                 loading={loading}
+                emptyStateText="No hay usuarios para mostrar."
+                searchEmptyStateText="No existe el usuario buscado."
                 actions={(user) => {
                     if (decodedToken.role === Role.ROOT) {
                         return (

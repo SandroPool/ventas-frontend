@@ -44,7 +44,13 @@ interface ProductState {
     fetchCategories: () => Promise<void>;
     addCategory: (name: string) => Promise<boolean>;
     editCategory: (id: number, name: string) => Promise<boolean>;
-    fetchProducts: (page?: number, limit?: number, searchTerm?: string) => Promise<void>;
+    fetchProducts: (
+        page?: number,
+        limit?: number,
+        searchTerm?: string,
+        dateFrom?: string,
+        dateTo?: string,
+    ) => Promise<void>;
     addProduct: (product: Omit<Product, "id_product" | "createdAt" | "sku" | "status" | "image">, imageFile?: File | null) => Promise<void>;
     editProduct: (id: number, product: Partial<Omit<Product, "image">>, imageFile?: File | null) => Promise<void>;
 }
@@ -93,9 +99,16 @@ export const useProductStore = create<ProductState>((set) => ({
         return Boolean(updatedCategory);
     },
 
-    fetchProducts: async (page = 1, limit = 10, searchTerm = "") => {
+    fetchProducts: async (page = 1, limit = 10, searchTerm = "", dateFrom = "", dateTo = "") => {
         set({ loading: true });
-        const response: ProductPagination | null = await getAllProducts(page, limit, searchTerm);
+        const response: ProductPagination | null = await getAllProducts(
+            page,
+            limit,
+            searchTerm,
+            false,
+            dateFrom,
+            dateTo,
+        );
 
         if (response) {
             set({ products: response.data, pagination: { page: response.page, limit: response.limit, total: response.total, totalPages: response.totalPages } });

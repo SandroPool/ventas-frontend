@@ -3,13 +3,23 @@ import { fetchWithAuth } from "./auth.service";
 const API_URL_PRODUCT_RECEPTIONS = `${import.meta.env.VITE_BASE_URL}/receptions`;
 
 // Obtener todas las recepciones con paginación y búsqueda
-export const getProductReceptions = async (page: number = 1, limit: number = 10, searchTerm: string = "") => {
+export const getProductReceptions = async (
+    page: number = 1,
+    limit: number = 10,
+    searchTerm: string = "",
+    dateFrom: string = "",
+    dateTo: string = "",
+) => {
     try {
         const url = new URL(API_URL_PRODUCT_RECEPTIONS);
         url.searchParams.append("page", page.toString());
         url.searchParams.append("limit", limit.toString());
         if (searchTerm) {
             url.searchParams.append("searchTerm", searchTerm);
+        }
+        if (dateFrom && dateTo) {
+            url.searchParams.append("dateFrom", dateFrom);
+            url.searchParams.append("dateTo", dateTo);
         }
 
         const response = await fetchWithAuth(url.toString(), {

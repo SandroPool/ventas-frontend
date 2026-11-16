@@ -1,6 +1,9 @@
 import { fetchWithAuth } from "./auth.service";
 const API_URL_DASHBOARD = `${import.meta.env.VITE_BASE_URL}/dashboard`;
 
+export type RankingPeriod = "all" | "30d" | "90d";
+export type RankingMetric = "count" | "amount";
+
 export const getSalesSummary = async () => {
     try {
         const response = await fetchWithAuth(`${API_URL_DASHBOARD}/sales-summary`, {
@@ -50,9 +53,10 @@ export const getTopProducts = async () => {
     }
 };
 
-export const getTopUsers = async () => {
+export const getTopUsers = async (period: RankingPeriod = "all", sortBy: RankingMetric = "amount") => {
     try {
-        const response = await fetchWithAuth(`${API_URL_DASHBOARD}/top-users`, {
+        const query = new URLSearchParams({ period, sortBy });
+        const response = await fetchWithAuth(`${API_URL_DASHBOARD}/top-users?${query}`, {
             method: "GET",
         });
 
@@ -66,9 +70,10 @@ export const getTopUsers = async () => {
     }
 };
 
-export const getTopCustomers = async () => {
+export const getTopCustomers = async (period: RankingPeriod = "all", sortBy: RankingMetric = "amount") => {
     try {
-        const response = await fetchWithAuth(`${API_URL_DASHBOARD}/top-customers`, {
+        const query = new URLSearchParams({ period, sortBy });
+        const response = await fetchWithAuth(`${API_URL_DASHBOARD}/top-customers?${query}`, {
             method: "GET",
         });
 

@@ -1,7 +1,7 @@
 import { JSX, FC } from "react";
 import { Banknote, Calendar, CircleX, LoaderPinwheel, Pencil, Plus, Wallet } from "lucide-react";
 import { useReceptionsAdministration } from "../hooks/useReceptionsAdministration";
-import { ButtonFuturistic, InputFuturistic, ModalFuturistic, TitleFuturistic, ProductAutocomplete, SupplierAutocomplete } from "../components";
+import { ButtonFuturistic, DateRangePicker, InputFuturistic, ModalFuturistic, TitleFuturistic, ProductAutocomplete, SupplierAutocomplete } from "../components";
 import TableFuturistic, { Column } from "../components/TableFuturistic";
 import { formatDate } from "../utils/functionDate";
 import { ProductReceptions } from "../store/useReceptionStore";
@@ -10,6 +10,8 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
     const {
         productReceptions, paginationReception, loading,
         setSearchTerm,
+        dateFrom, setDateFrom,
+        dateTo, setDateTo,
         currentPage, setCurrentPage,
         pageSize, setPageSize,
         isAddProductReceptionModalOpen, setIsAddProductReceptionModalOpen,
@@ -121,6 +123,23 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
                     setCurrentPage(1);
                 }}
                 onSearch={setSearchTerm}
+                toolbarContent={
+                    <DateRangePicker
+                        label="Filtrar recepciones por fecha"
+                        dateFrom={dateFrom}
+                        dateTo={dateTo}
+                        onRangeSelect={(from, to) => {
+                            setDateFrom(from);
+                            setDateTo(to);
+                            setCurrentPage(1);
+                        }}
+                        onClear={() => {
+                            setDateFrom("");
+                            setDateTo("");
+                            setCurrentPage(1);
+                        }}
+                    />
+                }
                 loading={loading}
                 actions={(row) => (
                     <ButtonFuturistic

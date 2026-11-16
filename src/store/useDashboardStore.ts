@@ -1,8 +1,11 @@
 import { create } from "zustand";
 import { getSalesSummary, getPaymentMethods, getTopProducts, getTopUsers, getTopCustomers, getSalesTrend, getLowStock, getSalesByCategory, getReturnsRate } from "../services/dashboard.service";
+import type { RankingMetric, RankingPeriod } from "../services/dashboard.service";
 
 interface SalesSummary {
     salesToday: number;
+    salesTodayCount: number;
+    averageTicketToday: number;
     salesWeek: number;
     salesMonth: number;
     salesYear: number;
@@ -93,8 +96,8 @@ interface DashboardState {
     fetchSalesSummary: () => Promise<void>;
     fetchPaymentMethods: () => Promise<void>;
     fetchTopProducts: () => Promise<void>;
-    fetchTopUsers: () => Promise<void>;
-    fetchTopCustomers: () => Promise<void>;
+    fetchTopUsers: (period?: RankingPeriod, sortBy?: RankingMetric) => Promise<void>;
+    fetchTopCustomers: (period?: RankingPeriod, sortBy?: RankingMetric) => Promise<void>;
     fetchSalesTrend: () => Promise<void>;
     fetchLowStock: () => Promise<void>;
     fetchCategorySales: () => Promise<void>;
@@ -166,10 +169,10 @@ export const useDashboardStore = create<DashboardState>((set) => ({
             set({ loadingProducts: false });
         }
     },
-    fetchTopUsers: async () => {
+    fetchTopUsers: async (period = "all", sortBy = "amount") => {
         try {
             set({ loadingUsers: true, topUsers: null, errorUsers: null });
-            const data = await getTopUsers();
+            const data = await getTopUsers(period, sortBy);
             set({ topUsers: data });
         } catch (error) {
             console.error("Error al obtener los usuarios con más ventas", error);
@@ -178,10 +181,10 @@ export const useDashboardStore = create<DashboardState>((set) => ({
             set({ loadingUsers: false });
         }
     },
-    fetchTopCustomers: async () => {
+    fetchTopCustomers: async (period = "all", sortBy = "amount") => {
         try {
             set({ loadingCustomers: true, topCustomers: null, errorCustomers: null });
-            const data = await getTopCustomers();
+            const data = await getTopCustomers(period, sortBy);
             set({ topCustomers: data });
         } catch (error) {
             console.error("Error al obtener los clientes con más compras", error);

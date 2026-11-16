@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useProductsAdministration } from "../hooks/useProductsAdministration";
-import { ButtonFuturistic, InputFuturistic, ModalFuturistic, TitleFuturistic, TableFuturistic, SelectFuturistic, TextareaFuturistic, SwitchFuturistic, ImageUpload } from "../components";
-import { LoaderPinwheel, Pencil, Plus, CheckCircle, XCircle, Banknote, Text, Boxes, CircleX, Save, Tags } from "lucide-react";
+import { ButtonFuturistic, DateRangePicker, InputFuturistic, ModalFuturistic, TitleFuturistic, TableFuturistic, SelectFuturistic, TextareaFuturistic, SwitchFuturistic, ImageUpload } from "../components";
+import { LoaderPinwheel, Pencil, Plus, CheckCircle, XCircle, Banknote, Text, Boxes, CircleX, Tags } from "lucide-react";
 import toast from "react-hot-toast";
 
 const ProductsAdministration = () => {
@@ -23,91 +23,57 @@ const ProductsAdministration = () => {
         handleAddProduct,
     } = useProductsAdministration();
     const [pageSize, setPageSize] = useState(10);
+    const [dateFrom, setDateFrom] = useState("");
+    const [dateTo, setDateTo] = useState("");
+    const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
     const [categoryEditorMode, setCategoryEditorMode] = useState<"add" | "edit" | null>(null);
+
+    const cancelCategoryEdit = () => {
+        setCategoryEditorMode(null);
+        setNewCategory("");
+        setEditingCategory(null);
+    };
+
+    const closeCategoryManager = () => {
+        setIsCategoryManagerOpen(false);
+        cancelCategoryEdit();
+    };
+
+    const startAddingCategory = () => {
+        setNewCategory("");
+        setSelectedCategory(null);
+        setEditingCategory(null);
+        setCategoryEditorMode("add");
+    };
+
+    const startEditingCategory = () => {
+        const category = categories.find((item) => item.id_category.toString() === selectedCategory);
+        if (!category) return;
+        setEditingCategory({ id: category.id_category, name: category.name });
+        setNewCategory("");
+        setCategoryEditorMode("edit");
+    };
+
+    const handleCategorySubmit = async () => {
+        if (!categoryEditorMode) return;
+
+        const saved = categoryEditorMode === "add"
+            ? await handleAddCategory()
+            : await handleEditCategory();
+        if (saved) cancelCategoryEdit();
+    };
 
     return (
         <div className="px-4 lg:px-10 lg:pt-5 space-y-8">
             <TitleFuturistic as="h1" >Gestión de Productos</TitleFuturistic>
-            <div className="flex flex-col lg:flex-row gap-6">
-                <div className="lg:w-1/4 w-full space-y-6">
-
-                    <div className="mt-2 rounded-lg bg-white p-4 shadow-md dark:bg-dark-card">
-                        <div className="mb-3 flex items-center justify-between gap-3">
-                            <h2 className="font-semibold text-gray-900 dark:text-dark-primary">Categorías</h2>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    aria-label="Añadir categoría"
-                                    title="Añadir categoría"
-                                    disabled={loading}
-                                    onClick={() => {
-                                        setNewCategory("");
-                                        setSelectedCategory(null);
-                                        setEditingCategory(null);
-                                        setCategoryEditorMode("add");
-                                    }}
-                                    className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-500 text-white shadow-sm transition hover:bg-teal-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:ring-offset-dark-card"
-                                >
-                                    {loading ? <LoaderPinwheel size={18} className="animate-spin" /> : <Plus size={19} />}
-                                </button>
-                                <button
-                                    type="button"
-                                    aria-label="Editar categoría seleccionada"
-                                    title="Editar categoría seleccionada"
-                                    disabled={loading || !selectedCategory}
-                                    onClick={() => {
-                                        const category = categories.find((item) => item.id_category.toString() === selectedCategory);
-                                        if (!category) return;
-                                        setEditingCategory({ id: category.id_category, name: category.name });
-                                        setCategoryEditorMode("edit");
-                                    }}
-                                    className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-200 text-gray-700 shadow-sm transition hover:bg-teal-100 hover:text-teal-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-elevated dark:text-dark-primary dark:hover:bg-dark-base dark:focus-visible:ring-offset-dark-card"
-                                >
-                                    <Pencil size={17} />
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2">
-                            {categories.length === 0 ? (
-                                <div className="flex w-full flex-col items-center rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-center dark:border-dark-border dark:bg-dark-base/40">
-                                    <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-300">
-                                        <Tags size={22} />
-                                    </span>
-                                    <p className="font-medium text-gray-800 dark:text-dark-primary">Aún no hay categorías</p>
-                                    <p className="mt-1 text-sm text-gray-500 dark:text-dark-muted">Crea una categoría para organizar tus productos.</p>
-                                </div>
-                            ) : (
-                                categories.map((category) => {
-                                    const isSelected = selectedCategory === category.id_category.toString();
-
-                                    return (
-                                        <button
-                                            key={category.id_category}
-                                            type="button"
-                                            aria-pressed={isSelected}
-                                            onClick={() => {
-                                                setSelectedCategory(isSelected ? null : category.id_category.toString());
-                                                setEditingCategory(null);
-                                            }}
-                                            className={`inline-flex items-center rounded-full border px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-card ${
-                                                isSelected
-                                                    ? "border-teal-500 bg-teal-500 text-white shadow-sm"
-                                                    : "border-gray-300 bg-gray-100 text-gray-700 hover:border-teal-400 hover:bg-teal-50 dark:border-dark-border dark:bg-dark-elevated dark:text-dark-primary dark:hover:border-teal-500 dark:hover:bg-dark-card"
-                                            }`}
-                                        >
-                                            {category.name}
-                                        </button>
-                                    );
-                                })
-                            )}
-                        </div>
-
-                    </div>
-                </div>
-
-                <div className="lg:w-3/4 w-full">
-
+            <div className="space-y-6">
+                <div className="flex flex-wrap gap-3">
+                    <ButtonFuturistic
+                        label="Añadir Categoría"
+                        icon={Tags}
+                        onClick={() => setIsCategoryManagerOpen(true)}
+                        className="m-0"
+                    />
                     <ButtonFuturistic
                         label="Añadir Producto"
                         icon={Plus} onClick={() => {
@@ -115,8 +81,11 @@ const ProductsAdministration = () => {
                             setIsProductModalOpen(true);
                         }}
                         disabled={categories.length === 0}
+                        className="m-0"
                     />
+                </div>
 
+                <div className="w-full">
                     <ModalFuturistic isOpen={isProductModalOpen} onClose={() => {
                         setIsProductModalOpen(false);
                         setNewProductImage(null);
@@ -195,15 +164,32 @@ const ProductsAdministration = () => {
                         currentPage={pagination?.page || 1}
                         totalPages={pagination?.totalPages || 1}
                         pageSize={pageSize}
-                        onPageChange={(page) => fetchProducts(page, pageSize, searchTerm)}
+                        onPageChange={(page) => fetchProducts(page, pageSize, searchTerm, dateFrom, dateTo)}
                         onPageSizeChange={(size) => {
                             setPageSize(size);
-                            fetchProducts(1, size, searchTerm);
+                            fetchProducts(1, size, searchTerm, dateFrom, dateTo);
                         }}
                         onSearch={(term) => {
                             setSearchTerm(term);
-                            fetchProducts(1, pageSize, term);
+                            fetchProducts(1, pageSize, term, dateFrom, dateTo);
                         }}
+                        toolbarContent={
+                            <DateRangePicker
+                                label="Filtrar productos por vencimiento"
+                                dateFrom={dateFrom}
+                                dateTo={dateTo}
+                                onRangeSelect={(from, to) => {
+                                    setDateFrom(from);
+                                    setDateTo(to);
+                                    fetchProducts(1, pageSize, searchTerm, from, to);
+                                }}
+                                onClear={() => {
+                                    setDateFrom("");
+                                    setDateTo("");
+                                    fetchProducts(1, pageSize, searchTerm, "", "");
+                                }}
+                            />
+                        }
                         actions={(product) => (
                             <ButtonFuturistic
                                 icon={Pencil}
@@ -223,7 +209,7 @@ const ProductsAdministration = () => {
                 </div>
             </div>
 
-            <div className="lg:w-3/4 w-full">
+            <div className="!mt-0">
             <ModalFuturistic
                 isOpen={isEditProductModalOpen}
                 onClose={() => {
@@ -294,60 +280,150 @@ const ProductsAdministration = () => {
 
             <div className="!mt-0">
                 <ModalFuturistic
-                    isOpen={categoryEditorMode !== null}
-                    onClose={() => {
-                        setCategoryEditorMode(null);
-                        setEditingCategory(null);
-                        if (categoryEditorMode === "add") setNewCategory("");
-                    }}
-                    title={categoryEditorMode === "add" ? "Añadir Categoría" : "Editar Categoría"}
+                    isOpen={isCategoryManagerOpen}
+                    onClose={closeCategoryManager}
+                    title="Gestionar categorías"
+                    className="max-w-xl"
                 >
-                    {categoryEditorMode && (
-                        <form
-                            className="space-y-4"
-                            onSubmit={async (event) => {
-                                event.preventDefault();
-                                const saved = categoryEditorMode === "add"
-                                    ? await handleAddCategory()
-                                    : await handleEditCategory();
-                                if (saved) setCategoryEditorMode(null);
-                            }}
-                        >
-                            <InputFuturistic
-                                label="Nombre de la categoría"
-                                placeholder="Nombre de la categoría"
-                                value={categoryEditorMode === "add" ? newCategory : editingCategory?.name ?? ""}
-                                onChange={(event) => {
-                                    if (categoryEditorMode === "add") {
-                                        setNewCategory(event.target.value);
-                                    } else {
-                                        setEditingCategory((current) => current ? { ...current, name: event.target.value } : null);
-                                    }
-                                }}
-                            />
-                            <div className="flex justify-start gap-3">
-                                <ButtonFuturistic
+                    <div
+                        className="rounded-lg bg-white p-4 shadow-md dark:bg-dark-card"
+                    >
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                            <h2 className="font-semibold text-gray-900 dark:text-dark-primary">Categorías</h2>
+                            <div className="flex items-center gap-2">
+                                <div
+                                    className={`overflow-hidden transition-[width,opacity] duration-300 ease-in-out ${
+                                        categoryEditorMode === "add" ? "w-32 opacity-100 sm:w-48" : "w-0 opacity-0"
+                                    }`}
+                                >
+                                    {categoryEditorMode === "add" && (
+                                        <input
+                                            autoFocus
+                                            required
+                                            disabled={loading}
+                                            aria-label="Nombre de la nueva categoría"
+                                            placeholder="Nueva categoría"
+                                            value={newCategory}
+                                            onChange={(event) => setNewCategory(event.target.value)}
+                                            onKeyDown={(event) => {
+                                                if (event.key === "Enter") {
+                                                    event.preventDefault();
+                                                    void handleCategorySubmit();
+                                                }
+                                            }}
+                                            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 dark:border-dark-border dark:bg-dark-elevated dark:text-dark-primary"
+                                        />
+                                    )}
+                                </div>
+                                <button
                                     type="button"
-                                    label="Cancelar"
-                                    gradient="bg-red-500"
-                                    icon={CircleX}
-                                    className="m-0"
-                                    onClick={() => {
-                                        setCategoryEditorMode(null);
-                                        setEditingCategory(null);
-                                        if (categoryEditorMode === "add") setNewCategory("");
-                                    }}
-                                />
-                                <ButtonFuturistic
-                                    type="submit"
-                                    label={loading ? "" : "Guardar"}
-                                    icon={loading ? LoaderPinwheel : Save}
-                                    disabled={loading || !(categoryEditorMode === "add" ? newCategory.trim() : editingCategory?.name.trim())}
-                                    className="m-0"
-                                />
+                                    aria-label={categoryEditorMode === "add"
+                                        ? newCategory.trim() ? "Guardar y cerrar categoría" : "Cerrar sin guardar"
+                                        : "Añadir categoría"}
+                                    title={categoryEditorMode === "add"
+                                        ? newCategory.trim() ? "Guardar y cerrar" : "Cerrar sin guardar"
+                                        : "Añadir categoría"}
+                                    disabled={loading || categoryEditorMode === "edit"}
+                                    onClick={categoryEditorMode === "add"
+                                        ? () => {
+                                            if (newCategory.trim()) void handleCategorySubmit();
+                                            else cancelCategoryEdit();
+                                        }
+                                        : startAddingCategory}
+                                    className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-500 text-white shadow-sm transition hover:bg-teal-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:ring-offset-dark-card"
+                                >
+                                    {loading ? (
+                                        <LoaderPinwheel size={18} className="animate-spin" />
+                                    ) : (
+                                        <Plus
+                                            size={19}
+                                            className={`transition-transform duration-300 ${categoryEditorMode === "add" ? "rotate-45" : "rotate-0"}`}
+                                        />
+                                    )}
+                                </button>
+                                <button
+                                    type="button"
+                                    aria-label={categoryEditorMode === "edit" ? "Guardar cambios de categoría" : "Editar categoría seleccionada"}
+                                    title={categoryEditorMode === "edit" ? "Guardar con Enter o este botón" : "Editar categoría seleccionada"}
+                                    disabled={loading || categoryEditorMode === "add" || (categoryEditorMode === null && !selectedCategory) || (categoryEditorMode === "edit" && !editingCategory?.name.trim())}
+                                    onClick={categoryEditorMode === "edit" ? () => { void handleCategorySubmit(); } : startEditingCategory}
+                                    className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-200 text-gray-700 shadow-sm transition hover:bg-teal-100 hover:text-teal-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-dark-elevated dark:text-dark-primary dark:hover:bg-dark-base dark:focus-visible:ring-offset-dark-card"
+                                >
+                                    <Pencil size={17} />
+                                </button>
                             </div>
-                        </form>
-                    )}
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                            {categories.length === 0 ? (
+                                <div className="flex w-full flex-col items-center rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-center dark:border-dark-border dark:bg-dark-base/40">
+                                    <span className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-300">
+                                        <Tags size={22} />
+                                    </span>
+                                    <p className="font-medium text-gray-800 dark:text-dark-primary">Aún no hay categorías</p>
+                                    <p className="mt-1 text-sm text-gray-500 dark:text-dark-muted">Crea una categoría para organizar tus productos.</p>
+                                </div>
+                            ) : (
+                                categories.map((category) => {
+                                    const isSelected = selectedCategory === category.id_category.toString();
+
+                                    if (categoryEditorMode === "edit" && editingCategory?.id === category.id_category) {
+                                        return (
+                                            <div
+                                                key={category.id_category}
+                                                className="flex items-center gap-1 rounded-full border border-teal-500 bg-white px-2 py-1 dark:bg-dark-card"
+                                            >
+                                                <input
+                                                    autoFocus
+                                                    required
+                                                    disabled={loading}
+                                                    aria-label={`Editar nombre de ${category.name}`}
+                                                    value={editingCategory.name}
+                                                    onChange={(event) => setEditingCategory({ ...editingCategory, name: event.target.value })}
+                                                    onKeyDown={(event) => {
+                                                        if (event.key === "Enter") {
+                                                            event.preventDefault();
+                                                            void handleCategorySubmit();
+                                                        }
+                                                    }}
+                                                    className="w-40 min-w-0 bg-transparent px-1 text-sm text-gray-900 outline-none dark:text-dark-primary"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    aria-label="Cancelar edición de categoría"
+                                                    disabled={loading}
+                                                    onClick={cancelCategoryEdit}
+                                                    className="rounded-full p-1 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:cursor-not-allowed disabled:opacity-50 dark:text-dark-secondary dark:hover:bg-dark-elevated"
+                                                >
+                                                    <CircleX size={16} />
+                                                </button>
+                                            </div>
+                                        );
+                                    }
+
+                                    return (
+                                        <button
+                                            key={category.id_category}
+                                            type="button"
+                                            aria-pressed={isSelected}
+                                            disabled={categoryEditorMode !== null}
+                                            onClick={() => {
+                                                setSelectedCategory(isSelected ? null : category.id_category.toString());
+                                                setEditingCategory(null);
+                                            }}
+                                            className={`inline-flex items-center rounded-full border px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-dark-card ${
+                                                isSelected
+                                                    ? "border-teal-500 bg-teal-500 text-white shadow-sm"
+                                                    : "border-gray-300 bg-gray-100 text-gray-700 hover:border-teal-400 hover:bg-teal-50 dark:border-dark-border dark:bg-dark-elevated dark:text-dark-primary dark:hover:border-teal-500 dark:hover:bg-dark-card"
+                                            }`}
+                                        >
+                                            {category.name}
+                                        </button>
+                                    );
+                                })
+                            )}
+                        </div>
+                    </div>
                 </ModalFuturistic>
             </div>
 

@@ -19,6 +19,8 @@ export const useReceptionsAdministration = () => {
     } = useReceptionStore();
 
     const [searchTerm, setSearchTerm] = useState("");
+    const [dateFrom, setDateFrom] = useState("");
+    const [dateTo, setDateTo] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [isAddProductReceptionModalOpen, setIsAddProductReceptionModalOpen] = useState(false);
@@ -34,8 +36,8 @@ export const useReceptionsAdministration = () => {
     const [editedReception, setEditedReception] = useState<Partial<ProductReceptions> | null>(null);
 
     useEffect(() => {
-        fetchProductReceptions(currentPage, pageSize, searchTerm);
-    }, [fetchProductReceptions, currentPage, pageSize, searchTerm]);
+        fetchProductReceptions(currentPage, pageSize, searchTerm, dateFrom, dateTo);
+    }, [fetchProductReceptions, currentPage, pageSize, searchTerm, dateFrom, dateTo]);
 
     const handleAddProductReception = async () => {
         newProductReception.id_user = decodedToken.id;
@@ -55,7 +57,7 @@ export const useReceptionsAdministration = () => {
     const handleEditReception = async () => {
         if (!editedReception || !editedReception.id_reception) return;
         await editProductReception(editedReception.id_reception, editedReception);
-        fetchProductReceptions(currentPage, pageSize, searchTerm);
+        fetchProductReceptions(currentPage, pageSize, searchTerm, dateFrom, dateTo);
         setIsEditModalOpen(false);
         setEditedReception(null);
     };
@@ -63,6 +65,8 @@ export const useReceptionsAdministration = () => {
     return {
         productReceptions, paginationReception, loading,
         searchTerm, setSearchTerm,
+        dateFrom, setDateFrom,
+        dateTo, setDateTo,
         currentPage, setCurrentPage,
         pageSize, setPageSize,
         isAddProductReceptionModalOpen, setIsAddProductReceptionModalOpen,

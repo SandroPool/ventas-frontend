@@ -24,13 +24,23 @@ export interface StockPagination {
 }
 
 // Obtener stock con paginación y búsqueda
-export const getStock = async (page: number = 1, limit: number = STOCK_PAGE_SIZE, searchTerm: string = "") => {
+export const getStock = async (
+    page: number = 1,
+    limit: number = STOCK_PAGE_SIZE,
+    searchTerm: string = "",
+    dateFrom: string = "",
+    dateTo: string = "",
+) => {
     try {
         const url = new URL(API_URL_STOCK);
         url.searchParams.append("page", page.toString());
         url.searchParams.append("limit", limit.toString());
         if (searchTerm) {
             url.searchParams.append("searchTerm", searchTerm);
+        }
+        if (dateFrom && dateTo) {
+            url.searchParams.append("dateFrom", dateFrom);
+            url.searchParams.append("dateTo", dateTo);
         }
 
         const response = await fetchWithAuth(url.toString(), {

@@ -6,7 +6,7 @@ interface StockState {
     stock: StockItem[];
     loading: boolean;
     paginationStock: Omit<StockPagination, "data"> | null;
-    fetchStock: (page?: number, limit?: number, searchTerm?: string) => Promise<void>;
+    fetchStock: (page?: number, limit?: number, searchTerm?: string, dateFrom?: string, dateTo?: string) => Promise<void>;
 }
 
 export const useStockStore = create<StockState>((set) => ({
@@ -14,9 +14,9 @@ export const useStockStore = create<StockState>((set) => ({
     paginationStock: null,
     loading: false,
 
-    fetchStock: async (page = 1, limit = STOCK_PAGE_SIZE, searchTerm = "") => {
+    fetchStock: async (page = 1, limit = STOCK_PAGE_SIZE, searchTerm = "", dateFrom = "", dateTo = "") => {
         set({ loading: true });
-        const response: StockPagination | null = await getStock(page, limit, searchTerm);
+        const response: StockPagination | null = await getStock(page, limit, searchTerm, dateFrom, dateTo);
 
         if (response) {
             set({

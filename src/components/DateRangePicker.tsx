@@ -6,6 +6,7 @@ interface DateRangePickerProps {
     dateTo: string;
     onRangeSelect: (dateFrom: string, dateTo: string) => void;
     onClear: () => void;
+    label?: string;
 }
 
 const weekDays = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"];
@@ -28,7 +29,13 @@ const formatDate = (value: string) => new Intl.DateTimeFormat("es-PE", {
     year: "numeric",
 }).format(parseISODate(value));
 
-const DateRangePicker = ({ dateFrom, dateTo, onRangeSelect, onClear }: DateRangePickerProps) => {
+const DateRangePicker = ({
+    dateFrom,
+    dateTo,
+    onRangeSelect,
+    onClear,
+    label = "Filtrar boletas por fechas",
+}: DateRangePickerProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [pendingStart, setPendingStart] = useState<string | null>(null);
     const [displayMonth, setDisplayMonth] = useState(() => {
@@ -108,7 +115,7 @@ const DateRangePicker = ({ dateFrom, dateTo, onRangeSelect, onClear }: DateRange
     return (
         <div ref={pickerRef} className="relative w-full sm:max-w-xs">
             <label className="mb-2 block font-semibold text-gray-900 dark:text-dark-primary">
-                Filtrar boletas por fechas
+                {label}
             </label>
             <button
                 type="button"
@@ -125,7 +132,7 @@ const DateRangePicker = ({ dateFrom, dateTo, onRangeSelect, onClear }: DateRange
             {isOpen && (
                 <div
                     role="dialog"
-                    aria-label="Calendario para filtrar boletas"
+                    aria-label={`Calendario para ${label.toLocaleLowerCase()}`}
                     className="absolute left-0 z-30 mt-2 w-full min-w-[17rem] rounded-xl border border-teal-100 bg-white p-4 shadow-xl dark:border-dark-border dark:bg-dark-card"
                 >
                     <div className="mb-3 flex items-center justify-between gap-2">

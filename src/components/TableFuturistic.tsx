@@ -153,7 +153,6 @@ const TableFuturistic = <T,>({ columns, data, currentPage, totalPages, pageSize,
 
         const column = columns.find(({ key }) => key === sortConfig.key);
         if (!column || column.sortable === false || column.type === "image") return data;
-
         return data
             .map((row, index) => ({ row, index }))
             .sort((a, b) => {

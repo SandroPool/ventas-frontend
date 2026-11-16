@@ -50,7 +50,14 @@ export const updateCategory = async (id: number, name: string) => {
     }
 };
 
-export const getAllProducts = async (page: number = 1, limit: number = 10, searchTerm: string = "", activeOnly: boolean = false) => {
+export const getAllProducts = async (
+    page: number = 1,
+    limit: number = 10,
+    searchTerm: string = "",
+    activeOnly: boolean = false,
+    dateFrom: string = "",
+    dateTo: string = "",
+) => {
     try {
 
         const url = new URL(`${API_URL_PRODUCTS}`);
@@ -64,7 +71,10 @@ export const getAllProducts = async (page: number = 1, limit: number = 10, searc
         if (activeOnly) {
             url.searchParams.append("activeOnly", "true");
         }
-
+        if (dateFrom && dateTo) {
+            url.searchParams.append("dateFrom", dateFrom);
+            url.searchParams.append("dateTo", dateTo);
+        }
         const res = await fetchWithAuth(url.toString(), {
             method: "GET",
         });

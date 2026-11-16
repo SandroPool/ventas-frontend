@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Camera, ImagePlus, Upload, X } from "lucide-react";
+import { Camera, ImagePlus, RefreshCw, Upload, X } from "lucide-react";
 
 interface ImageUploadProps {
     label: string;
@@ -24,6 +24,7 @@ const ImageUpload = ({
     const [cameraOpen, setCameraOpen] = useState(false);
     const [cameraError, setCameraError] = useState<string | null>(null);
     const [cameraReady, setCameraReady] = useState(false);
+    const [cameraFacingMode, setCameraFacingMode] = useState<"environment" | "user">("environment");
 
     useEffect(() => {
         if (!selectedFile) {
@@ -60,7 +61,7 @@ const ImageUpload = ({
 
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    video: true,
+                    video: { facingMode: { ideal: cameraFacingMode } },
                     audio: false,
                 });
                 if (!isActive) {
@@ -101,7 +102,7 @@ const ImageUpload = ({
             cameraStreamRef.current = null;
             if (videoRef.current) videoRef.current.srcObject = null;
         };
-    }, [cameraOpen]);
+    }, [cameraFacingMode, cameraOpen]);
 
     const capturePhoto = () => {
         const video = videoRef.current;
@@ -231,13 +232,24 @@ const ImageUpload = ({
                                 {cameraError}
                             </p>
                         )}
-                        <div className="mt-4 flex justify-end gap-2">
+                        <div className="mt-4 flex flex-wrap justify-end gap-2">
                             <button
                                 type="button"
                                 onClick={() => setCameraOpen(false)}
                                 className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500 dark:text-dark-primary dark:hover:bg-dark-elevated"
                             >
                                 Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setCameraError(null);
+                                    setCameraFacingMode((current) => current === "environment" ? "user" : "environment");
+                                }}
+                                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-gray-600 dark:text-dark-primary dark:hover:bg-dark-elevated"
+                            >
+                                <RefreshCw size={16} />
+                                Usar cámara {cameraFacingMode === "environment" ? "frontal" : "trasera"}
                             </button>
                             <button
                                 type="button"

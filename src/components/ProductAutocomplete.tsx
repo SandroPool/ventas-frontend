@@ -4,16 +4,36 @@ import { InputFuturistic } from "../components";
 import { Product } from "../store/useProductStore";
 import { getAllProducts } from "../services/product.service";
 
-const ProductAutocomplete = ({ onSelect, activeOnly = false }: { onSelect: (product: Product) => void; activeOnly?: boolean }) => {
+interface ProductAutocompleteProps {
+    onSelect: (product: Product) => void;
+    onClear?: () => void;
+    activeOnly?: boolean;
+    initialName?: string;
+}
+
+const ProductAutocomplete = ({
+    onSelect,
+    onClear,
+    activeOnly = false,
+    initialName = "",
+}: ProductAutocompleteProps) => {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [showDropdown, setShowDropdown] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (searchTerm.length > 1) {
+        setSearchTerm(initialName);
+        setSelectedProduct(null);
+        setShowDropdown(false);
+        setSelectedIndex(0);
+    }, [initialName]);
+
+    useEffect(() => {
+        if (searchTerm.length > 1 && !selectedProduct) {
             let cancelled = false;
             const delayDebounce = setTimeout(async () => {
                 setLoading(true);
@@ -33,7 +53,7 @@ const ProductAutocomplete = ({ onSelect, activeOnly = false }: { onSelect: (prod
             setProducts([]);
             setLoading(false);
         }
-    }, [searchTerm, activeOnly]);
+    }, [searchTerm, activeOnly, selectedProduct]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -46,23 +66,33 @@ const ProductAutocomplete = ({ onSelect, activeOnly = false }: { onSelect: (prod
     }, []);
 
     const handleSelect = (product: Product) => {
+        setSelectedProduct(product);
+        setSearchTerm(product.name);
         onSelect(product);
-        setSearchTerm("");
         setShowDropdown(false);
         setSelectedIndex(0);
     };
 
     const handleClear = () => {
         setSearchTerm("");
+        setSelectedProduct(null);
         setShowDropdown(false);
+        setSelectedIndex(0);
+        onClear?.();
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === "ArrowDown") {
+        if (e.key === "Escape") {
+            e.preventDefault();
+            setShowDropdown(false);
+        } else if (e.key === "ArrowDown" && showDropdown) {
+            e.preventDefault();
             setSelectedIndex((prev) => (prev < products.length - 1 ? prev + 1 : prev));
-        } else if (e.key === "ArrowUp") {
+        } else if (e.key === "ArrowUp" && showDropdown) {
+            e.preventDefault();
             setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
-        } else if (e.key === "Enter" && showDropdown && products.length > 0) {
+        } else if (e.key === "Enter" && showDropdown && !loading && products.length > 0) {
+            e.preventDefault();
             handleSelect(products[selectedIndex]);
         }
     };
@@ -75,9 +105,15 @@ const ProductAutocomplete = ({ onSelect, activeOnly = false }: { onSelect: (prod
                     icon={PackageSearch}
                     placeholder="Buscar producto..."
                     value={searchTerm}
+                    autoComplete="off"
+                    aria-autocomplete="list"
+                    aria-expanded={showDropdown}
+                    aria-controls="product-suggestions"
                     onChange={(e) => {
                         setSearchTerm(e.target.value);
+                        setSelectedProduct(null);
                         setSelectedIndex(0);
+                        onClear?.();
                     }}
                     onKeyDown={handleKeyDown}
                 />
@@ -91,15 +127,20 @@ const ProductAutocomplete = ({ onSelect, activeOnly = false }: { onSelect: (prod
             </div>
 
             {showDropdown && (
-                <ul className="absolute w-full bg-white dark:bg-dark-base border border-gray-300 dark:border-dark-border 
+                <ul
+                    id="product-suggestions"
+                    role="listbox"
+                    className="absolute w-full bg-white dark:bg-dark-base border border-gray-300 dark:border-dark-border 
                     rounded-md mt-1 max-h-48 overflow-y-auto shadow-xl z-50 
                     backdrop-blur-xl bg-opacity-95 dark:bg-opacity-80">
                     {loading ? (
-                        <li className="p-3 text-xl text-gray-600 dark:text-dark-muted animate-pulse">Cargando...</li>
+                        <li className="p-3 text-xl text-gray-600 dark:text-dark-muted animate-pulse" role="status">Cargando...</li>
                     ) : products.length > 0 ? (
                         products.map((product, index) => (
                             <li
                                 key={product.id_product}
+                                role="option"
+                                aria-selected={selectedIndex === index}
                                 className={`p-3 cursor-pointer transition-all duration-300 text-gray-900 dark:text-dark-secondary 
                                     ${selectedIndex === index
                                         ? "bg-gradient-to-r bg-teal-500 text-white dark:bg-dark-elevated dark:text-dark-primary"

@@ -3,13 +3,26 @@ import { UserRoundSearch, XCircle } from "lucide-react";
 import { InputFuturistic } from "../components";
 import { useSupplierStore, Supplier } from "../store/useSupplierStore";
 
-const SupplierAutocomplete = ({ onSelect }: { onSelect: (supplier: Supplier) => void }) => {
+interface SupplierAutocompleteProps {
+    onSelect: (supplier: Supplier) => void;
+    onClear?: () => void;
+    value?: Pick<Supplier, "id_supplier" | "name" | "ruc"> | null;
+}
+
+const SupplierAutocomplete = ({ onSelect, onClear, value = null }: SupplierAutocompleteProps) => {
     const { fetchSuppliers, suppliers, loading } = useSupplierStore();
     const [searchTerm, setSearchTerm] = useState("");
     const [showDropdown, setShowDropdown] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+
+    useEffect(() => {
+        setSelectedSupplier(value as Supplier | null);
+        setSearchTerm(value?.name ?? "");
+        setShowDropdown(false);
+        setSelectedIndex(0);
+    }, [value]);
 
     useEffect(() => {
         if (searchTerm.length > 1 && !selectedSupplier) {
@@ -44,6 +57,7 @@ const SupplierAutocomplete = ({ onSelect }: { onSelect: (supplier: Supplier) => 
         setSearchTerm("");
         setSelectedSupplier(null);
         setShowDropdown(false);
+        onClear?.();
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -65,7 +79,8 @@ const SupplierAutocomplete = ({ onSelect }: { onSelect: (supplier: Supplier) => 
                 value={searchTerm}
                 onChange={(e) => {
                     setSearchTerm(e.target.value);
-                    setSelectedSupplier(null); // Restablecer cuando el usuario edita el input
+                    if (selectedSupplier) onClear?.();
+                    setSelectedSupplier(null);
                     setSelectedIndex(0);
                 }}
                 onKeyDown={handleKeyDown}

@@ -1,7 +1,7 @@
 import { JSX, FC } from "react";
-import { Banknote, Calendar, CircleX, LoaderPinwheel, Pencil, Plus, Wallet } from "lucide-react";
+import { Banknote, CircleX, LoaderPinwheel, Pencil, Plus, Wallet } from "lucide-react";
 import { useReceptionsAdministration } from "../hooks/useReceptionsAdministration";
-import { ButtonFuturistic, DateRangePicker, InputFuturistic, ModalFuturistic, TitleFuturistic, ProductAutocomplete, SupplierAutocomplete } from "../components";
+import { ButtonFuturistic, DatePickerFuturistic, DateRangePicker, InputFuturistic, ModalFuturistic, TitleFuturistic, ProductAutocomplete, SupplierAutocomplete } from "../components";
 import TableFuturistic, { Column } from "../components/TableFuturistic";
 import { formatDate } from "../utils/functionDate";
 import { ProductReceptions } from "../store/useReceptionStore";
@@ -44,8 +44,11 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
 
             <div className="lg:w-3/4 w-full">
             <ModalFuturistic isOpen={isAddProductReceptionModalOpen} onClose={() => setIsAddProductReceptionModalOpen(false)} title="Nuevo Inventario">
-                <div className="grid grid-cols-2 gap-x-6 gap-y-5">
-                    <ProductAutocomplete onSelect={(product) => setNewProductReception(prev => ({ ...prev, id_product: product.id_product }))} />
+                <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
+                    <ProductAutocomplete
+                        onSelect={(product) => setNewProductReception(prev => ({ ...prev, id_product: product.id_product }))}
+                        onClear={() => setNewProductReception(prev => ({ ...prev, id_product: 0 }))}
+                    />
                     <SupplierAutocomplete onSelect={(supplier) => setNewProductReception((prev) => ({ ...prev, id_supplier: supplier.id_supplier }))} />
                     <InputFuturistic label="Cantidad" icon={Wallet} type="number" placeholder="0" value={newProductReception.quantity || ""} onChange={(e) =>
                         setNewProductReception((prev) => ({ ...prev, quantity: Number(e.target.value) }))
@@ -53,17 +56,19 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
                     <InputFuturistic label="Precio de Compra" icon={Banknote} type="number" placeholder="S/" value={newProductReception.purchase_price || ""} onChange={(e) =>
                         setNewProductReception((prev) => ({ ...prev, purchase_price: Number(e.target.value) }))
                     } />
-                    <div className="col-span-2">
-                        <InputFuturistic label="Fecha de Recepción" icon={Calendar} type="date" value={newProductReception.date}
-                            onChange={(e) => setNewProductReception((prev) => ({ ...prev, date: e.target.value }))}
+                    <div className="md:col-span-2">
+                        <DatePickerFuturistic
+                            label="Fecha de Recepción"
+                            value={newProductReception.date}
+                            onChange={(date) => setNewProductReception((prev) => ({ ...prev, date }))}
                         />
                     </div>
-                    <div className="col-span-2 flex justify-start gap-3">
+                    <div className="flex flex-col gap-3 sm:flex-row md:col-span-2 md:justify-start">
                         <ButtonFuturistic
                             label="Cancelar"
                             gradient="bg-red-500"
                             icon={CircleX}
-                            className="m-0"
+                            className="m-0 w-full sm:w-auto"
                             onClick={() => setIsAddProductReceptionModalOpen(false)}
                         />
                         <ButtonFuturistic
@@ -71,7 +76,7 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
                             icon={loading ? LoaderPinwheel : Pencil}
                             onClick={handleAddProductReception}
                             disabled={loading}
-                            className="m-0"
+                            className="m-0 w-full sm:w-auto"
                         />
                     </div>
                 </div>
@@ -82,20 +87,37 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
             <ModalFuturistic isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Editar Recepción">
                 {editedReception && (
                     <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
-                        <ProductAutocomplete onSelect={(product) => setEditedReception(prev => ({ ...prev!, id_product: product.id_product }))} />
-                        <SupplierAutocomplete onSelect={(supplier) => setEditedReception(prev => ({ ...prev!, id_supplier: supplier.id_supplier }))} />
+                        <ProductAutocomplete
+                            onSelect={(product) => setEditedReception(prev => ({ ...prev!, id_product: product.id_product }))}
+                            onClear={() => setEditedReception(prev => ({ ...prev!, id_product: 0 }))}
+                            initialName={editedReception.product_name ?? ""}
+                        />
+                        <SupplierAutocomplete
+                            onSelect={(supplier) => setEditedReception(prev => ({ ...prev!, id_supplier: supplier.id_supplier }))}
+                            onClear={() => setEditedReception(prev => ({ ...prev!, id_supplier: 0 }))}
+                            value={editedReception.id_supplier && editedReception.supplier_name
+                                ? { id_supplier: editedReception.id_supplier, name: editedReception.supplier_name, ruc: "" }
+                                : null}
+                        />
                         <InputFuturistic label="Cantidad" icon={Wallet} type="number" placeholder="0" value={editedReception.quantity || ""} onChange={(e) =>
                             setEditedReception(prev => ({ ...prev!, quantity: Number(e.target.value) }))
                         } />
                         <InputFuturistic label="Precio de Compra" icon={Banknote} type="number" placeholder="S/" value={editedReception.purchase_price || ""} onChange={(e) =>
                             setEditedReception(prev => ({ ...prev!, purchase_price: Number(e.target.value) }))
                         } />
-                        <div className="md:col-span-2 flex justify-start gap-3">
+                        <div className="md:col-span-2">
+                            <DatePickerFuturistic
+                                label="Fecha de Recepción"
+                                value={editedReception.date?.slice(0, 10) ?? ""}
+                                onChange={(date) => setEditedReception(prev => ({ ...prev!, date }))}
+                            />
+                        </div>
+                        <div className="flex flex-col gap-3 sm:flex-row md:col-span-2 md:justify-start">
                             <ButtonFuturistic
                                 label="Cancelar"
                                 gradient="bg-red-500"
                                 icon={CircleX}
-                                className="m-0"
+                                className="m-0 w-full sm:w-auto"
                                 onClick={() => setIsEditModalOpen(false)}
                             />
                             <ButtonFuturistic
@@ -103,7 +125,7 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
                                 icon={loading ? LoaderPinwheel : Pencil}
                                 onClick={handleEditReception}
                                 disabled={loading}
-                                className="m-0"
+                                className="m-0 w-full sm:w-auto"
                             />
                         </div>
                     </div>

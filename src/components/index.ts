@@ -1,6 +1,7 @@
 export { default as CardFuturistic } from "./CardFuturistic";
 export { default as InputFuturistic } from "./InputFuturistic";
 export { default as DateRangePicker } from "./DateRangePicker";
+export { default as DatePickerFuturistic } from "./DatePickerFuturistic";
 export { default as ModalFuturistic } from "./ModalFuturistic";
 export { default as TitleFuturistic } from "./TitleFuturistic";
 export { default as TableFuturistic } from "./TableFuturistic";

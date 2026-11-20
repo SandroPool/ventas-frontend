@@ -9,6 +9,7 @@ interface ProductAutocompleteProps {
     onClear?: () => void;
     activeOnly?: boolean;
     initialName?: string;
+    resetKey?: number;
 }
 
 const ProductAutocomplete = ({
@@ -16,6 +17,7 @@ const ProductAutocomplete = ({
     onClear,
     activeOnly = false,
     initialName = "",
+    resetKey = 0,
 }: ProductAutocompleteProps) => {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(false);
@@ -30,7 +32,7 @@ const ProductAutocomplete = ({
         setSelectedProduct(null);
         setShowDropdown(false);
         setSelectedIndex(0);
-    }, [initialName]);
+    }, [initialName, resetKey]);
 
     useEffect(() => {
         if (searchTerm.length > 1 && !selectedProduct) {

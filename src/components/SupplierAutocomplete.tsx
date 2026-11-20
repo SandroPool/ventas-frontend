@@ -7,9 +7,10 @@ interface SupplierAutocompleteProps {
     onSelect: (supplier: Supplier) => void;
     onClear?: () => void;
     value?: Pick<Supplier, "id_supplier" | "name" | "ruc"> | null;
+    resetKey?: number;
 }
 
-const SupplierAutocomplete = ({ onSelect, onClear, value = null }: SupplierAutocompleteProps) => {
+const SupplierAutocomplete = ({ onSelect, onClear, value = null, resetKey = 0 }: SupplierAutocompleteProps) => {
     const { fetchSuppliers, suppliers, loading } = useSupplierStore();
     const [searchTerm, setSearchTerm] = useState("");
     const [showDropdown, setShowDropdown] = useState(false);
@@ -22,7 +23,7 @@ const SupplierAutocomplete = ({ onSelect, onClear, value = null }: SupplierAutoc
         setSearchTerm(value?.name ?? "");
         setShowDropdown(false);
         setSelectedIndex(0);
-    }, [value]);
+    }, [value, resetKey]);
 
     useEffect(() => {
         if (searchTerm.length > 1 && !selectedSupplier) {

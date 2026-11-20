@@ -3,8 +3,10 @@ import { toast } from "react-hot-toast";
 import {
     getProductReceptions,
     createProductReception,
+    createProductReceptionBatch,
     updateProductReception
 } from "../services/reception.service";
+import type { ReceptionBatchPayload } from "../services/reception.service";
 
 export interface ProductReceptions {
     id_reception: number;
@@ -39,6 +41,7 @@ interface ReceptionState {
     loading: boolean;
     fetchProductReceptions: (page?: number, limit?: number, searchTerm?: string, dateFrom?: string, dateTo?: string) => Promise<void>;
     addProductReception: (reception: Omit<ProductReceptions, "id_reception" | "createdAt" | "updatedAt" | "product_name" | "price" | "supplier_name" | "user_name">) => Promise<void>;
+    addProductReceptionBatch: (reception: ReceptionBatchPayload) => Promise<boolean>;
     editProductReception: (id: number, reception: Partial<ProductReceptions>) => Promise<void>;
 }
 
@@ -87,6 +90,29 @@ export const useReceptionStore = create<ReceptionState>((set) => ({
             toast.error("Error al crear recepción");
         }
         set({ loading: false });
+    },
+
+    addProductReceptionBatch: async (reception) => {
+        const { fetchProductReceptions, paginationReception, currentSearchTerm, currentDateFrom, currentDateTo } = useReceptionStore.getState();
+        set({ loading: true });
+        try {
+            await createProductReceptionBatch(reception);
+            toast.success(`${reception.items.length} producto(s) recibido(s) correctamente`);
+            await fetchProductReceptions(
+                paginationReception?.page ?? 1,
+                paginationReception?.limit ?? 10,
+                currentSearchTerm,
+                currentDateFrom,
+                currentDateTo,
+            );
+            return true;
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Error al registrar las recepciones";
+            toast.error(message);
+            return false;
+        } finally {
+            set({ loading: false });
+        }
     },
 
     editProductReception: async (id, reception) => {

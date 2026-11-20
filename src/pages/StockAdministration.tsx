@@ -1,7 +1,7 @@
 import { FC, JSX, useEffect, useRef, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArchiveX, ChevronLeft, ChevronRight, ImageOff, LoaderPinwheel, Search, ShoppingCart } from "lucide-react";
-import { ButtonFuturistic, DateRangePicker, InputFuturistic, ModalFuturistic, TitleFuturistic } from "../components";
+import { ButtonFuturistic, InputFuturistic, ModalFuturistic, TitleFuturistic } from "../components";
 import { STOCK_PAGE_SIZE, StockItem } from "../services/stock.service";
 import { useStockAdministration } from "../hooks/useStockAdministration";
 
@@ -55,8 +55,6 @@ const StockAdministration: FC = (): JSX.Element => {
     const navigate = useNavigate();
     const { stock, paginationStock, loading, fetchStock } = useStockAdministration();
     const [searchTerm, setSearchTerm] = useState("");
-    const [dateFrom, setDateFrom] = useState("");
-    const [dateTo, setDateTo] = useState("");
     const [selectedProduct, setSelectedProduct] = useState<StockItem | null>(null);
     const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -73,19 +71,19 @@ const StockAdministration: FC = (): JSX.Element => {
         setSearchTerm(value);
         clearSearchTimeout();
         searchTimeoutRef.current = setTimeout(() => {
-            fetchStock(1, STOCK_PAGE_SIZE, value, dateFrom, dateTo);
+            fetchStock(1, STOCK_PAGE_SIZE, value);
         }, 300);
     };
 
     const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         clearSearchTimeout();
-        fetchStock(1, STOCK_PAGE_SIZE, searchTerm, dateFrom, dateTo);
+        fetchStock(1, STOCK_PAGE_SIZE, searchTerm);
     };
 
     const handlePageChange = (page: number) => {
         clearSearchTimeout();
-        fetchStock(page, STOCK_PAGE_SIZE, searchTerm, dateFrom, dateTo);
+        fetchStock(page, STOCK_PAGE_SIZE, searchTerm);
     };
 
     return (
@@ -97,7 +95,7 @@ const StockAdministration: FC = (): JSX.Element => {
                 </p>
             </div>
 
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
                 <form onSubmit={handleSearchSubmit} className="relative w-full sm:max-w-xl">
                     <InputFuturistic
                         type="search"
@@ -108,23 +106,6 @@ const StockAdministration: FC = (): JSX.Element => {
                         icon={Search}
                     />
                 </form>
-                <DateRangePicker
-                    label="Filtrar inventario por fecha de vencimiento"
-                    dateFrom={dateFrom}
-                    dateTo={dateTo}
-                    onRangeSelect={(from, to) => {
-                        setDateFrom(from);
-                        setDateTo(to);
-                        clearSearchTimeout();
-                        fetchStock(1, STOCK_PAGE_SIZE, searchTerm, from, to);
-                    }}
-                    onClear={() => {
-                        setDateFrom("");
-                        setDateTo("");
-                        clearSearchTimeout();
-                        fetchStock(1, STOCK_PAGE_SIZE, searchTerm, "", "");
-                    }}
-                />
             </div>
 
             {loading && stock.length === 0 ? (
@@ -136,11 +117,9 @@ const StockAdministration: FC = (): JSX.Element => {
                 <div className="flex min-h-64 flex-col items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white text-gray-500 dark:border-dark-border dark:bg-dark-card dark:text-dark-muted">
                     <ArchiveX size={36} />
                     <p className="text-center" aria-live="polite">
-                        {dateFrom && dateTo
-                            ? "No hay productos con vencimiento en el período seleccionado."
-                            : searchTerm
-                                ? "No existe el producto buscado."
-                                : "Aún no hay productos para mostrar."}
+                        {searchTerm
+                            ? "No existe el producto buscado."
+                            : "Aún no hay productos para mostrar."}
                     </p>
                 </div>
             ) : (

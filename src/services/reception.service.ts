@@ -2,6 +2,16 @@ import { ProductReceptions } from '../store/useReceptionStore';
 import { fetchWithAuth } from "./auth.service";
 const API_URL_PRODUCT_RECEPTIONS = `${import.meta.env.VITE_BASE_URL}/receptions`;
 
+export interface ReceptionBatchPayload {
+    date: string;
+    items: Array<{
+        id_product: number;
+        id_supplier: number;
+        quantity: number;
+        purchase_price: number;
+    }>;
+}
+
 // Obtener todas las recepciones con paginación y búsqueda
 export const getProductReceptions = async (
     page: number = 1,
@@ -50,6 +60,20 @@ export const createProductReception = async (reception: Omit<ProductReceptions, 
         console.error("Error en createProductReception:", error);
         return null;
     }
+};
+
+export const createProductReceptionBatch = async (reception: ReceptionBatchPayload) => {
+    const response = await fetchWithAuth(`${API_URL_PRODUCT_RECEPTIONS}/batch`, {
+        method: "POST",
+        body: JSON.stringify(reception),
+    });
+
+    if (!response.ok) {
+        const result = await response.json() as { error?: string };
+        throw new Error(result.error ?? "Error al registrar las recepciones");
+    }
+
+    return await response.json();
 };
 
 // Actualizar una recepción existente

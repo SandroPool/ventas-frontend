@@ -2,6 +2,7 @@ import { openDB } from 'idb';
 
 const DB_NAME = 'invoiceConfig';
 const STORE_NAME = 'company';
+export const COMPANY_NAME_UPDATED_EVENT = 'company-name-updated';
 
 const getDB = async () => {
     return openDB(DB_NAME, 1, {
@@ -16,6 +17,7 @@ const getDB = async () => {
 export const saveCompanyName = async (name: string) => {
     const db = await getDB();
     await db.put(STORE_NAME, name, 'name');
+    window.dispatchEvent(new Event(COMPANY_NAME_UPDATED_EVENT));
 };
 
 export const saveCompanyLogo = async (base64: string) => {

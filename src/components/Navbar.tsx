@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
+import { COMPANY_NAME_UPDATED_EVENT, getCompanyName } from "../utils/companyConfig";
 import ThemeToggle from "./ThemeToggle";
 import { LogOut, ChevronDown, HandCoins, User, Menu, X } from "lucide-react";
 
@@ -8,9 +9,26 @@ const Navbar = ({ sidebarOpen, onToggleSidebar }: { sidebarOpen: boolean; onTogg
     const { user, logout } = useAuthStore();
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
+    const [companyName, setCompanyName] = useState("");
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        let isCurrent = true;
+        const loadCompanyName = async () => {
+            try {
+                const name = await getCompanyName();
+                if (isCurrent) setCompanyName(name);
+            } catch (error) {
+                console.error("Error al cargar el nombre de la empresa:", error);
+            }
+        };
+
+        const handleCompanyNameUpdated = () => {
+            void loadCompanyName();
+        };
+        void loadCompanyName();
+        window.addEventListener(COMPANY_NAME_UPDATED_EVENT, handleCompanyNameUpdated);
+
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
@@ -18,7 +36,11 @@ const Navbar = ({ sidebarOpen, onToggleSidebar }: { sidebarOpen: boolean; onTogg
         };
 
         document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        return () => {
+            isCurrent = false;
+            window.removeEventListener(COMPANY_NAME_UPDATED_EVENT, handleCompanyNameUpdated);
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
     }, []);
 
     const handleLogout = () => {
@@ -43,7 +65,7 @@ const Navbar = ({ sidebarOpen, onToggleSidebar }: { sidebarOpen: boolean; onTogg
                     </button>
                     <NavLink to="/dashboard" className="flex items-center gap-2">
                         <HandCoins size={28} className="text-white" />
-                        <span className="text-lg font-bold text-white dark:text-dark-primary">Ventas App</span>
+                        <span className="text-lg font-bold text-white dark:text-dark-primary">{companyName || "Ventas App"}</span>
                     </NavLink>
                 </div>
 

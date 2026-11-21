@@ -23,7 +23,12 @@ const SuppliersAdministration = () => {
 
             <div>
                 <ButtonFuturistic label="Añadir Proveedor" icon={Plus} onClick={() => setIsAddSupplierModalOpen(true)} />
-                <ModalFuturistic isOpen={isAddSupplierModalOpen} onClose={() => setIsAddSupplierModalOpen(false)} title="Agregar Proveedor">
+                <ModalFuturistic 
+                isOpen={isAddSupplierModalOpen} 
+                onClose={() => setIsAddSupplierModalOpen(false)} 
+                title="Agregar Proveedor"
+                closeButtonVariant="circle"
+                >
                     <InputFuturistic label="Nombre" placeholder="Nombre" value={newSupplier.name} onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })} />
                     <InputFuturistic label="RUC" placeholder="RUC" value={newSupplier.ruc} onChange={(e) => setNewSupplier({ ...newSupplier, ruc: e.target.value })} />
                     <InputFuturistic label="Dirección" placeholder="Dirección" value={newSupplier.address} onChange={(e) => setNewSupplier({ ...newSupplier, address: e.target.value })} />
@@ -78,7 +83,12 @@ const SuppliersAdministration = () => {
                     emptyStateText="No hay proveedores para mostrar."
                     searchEmptyStateText="No existe el proveedor buscado."
                 />
-                <ModalFuturistic isOpen={isEditSupplierModalOpen} onClose={() => setIsEditSupplierModalOpen(false)} title="Editar Proveedor">
+                <ModalFuturistic 
+                isOpen={isEditSupplierModalOpen} 
+                onClose={() => setIsEditSupplierModalOpen(false)} 
+                title="Editar Proveedor"
+                closeButtonVariant="circle"
+                >
                     {editingSupplier && (
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <InputFuturistic label="Nombre" value={editingSupplier.name} onChange={(e) => setEditingSupplier({ ...editingSupplier, name: e.target.value })} />

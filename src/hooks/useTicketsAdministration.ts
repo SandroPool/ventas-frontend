@@ -37,7 +37,6 @@ export const useTicketsAdministration = () => {
     const [returnLoading, setReturnLoading] = useState(false);
     const [saleReturns, setSaleReturns] = useState<any[]>([]);
     const [returnsViewOpen, setReturnsViewOpen] = useState(false);
-    const [saleDetailOpen, setSaleDetailOpen] = useState(false);
 
     const handleSaveConfig = async () => {
         setIsSavingConfig(true);
@@ -50,10 +49,10 @@ export const useTicketsAdministration = () => {
             }
             setLogoFile(null);
             setIsConfigModalOpen(false);
-            toast.success("Boleta actualizada con éxito");
+            toast.success("Nota de venta actualizada con éxito");
         } catch (error) {
-            console.error("Error al guardar la configuración de la boleta:", error);
-            toast.error(error instanceof Error ? error.message : "No se pudo guardar la configuración de la boleta");
+            console.error("Error al guardar la configuración de la nota de venta:", error);
+            toast.error(error instanceof Error ? error.message : "No se pudo guardar la configuración de la nota de venta");
         } finally {
             setIsSavingConfig(false);
         }
@@ -74,9 +73,9 @@ export const useTicketsAdministration = () => {
                 setLogoPreview(savedLogo || null);
                 setLogoFile(null);
             } catch (error) {
-                console.error("Error al cargar la configuración de la boleta:", error);
+                console.error("Error al cargar la configuración de la nota de venta:", error);
                 if (isCurrent) {
-                    toast.error("No se pudo cargar la configuración de la boleta");
+                    toast.error("No se pudo cargar la configuración de la nota de venta");
                 }
             }
         };
@@ -162,11 +161,6 @@ export const useTicketsAdministration = () => {
         setReturnsViewOpen(true);
     };
 
-    const viewSaleDetail = (sale: any) => {
-        setSelectedSale(sale);
-        setSaleDetailOpen(true);
-    };
-
     return {
         sales, paginationSales, loadingSale, fetchSales,
         searchTerm, setSearchTerm,
@@ -184,13 +178,11 @@ export const useTicketsAdministration = () => {
         returnLoading,
         saleReturns,
         returnsViewOpen, setReturnsViewOpen,
-        saleDetailOpen, setSaleDetailOpen,
         handleSaveConfig,
         openReturnModal,
         handleFullCancel,
         updateReturnQty,
         handleConfirmReturn,
         viewReturns,
-        viewSaleDetail,
     };
 };

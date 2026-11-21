@@ -69,7 +69,12 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
             />
 
             <div className="lg:w-3/4 w-full">
-            <ModalFuturistic isOpen={isAddProductReceptionModalOpen} onClose={() => setIsAddProductReceptionModalOpen(false)} title="Nuevo Inventario">
+            <ModalFuturistic 
+            isOpen={isAddProductReceptionModalOpen} 
+            onClose={() => setIsAddProductReceptionModalOpen(false)} 
+            title="Nuevo Inventario"
+            closeButtonVariant="circle"
+            >
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
                     <div className="md:col-span-2">
                         <DatePickerFuturistic
@@ -194,7 +199,12 @@ const ReceptionsAdministration: FC = (): JSX.Element => {
             </div>
 
             <div className="lg:w-3/4 w-full">
-            <ModalFuturistic isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Editar Recepción">
+            <ModalFuturistic 
+            isOpen={isEditModalOpen} 
+            onClose={() => setIsEditModalOpen(false)} 
+            title="Editar Recepción"
+            closeButtonVariant="circle"
+            >
                 {editedReception && (
                     <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
                         <ProductAutocomplete

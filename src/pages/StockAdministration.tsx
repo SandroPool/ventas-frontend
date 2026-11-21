@@ -212,6 +212,7 @@ const StockAdministration: FC = (): JSX.Element => {
                 onClose={() => setSelectedProduct(null)}
                 title={selectedProduct?.name}
                 className="max-w-4xl"
+                closeButtonVariant="circle"
             >
                 {selectedProduct && (
                     <div className="grid gap-6 md:grid-cols-2">

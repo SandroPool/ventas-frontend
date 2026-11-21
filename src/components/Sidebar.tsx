@@ -78,7 +78,7 @@ const Sidebar = ({
             items: [
                 { to: "/customers", label: "Clientes", Icon: Speech },
                 { to: "/sales", label: "Registrar venta", Icon: ShoppingBasket },
-                { to: "/tickets", label: "Boletas", Icon: Dock },
+                { to: "/tickets", label: "Notas de venta", Icon: Dock },
             ],
         },
         ...(isAdminOrRoot

@@ -5,7 +5,7 @@ import {
     ButtonFuturistic, ModalFuturistic, TitleFuturistic,
     TableFuturistic, InputFuturistic, ImageUpload, DateRangePicker
 } from "../components";
-import { Download, DockIcon, LoaderPinwheel, SaveAllIcon, Settings2Icon, RotateCcw, Eye, Receipt, CircleX } from "lucide-react";
+import { Download, DockIcon, LoaderPinwheel, SaveAllIcon, Settings2Icon, RotateCcw, Eye, CircleX } from "lucide-react";
 import generatePDF from "../utils/generatePDF";
 import { formatDate } from "../utils/functionDate";
 import type { Sale } from "../services/sales.service";
@@ -24,7 +24,7 @@ const getPDFFileName = (sale: Sale) => {
         .replace(/^_+|_+$/g, "")
         .toUpperCase();
 
-    return `BOLETA_${customerName || "SIN_CLIENTE"}.pdf`;
+    return `NOTA_DE_VENTA_${customerName || "SIN_CLIENTE"}.pdf`;
 };
 
 const TicketsAdministration = () => {
@@ -48,14 +48,12 @@ const TicketsAdministration = () => {
         returnLoading,
         saleReturns,
         returnsViewOpen, setReturnsViewOpen,
-        saleDetailOpen, setSaleDetailOpen,
         handleSaveConfig,
         openReturnModal,
         handleFullCancel,
         updateReturnQty,
         handleConfirmReturn,
         viewReturns,
-        viewSaleDetail,
     } = useTicketsAdministration();
     const [pageSize, setPageSize] = useState(10);
 
@@ -72,8 +70,8 @@ const TicketsAdministration = () => {
             setPdfPreviewUrl(URL.createObjectURL(pdfBlob));
             setPdfPreviewSale(sale);
         } catch (error) {
-            console.error("Error al generar la vista previa de la boleta:", error);
-            toast.error("No se pudo generar la vista previa de la boleta");
+            console.error("Error al generar la vista previa de la nota de venta:", error);
+            toast.error("No se pudo generar la vista previa de la nota de venta");
         } finally {
             setIsGeneratingPdf(false);
         }
@@ -81,12 +79,12 @@ const TicketsAdministration = () => {
 
     return (
         <div className="lg:pr-10 lg:pl-10 lg:pt-5 space-y-8">
-            <TitleFuturistic as="h1">Gestión de Boletas</TitleFuturistic>
+            <TitleFuturistic as="h1">Gestión de Notas de Venta</TitleFuturistic>
 
             <ButtonFuturistic
                 gradient="bg-teal-500"
                 icon={Settings2Icon}
-                label="Configurar Boleta"
+                label="Configurar Nota de Venta"
                 onClick={() => setIsConfigModalOpen(true)}
             />
 
@@ -94,7 +92,8 @@ const TicketsAdministration = () => {
             <ModalFuturistic
                 isOpen={isConfigModalOpen}
                 onClose={() => setIsConfigModalOpen(false)}
-                title="Editar Boleta"
+                title="Editar Nota de Venta"
+                closeButtonVariant="circle"
             >
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="md:col-span-2">
@@ -133,11 +132,11 @@ const TicketsAdministration = () => {
             </div>
 
             <section
-                aria-label="Resumen de boletas"
+                aria-label="Resumen de notas de venta"
                 className="grid grid-cols-1 gap-4 sm:grid-cols-2"
             >
                 <article className="rounded-xl border border-teal-100 bg-white p-4 shadow-sm dark:border-dark-border dark:bg-dark-card">
-                    <p className="text-sm font-medium text-gray-500 dark:text-dark-secondary">Boletas encontradas</p>
+                    <p className="text-sm font-medium text-gray-500 dark:text-dark-secondary">Notas de venta encontradas</p>
                     <p className="mt-1 text-2xl font-bold text-gray-800 dark:text-dark-primary">
                         {loadingSale ? "..." : (paginationSales?.total ?? 0)}
                     </p>
@@ -149,7 +148,7 @@ const TicketsAdministration = () => {
                         {loadingSale ? "..." : `S/ ${sales.reduce((sum, sale) => sum + (sale.total ?? 0), 0).toFixed(2)}`}
                     </p>
                     <p className="mt-1 text-xs text-gray-400 dark:text-dark-muted">
-                        Suma de las {sales.length} boletas de esta página
+                        Suma de las {sales.length} notas de venta de esta página
                     </p>
                 </article>
             </section>
@@ -205,20 +204,11 @@ const TicketsAdministration = () => {
                 actions={(sale) => (
                     <div className="flex gap-1">
                         <ButtonFuturistic
-                            gradient="bg-gradient-to-r from-teal-600 to-emerald-500"
-                            icon={Receipt}
-                            label="Ver"
-                            title="Ver detalle de la boleta"
-                            aria-label="Ver detalle de la boleta"
-                            className="!m-0 !px-2 !py-2 text-xs"
-                            onClick={() => viewSaleDetail(sale)}
-                        />
-                        <ButtonFuturistic
                             gradient="bg-gradient-to-r from-red-600 to-rose-500"
                             icon={isGeneratingPdf ? LoaderPinwheel : DockIcon}
                             label={isGeneratingPdf ? "Generando..." : "Previsualizar"}
-                            title="Previsualizar boleta en PDF"
-                            aria-label="Previsualizar boleta en PDF"
+                            title="Previsualizar nota de venta en PDF"
+                            aria-label="Previsualizar nota de venta en PDF"
                             className="!m-0 !px-2 !py-2 text-xs"
                             disabled={isGeneratingPdf}
                             onClick={() => handlePreviewPDF(sale)}
@@ -246,8 +236,8 @@ const TicketsAdministration = () => {
                     </div>
                 )}
                 loading={loadingSale}
-                emptyStateText="No hay boletas para mostrar."
-                searchEmptyStateText="No existe la boleta buscada."
+                emptyStateText="No hay notas de venta para mostrar."
+                searchEmptyStateText="No existe la nota de venta buscada."
             />
 
             <div className="lg:w-3/4 w-full">
@@ -265,7 +255,7 @@ const TicketsAdministration = () => {
                     <div>
                         <iframe
                             src={pdfPreviewUrl}
-                            title={`Vista previa PDF de la boleta ${pdfPreviewSale.operation_number}`}
+                            title={`Vista previa PDF de la nota de venta ${pdfPreviewSale.operation_number}`}
                             className="h-[65vh] w-full border-0 bg-white"
                         />
                         <div className="flex justify-end p-4">
@@ -285,7 +275,7 @@ const TicketsAdministration = () => {
             </div>
 
             <div className="lg:w-3/4 w-full">
-            <ModalFuturistic isOpen={returnModalOpen} onClose={() => setReturnModalOpen(false)} title="Registrar Devoluci&oacute;n" className="max-w-2xl">
+            <ModalFuturistic isOpen={returnModalOpen} onClose={() => setReturnModalOpen(false)} title="Registrar Devoluciones" className="max-w-2xl" closeButtonVariant="circle">
                 {selectedSale && (
                     <div className="space-y-6">
                         <div className="grid grid-cols-2 gap-4">
@@ -361,92 +351,6 @@ const TicketsAdministration = () => {
             </div>
 
             <div className="lg:w-3/4 w-full">
-            <ModalFuturistic isOpen={saleDetailOpen} onClose={() => setSaleDetailOpen(false)} title="" closeButtonVariant="circle" className="max-w-2xl">
-                {selectedSale && (
-                    <div className="-m-6">
-                        <div className="bg-gray-800 dark:bg-gray-900 px-6 pr-14 py-5 rounded-t-lg">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-teal-400 text-2xl font-bold tracking-wider uppercase">Boleta de Venta</p>
-                                    <p className="text-gray-400 text-xs mt-1">{formatDate(selectedSale.date)}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-teal-400 font-bold text-lg">{selectedSale.operation_number}</p>
-                                    <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
-                                        selectedSale.status === "FULLY_RETURNED" ? "bg-red-500/20 text-red-400" :
-                                        selectedSale.status === "PARTIALLY_RETURNED" ? "bg-yellow-500/20 text-yellow-400" :
-                                        "bg-green-500/20 text-green-400"
-                                    }`}>
-                                        {selectedSale.status === "FULLY_RETURNED" ? "Anulada" :
-                                         selectedSale.status === "PARTIALLY_RETURNED" ? "Dev. parcial" :
-                                         "Completada"}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="px-6 pt-4 pb-3 border-b border-gray-200 dark:border-dark-border">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">Emitido a</p>
-                                    <p className="text-sm font-bold text-gray-800 dark:text-dark-primary mt-0.5">
-                                        {selectedSale.customer?.name} {selectedSale.customer?.first_surname} {selectedSale.customer?.second_surname}
-                                    </p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">Pago</p>
-                                    <p className="text-sm font-bold text-gray-800 dark:text-dark-primary mt-0.5">{selectedSale.payment_method}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="px-6 py-4">
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="text-gray-400 dark:text-gray-500 border-b border-gray-200 dark:border-dark-border">
-                                        <th className="text-left py-2 font-semibold uppercase text-xs tracking-wider">Producto</th>
-                                        <th className="text-center py-2 font-semibold uppercase text-xs tracking-wider">Cant.</th>
-                                        <th className="text-right py-2 font-semibold uppercase text-xs tracking-wider">P. Unit.</th>
-                                        <th className="text-right py-2 font-semibold uppercase text-xs tracking-wider">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {selectedSale.details?.map((d: any, i: number) => (
-                                        <tr key={i} className="border-b border-gray-100 dark:border-dark-border/50">
-                                            <td className="py-2.5 text-gray-800 dark:text-dark-primary font-medium">{d.product?.name}</td>
-                                            <td className="py-2.5 text-center text-gray-600 dark:text-gray-300">{d.quantity}</td>
-                                            <td className="py-2.5 text-right text-gray-600 dark:text-gray-300">S/ {d.unit_price.toFixed(2)}</td>
-                                            <td className="py-2.5 text-right font-semibold text-gray-800 dark:text-dark-primary">S/ {(d.quantity * d.unit_price).toFixed(2)}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                                <tfoot>
-                                    <tr className="border-t-2 border-gray-300 dark:border-dark-border">
-                                        <td colSpan={3} className="py-3 text-right font-bold text-gray-700 dark:text-dark-primary uppercase tracking-wider text-sm">Total</td>
-                                        <td className="py-3 text-right font-bold text-teal-600 dark:text-teal-400 text-lg">S/ {selectedSale.total?.toFixed(2)}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-
-                        <div className="px-6 pb-4 border-b border-gray-200 dark:border-dark-border">
-                            <p className="text-xs text-gray-400 dark:text-gray-500">
-                                N&deg; Operaci&oacute;n: <span className="font-semibold text-gray-600 dark:text-gray-300">{selectedSale.operation_number}</span>
-                            </p>
-                        </div>
-
-                        <div className="px-6 pt-4 pb-5 text-center">
-                            <p className="text-xs text-gray-400">
-                                Generado el {new Date().toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' })}
-                            </p>
-                        </div>
-                    </div>
-                )}
-            </ModalFuturistic>
-            </div>
-
-            
-            <div className="lg:w-3/4 w-full">
             <ModalFuturistic isOpen={returnsViewOpen} onClose={() => setReturnsViewOpen(false)} title="" closeButtonVariant="circle" className="max-w-2xl">
                 {selectedSale && (
                     <div className="-m-6">
@@ -454,7 +358,7 @@ const TicketsAdministration = () => {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-teal-400 text-2xl font-bold tracking-wider uppercase">Devoluciones</p>
-                                    <p className="text-gray-400 text-xs mt-1">Boleta de devoluci&oacute;n</p>
+                                    <p className="text-gray-400 text-xs mt-1">Devoluci&oacute;n de nota de venta</p>
                                 </div>
                                 <p className="text-teal-400 font-bold text-lg">{selectedSale.operation_number}</p>
                             </div>

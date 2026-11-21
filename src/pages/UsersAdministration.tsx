@@ -119,7 +119,12 @@ const UsersAdministration: FC = (): JSX.Element => {
                 }}
             />
 
-            <ModalFuturistic isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Editar Usuario">
+            <ModalFuturistic 
+            isOpen={isEditModalOpen} 
+            onClose={() => setIsEditModalOpen(false)} 
+            title="Editar Usuario"
+            closeButtonVariant="circle"
+            >
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <InputFuturistic label="Nombre" type="text" placeholder="nombre:" name="name" value={formData.name} onChange={handleInputChange} />
                     <InputFuturistic label="Correo Electrónico" type="email" placeholder="email@example.com" name="email" value={formData.email} onChange={handleInputChange} />
@@ -157,7 +162,12 @@ const UsersAdministration: FC = (): JSX.Element => {
                 </div>
             </ModalFuturistic>
 
-            <ModalFuturistic isOpen={isRegisterModalOpen} onClose={() => setIsRegisterModalOpen(false)} title="Registrar Nuevo Usuario">
+            <ModalFuturistic 
+            isOpen={isRegisterModalOpen} 
+            onClose={() => setIsRegisterModalOpen(false)} 
+            title="Registrar Nuevo Usuario"
+            closeButtonVariant="circle"
+            >
                 <div className="flex flex-col gap-3">
                     <InputFuturistic label="Nombre" type="text" placeholder="nombre:" name="name" value={formData.name} onChange={handleInputChange} />
                     <InputFuturistic label="Correo Electrónico" type="email" placeholder="email@example.com" name="email" value={formData.email} onChange={handleInputChange} />

@@ -70,6 +70,7 @@ const CustomersAdministration = () => {
                 isOpen={isAddCustomerModalOpen}
                 onClose={() => setIsAddCustomerModalOpen(false)}
                 title="Añadir Cliente"
+                closeButtonVariant="circle"
             >
                 <InputFuturistic
                     label="Nombre"
@@ -123,6 +124,7 @@ const CustomersAdministration = () => {
                 isOpen={isEditCustomerModalOpen}
                 onClose={() => setIsEditCustomerModalOpen(false)}
                 title="Editar Cliente"
+                closeButtonVariant="circle"
             >
                 {editingCustomer && (
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

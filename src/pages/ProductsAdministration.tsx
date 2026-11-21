@@ -89,7 +89,10 @@ const ProductsAdministration = () => {
                     <ModalFuturistic isOpen={isProductModalOpen} onClose={() => {
                         setIsProductModalOpen(false);
                         setNewProductImage(null);
-                    }} title="Crear Nuevo Producto">
+                    }} 
+                    title="Crear Nuevo Producto"
+                    closeButtonVariant="circle"
+                    >
                         <InputFuturistic label="Nombre" placeholder="nombre: " maxLength={100} value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
                         <TextareaFuturistic label="Descripción" placeholder="Descripción" icon={Text} maxLength={500} value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} />
                         <InputFuturistic label="Precio" placeholder="precio: " icon={Banknote} type="number" min="0" step="0.01" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} />
@@ -218,6 +221,7 @@ const ProductsAdministration = () => {
                     setEditingProductImage(null);
                 }}
                 title="Editar Producto"
+                closeButtonVariant="circle"
             >
                 {editingProduct && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start pt-1">
@@ -284,6 +288,7 @@ const ProductsAdministration = () => {
                     onClose={closeCategoryManager}
                     title="Gestionar categorías"
                     className="max-w-xl"
+                    closeButtonVariant="circle"
                 >
                     <div
                         className="rounded-lg bg-white p-4 shadow-md dark:bg-dark-card"

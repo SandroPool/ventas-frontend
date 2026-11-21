@@ -36,7 +36,7 @@ const generatePDF = async (sale: Sale) => {
     // Invoice Details
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(24);
-    doc.text("BOLETA", pageWidth - 15, 25, { align: "right" });
+    doc.text("NOTA DE VENTA", pageWidth - 15, 25, { align: "right" });
     doc.setFontSize(12);
     doc.text(`Fecha: ${formatDate(sale.date)}`, pageWidth - 15, 45, { align: "right" });
 
@@ -48,10 +48,13 @@ const generatePDF = async (sale: Sale) => {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
     doc.text(`${sale.customer?.name || "N/A"}, ${sale.customer?.first_surname || ""} ${sale.customer?.second_surname || ""}`, 15, 88);
+    doc.setFontSize(10);
+    doc.text(`N.° de operación: ${sale.operation_number}`, 15, 98);
+    doc.text(`Método de pago: ${sale.payment_method}`, 15, 104);
 
     // Items Table
     autoTable(doc, {
-        startY: 100,
+        startY: 112,
         head: [["Cant.", "Descripcion", "P. Unit.", "Importe"]],
         body: sale.details.map((detail) => [
             detail?.quantity,
@@ -110,18 +113,27 @@ const generatePDF = async (sale: Sale) => {
             lineColor: [0, 0, 0],
             lineWidth: 0,
         },
-        margin: { top: 15, right: 15, bottom: 15, left: 15 }
+        margin: { top: 15, right: 15, bottom: 28, left: 15 }
     });
 
-    // Footer
+    const generatedAt = new Date();
     doc.setTextColor(128, 128, 128);
     doc.setFontSize(8);
-    doc.text(
-        `Generado el ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
-        pageWidth / 2,
-        doc.internal.pageSize.height - 10,
-        { align: "center" }
-    );
+    for (let page = 1; page <= doc.getNumberOfPages(); page += 1) {
+        doc.setPage(page);
+        doc.text(
+            "Documento de control interno — No válido como comprobante de pago",
+            pageWidth / 2,
+            doc.internal.pageSize.height - 18,
+            { align: "center" }
+        );
+        doc.text(
+            `Generado el ${generatedAt.toLocaleDateString()} ${generatedAt.toLocaleTimeString()}`,
+            pageWidth / 2,
+            doc.internal.pageSize.height - 10,
+            { align: "center" }
+        );
+    }
 
     return doc.output("blob");
 };

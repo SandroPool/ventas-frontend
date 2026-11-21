@@ -34,7 +34,7 @@ const DateRangePicker = ({
     dateTo,
     onRangeSelect,
     onClear,
-    label = "Filtrar boletas por fechas",
+    label = "Filtrar notas de venta por fechas",
 }: DateRangePickerProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [pendingStart, setPendingStart] = useState<string | null>(null);
